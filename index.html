@@ -1,0 +1,171 @@
+<html>
+    <head>
+<script type="text/javascript" src="proccesing.js"></script>
+    </head>
+    <body>
+      <script type="text/processing">
+        int[] rn=new int[11];
+int[] ln=new int[11];
+float[][] xy={{200,200},{50,100},{300,50}};
+int[] a={2,2,2};
+int[] xx=new int[3];
+int x=200;
+int v=9;
+int vs=0;
+int m=0;
+int score=0;
+int num=60;
+boolean boo=false;
+PFont p;
+
+void setup(){
+  size(400,800);
+  frameRate(20);
+  p=createFont("crewniverse_font.otf",20);
+  textFont(p);
+}
+
+void draw(){
+  if(boo==false){
+    background(0);
+    fill(#3642A2);
+    textSize(40);
+    text("GELAGA",100,200);
+    
+    textSize(14);
+    text("press left to move left",70,290);
+    text("press right to move right",70,320);
+    text("press spaceship to shoot",70,350);
+    textSize(20);
+    text("click to start",100,400);
+    noLoop();
+    if(mousePressed){
+      boo=true;
+    loop();
+    }
+  }
+  else if(boo==true){
+  background(0);
+  noStroke();
+  for(int q=1;q<=19;q++){
+   for(int p=1;p<=40;p++){
+     fill(255);
+     ellipse(20*q+random(-1,1),(20*p+vs)%800+random(-1,1),2,2);
+   }
+  }
+  vs=vs+1+round(((v-9)%14)/2);                 //star velocity
+  fill(255);
+  rectMode(CORNER);
+  rect(20,20,width-40,40);
+  fill(#FC03E4);
+  rect(23,23,score*20,34);
+  
+  
+   for(int i=1;i<=10;i++){
+      
+    if(rn[i]!=0){
+    ln[i]=ln[i]-2*v;
+    fill(#3642A2);
+    ellipse(rn[i],ln[i],12,20);     //draw bullet
+    
+    for(int j=0;j<xy.length;j++){
+     if(dist(rn[i],ln[i],xy[j][0],xy[j][1])<=25){    //if bullet hits the enemy
+      
+      a[j]--;
+      rn[i]=0;
+      ln[i]=700;
+      
+      if(a[j]==0){                                          //if bullet hits twice
+      score++;
+      bomb(xy[j][0],xy[j][1]);
+      if(score%3==2){
+      v+=2;
+      }
+      xy[j][0]=xy[j][0]+random(-30,30);
+      xy[j][1]=-30;
+      a[j]=2;
+      noLoop();
+      }
+      loop();
+     }
+     if(xy[j][1]>=height){                         //if enemy disappears
+      xy[j][0]=xy[j][0]+random(-30,30);
+      xy[j][1]=-30;
+      a[j]=2;
+     }
+     if(dist(xy[j][0],xy[j][1],x,700)<40){               //if enemy hits the spaceship
+       stop();
+       background(255);
+       textSize(30);
+       text("GAME OVER",85,400);
+       textSize(20);
+       text("your score:",110,430);
+       text(score,180,460);
+     }
+    }
+ 
+    }
+   }
+   
+ 
+  
+  fill(255,0,0);                                        //draw flames
+  ellipse(x,730+vs%80,10,10);
+  ellipse(x,730+(40+vs)%80,10,10);
+   
+   
+  fill(#FA6000);
+  ellipse(x,700,30,50);                                  //draw spaceship
+  ellipse(x-40,700,18,30);
+  ellipse(x+40,700,18,30);
+  rect(x-40,700,80,4);
+  
+  
+  
+  for(int j=0;j<xy.length;j++){
+  if(a[j]>0){
+    fill(80+50*j+40*a[j],80-35*j+50*a[j],230-60*j+60*a[j]);
+    ellipse(xy[j][0],xy[j][1],50+random(-2,+2),50+random(-2,+2));    //draw enemy
+     
+    xy[j][1]+=v/3;
+  }
+  }
+  if(score>=18){
+    stop();
+    background(255);
+    textSize(40);
+    text("CLEAR",120,400+random(-2,2));
+  }
+  }
+}
+
+void mousePressed(){
+  loop();
+  if(mouseX>=x-20 && mouseX<=x+20){
+  m=(m%10)+1;
+  rn[m]=x;
+  ln[m]=700;
+  }
+  if(mouseX<x-20){
+  x=x-2*v;
+  }
+  if(mouseX>x+20){
+  x=x+2*v;
+  }
+}
+
+
+void bomb(float x,float y){
+  if(num>0){
+  fill(255,20,20);
+  ellipse(x,y,70,70);
+  num--;
+  }
+  
+}
+
+         
+    </script>
+    <canvas id="sketch"style="border: 1px solid black;"></canvas>
+    </body>
+</html>

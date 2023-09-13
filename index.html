@@ -1,0 +1,297 @@
+<html>
+    <head>
+<script type="text/javascript" src="proccesing.js"></script>
+    </head>
+    <body>
+      <script type="text/processing">
+        int[][] xy=new int[11][2];
+float[][] ab=new float[11][2];
+float[][] pq={{200,300},{900,450},{500,800}};
+float num=1;
+float v=-PI/60;
+float angle=PI/15;
+
+void setup(){
+  size(1000,1000);
+  frameRate(16);
+  
+}
+
+void draw(){
+  background(#CCDAE8);
+  for(int i=0;i<=100;i++){
+    fill(255);
+    noStroke();
+    ellipse(random(0,width),random(0,height),10,10);
+  }
+  stroke(#1D0AFF);
+  strokeWeight(1);
+  
+  xy[0][0]=pmouseX;
+  xy[0][1]=pmouseY;
+  
+  ab[0][0]=mouseX;
+  ab[0][1]=mouseY;
+  
+  
+  for(int i=1;i<=10;i++){
+  pushMatrix();
+  translate(ab[i-1][0],ab[i-1][1]);
+  rotate(0.5*PI-atan2(xy[i][0]-xy[i-1][0],xy[i][1]-xy[i-1][1]));
+  if(i>1 && i<7){
+   fill(#FFDB0A); 
+   if(i==3){
+
+     pushMatrix();
+     translate(30+20*angle,0);
+     rotate(angle/3);
+     stroke(#1D0AFF);
+     strokeWeight(3);
+     line(-20*angle,0,-15,20);        //lineleg1
+     line(-15,20,-25,20);     //lineleg2
+     line(-25,20,-31,24);     //linefeet
+     line(-25,20,-34,20);
+     line(-25,20,-31,16);
+     
+     strokeWeight(1);   //shapeleg1
+     stroke(0);
+     beginShape();
+     vertex(-20*angle,0);
+     vertex(-20*angle,5);
+     vertex(-10,20);
+     vertex(-15,20);
+     vertex(-15,15);
+     vertex(-5,0);
+     endShape(CLOSE);
+     
+     popMatrix();
+     
+     pushMatrix();
+     translate(30-20*angle,0);
+     rotate(angle/3);
+     
+     strokeWeight(3);
+     stroke(#1D0AFF);
+     line(20*angle,0,-15,-20);
+     line(-15,-20,-25,-20);
+     line(-25,-20,-31,-24);
+     line(-25,-20,-34,-20);
+     line(-25,-20,-31,-16);
+     
+     strokeWeight(1);
+     stroke(0);
+     beginShape();
+     vertex(20*angle,0);
+     vertex(20*angle,-5);
+     vertex(-10,-20);
+     vertex(-15,-20);
+     vertex(-15,-15);
+     vertex(-5,0);
+     endShape(CLOSE);
+     
+     popMatrix();
+   }
+    else if(i==5){
+  
+     pushMatrix();
+     translate(30-20*angle,0);
+     rotate(-angle/3);
+     
+     strokeWeight(3);
+     stroke(#1D0AFF);
+     line(20*angle,0,15,20);
+     line(15,20,25,20);
+     line(25,20,31,24);
+     line(25,20,34,20);
+     line(25,20,31,16);
+     
+     strokeWeight(1);
+     stroke(0);
+     beginShape();
+     vertex(20*angle,0);
+     vertex(20*angle,5);
+     vertex(10,20);
+     vertex(15,20);
+     vertex(15,15);
+     vertex(5,0);
+     endShape(CLOSE);
+     
+     popMatrix();
+     
+     pushMatrix();
+     translate(30+20*angle,0);
+     rotate(-angle/3);
+     
+     strokeWeight(3);
+     stroke(#1D0AFF);
+     line(-20*angle,0,15,-20);
+     line(15,-20,25,-20);
+     line(25,-20,31,-24);
+     line(25,-20,34,-20);
+     line(25,-20,31,-16);
+     
+     strokeWeight(1);
+     stroke(0);
+     beginShape();
+     vertex(-20*angle,0);
+     vertex(-20*angle,-5);
+     vertex(10,-20);
+     vertex(15,-20);
+     vertex(15,-15);
+     vertex(5,0);
+     endShape(CLOSE);
+     
+     popMatrix();
+   }
+   stroke(0);
+   strokeWeight(1);
+   body(30,0);
+  }
+  else if(i==1){
+  head(22,0);
+  }
+  else if(i>=7 && i<=10){
+  float s=(16-float(i))/10;
+  
+  pushMatrix();
+  scale(s);
+  tail(30,0);
+  popMatrix();
+  }
+  popMatrix();
+
+  
+  ab[i][0]=ab[i-1][0]-30*cos(0.5*PI+atan2(xy[i][0]-xy[i-1][0],xy[i][1]-xy[i-1][1]));
+  ab[i][1]=ab[i-1][1]+30*sin(0.5*PI+atan2(xy[i][0]-xy[i-1][0],xy[i][1]-xy[i-1][1]));
+
+
+
+
+}
+  
+  
+ if(pmouseX!=mouseX){
+  
+  for(int i=10;i>=1;i--){
+  xy[i][0]=xy[i-1][0];
+  xy[i][1]=xy[i-1][1]; 
+  }
+  }
+}
+
+void mouseMoved(){
+  num=num%16+1;
+   if(num==16){
+     v=-v;
+   }
+   angle=angle+v;
+}
+
+void head(int x,int y){
+  fill(#FFDB0A);
+  stroke(0);
+  beginShape();
+  vertex(x-10,y+8);
+  vertex(x-15,y+5);
+  vertex(x-17,y);
+  vertex(x-15,y-5);
+  vertex(x-10,y-8);
+  vertex(x+15,y-10);
+  vertex(x+18,y);
+  vertex(x+15,y+10);
+  endShape(CLOSE);
+  beginShape();
+  vertex(x+17,y+12);
+  vertex(x+10,y+11);
+  vertex(x+8,y+8);
+  vertex(x+8,y+4);
+  vertex(x+10,y);
+  vertex(x+8,y-4);
+  vertex(x+8,y-8);
+  vertex(x+10,y-11);
+  vertex(x+17,y-12);
+  vertex(x+20,y);
+  endShape(CLOSE);
+  
+  strokeWeight(2);
+  noFill();
+  beginShape();
+  vertex(x+17,y-12);
+  vertex(x+30,y-17);
+  vertex(x+40,y-12);
+  vertex(x+50,y-17);
+  endShape();
+  beginShape();
+  vertex(x+17,y+12);
+  vertex(x+30,y+17);
+  vertex(x+40,y+12);
+  vertex(x+50,y+17);
+  endShape();
+  
+  strokeWeight(1);
+  fill(255); 
+}
+
+void body(int x,int y){
+  fill(#FFDB0A); 
+  beginShape();
+  vertex(x-20,y+5);
+  vertex(x-15,y+3);
+  vertex(x-20,y);
+  vertex(x-15,y-3);
+  vertex(x-20,y-5);
+  vertex(x,y-10);
+  vertex(x+20,y-5);
+  vertex(x+23,y);
+  vertex(x+20,y+5);
+  vertex(x,y+10);
+  vertex(x-20,y+5);
+  endShape(CLOSE);
+  fill(#1D0AFF); 
+  beginShape();
+  vertex(x-20,y);
+  vertex(x,y+3);
+  vertex(x+20,y);
+  vertex(x,y-3);
+  endShape(CLOSE);
+  beginShape();
+  vertex(x,y+3);
+  vertex(x+4,y);
+  vertex(x,y-3);
+  endShape();
+}
+
+void tail(int x,int y){
+  fill(#FFDB0A); 
+  beginShape();
+  vertex(x-20,y+5);
+  vertex(x-15,y+3);
+  vertex(x-20,y);
+  vertex(x-15,y-3);
+  vertex(x-20,y-5);
+  vertex(x,y-10);
+  vertex(x+20,y-5);
+  vertex(x+30,y);
+  vertex(x+20,y+5);
+  vertex(x,y+10);
+  vertex(x-20,y+5);
+  endShape(CLOSE);
+  fill(#1D0AFF); 
+  beginShape();
+  vertex(x-20,y);
+  vertex(x,y+3);
+  vertex(x+30,y);
+  vertex(x,y-3);
+  endShape(CLOSE);
+  beginShape();
+  vertex(x,y+3);
+  vertex(x+6,y);
+  vertex(x,y-3);
+  endShape();
+}
+
+         
+    </script>
+    <canvas id="sketch"style="border: 1px solid black;"></canvas>
+    </body>
+</html>

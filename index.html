@@ -14,22 +14,14 @@
 
     <script type="text/processing"> 
 
-int play=0;
-int mode=0;
-int move=0;
+      int move=0;
 int gap=100;
 int mex=gap;
 int mey=100;
 int step=20;
 int ceilht=5;
 int rad=30;
-int last;
-float resmove=200;
-float resx=0;
-float resy=100;
-float vres;
-float ranX;
-float ranY;
+
 
 void setup(){
   size(900,900);
@@ -48,25 +40,14 @@ void draw(){
   if(play==1){
     chunking();
   
-    resid();
-  
     if(mousePressed==true){
       move();
     }
       ellipseMode(CENTER);
       fill(255,200,180);
-      ellipse(mex,mey,rad,rad);
-  
-    if(move<=resmove){
-      noLoop();
-    }
-    else if(mey>100+7*step*ceilht){
-      noLoop();
-    }
- }   
+      ellipse(mex,mey,rad,rad);  
+   }   
 }
-
-
 
 void chunking(){
   for(int i=1;i<9;i++){
@@ -79,21 +60,10 @@ void move(){
   if(mode==0){
     move++;
   }
-
     mex=gap+(move%((width-2*gap)/step))*step;
     mey=100+(int(move/((width-2*gap)/step)))*step*ceilht;
 }
- 
-void resid(){
-    vres=0.3;
-    resmove=resmove+vres;
-    if(resmove>=0){
-      resx=gap+(resmove%((width-2*gap)/step))*step;
-      resy=100+(int(resmove/((width-2*gap)/step)))*step*ceilht;  
-      fill(255,188,3);
-      ellipse(resx,resy,rad,rad);
-    }
-}
+
     </script>
     <canvas id="sketch" style="border: 1px solid black;"></canvas>
     

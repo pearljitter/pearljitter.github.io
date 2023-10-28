@@ -42,20 +42,21 @@ void draw(){
   
   if(play==1){
     chunking();
-      ellipseMode(CENTER);
+    
       fill(255,200,180);
       ellipse(mex,mey,rad,rad);  
-   } 
      
       if(mousePressed==true){
         move();
       }
+  }
 }
 
 void chunking(){
   for(int i=1;i<9;i++){
     stroke(255);
-    line(gap,i*step*ceilht+rad/2,width-gap,i*step*ceilht+rad/2);
+    int liney=i*step*ceilht+rad/2;
+    line(gap,liney,width-gap,liney);
   }
 }
 
@@ -63,8 +64,10 @@ void move(){
   if(mode==0){
     move++;
   }
-    mex=gap+(move%((width-2*gap)/step))*step;
-    mey=100+(int(move/((width-2*gap)/step)))*step*ceilht;
+    int mexx=move%((width-2*gap)/step);
+    int meyy=int(move/((width-2*gap)/step));
+    mex=gap+(mexx)*step;
+    mey=100+meyy*step*ceilht;
 }
        
     </script>

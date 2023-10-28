@@ -64,10 +64,8 @@ void move(){
   if(mode==0){
     move++;
   }
-    int mexx=move%((width-2*gap)/step);
-    int meyy=int(move/((width-2*gap)/step));
-    mex=gap+(mexx)*step;
-    mey=100+meyy*step*ceilht;
+    mex=move*step;
+
 }
        
     </script>

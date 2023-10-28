@@ -45,10 +45,7 @@ void draw(){
     
       fill(255,200,180);
       ellipse(mex,mey,rad,rad);  
-     
-      if(mousePressed==true){
-        move();
-      }
+
   }
 }
 
@@ -59,15 +56,7 @@ void chunking(){
     line(gap,liney,width-gap,liney);
   }
 }
-
-void move(){
-  if(mode==0){
-    move++;
-  }
-    mex=move*step;
-
-}
-       
+   
     </script>
     <canvas id="sketch" style="border: 1px solid black;"></canvas>
     

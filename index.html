@@ -24,17 +24,12 @@ int step=20;
 int ceilht=5;
 int rad=30;
 int last;
-float resmove=-20;
+float resmove=200;
 float resx=0;
 float resy=100;
 float vres;
 float ranX;
 float ranY;
-float[] vill={20,60,100,140,180,220};
-int[] hit={3,3,4,4,5,5};
-int villnum=6;
-float[] villx=new float[6];
-float[] villy=new float[6];
 
 void setup(){
   size(900,900);
@@ -53,11 +48,8 @@ void draw(){
   if(play==1){
     chunking();
   
-  ///////////////////////////////////////start resid moving after delay////////////////////////// 
-  
     resid();
   
-  //////////////////////////////////////move and draw me//////////////////////////////////////////  
     if(mousePressed==true){
       move();
     }
@@ -65,7 +57,6 @@ void draw(){
       fill(255,200,180);
       ellipse(mex,mey,rad,rad);
   
-  //////////////////////////////////////get caught//////////////////////////////////////////      
     if(move<=resmove){
       noLoop();
     }
@@ -103,7 +94,6 @@ void resid(){
       ellipse(resx,resy,rad,rad);
     }
 }
-
     </script>
     <canvas id="sketch" style="border: 1px solid black;"></canvas>
     

@@ -45,25 +45,21 @@
               background(255);
               chunking();
             
-            ///////////////////////////////////////start resid moving after delay////////////////////////// 
-            
               resid();
-            
-            //////////////////////////////////////move and draw me//////////////////////////////////////////  
+
               if(mousePressed==true){
                 move();
               }
                 ellipseMode(CENTER);
                 fill(255,200,180);
                 ellipse(mex,mey,rad,rad);
-            
-            //////////////////////////////////////meet villain//////////////////////////////////////////       
+    
                  for(int i=1;i<villnum+1;i++){
                   if(move==vill[i-1]){
                   mode=i;
                   }
                 }
-            //////////////////////////////////////get caught//////////////////////////////////////////      
+  
               if(move<=resmove){
                 noLoop();
               }
@@ -72,7 +68,6 @@
               }
                 
             }
-            
             
             
             void chunking(){

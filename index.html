@@ -14,7 +14,7 @@
 
     <script type="text/processing"> 
 
-      int move=0;
+int move=0;
 int gap=100;
 int mex=gap;
 int mey=100;
@@ -28,42 +28,9 @@ void setup(){
   frameRate(20);
 }
 
-
 void draw(){
   background(0);
-  
-  if(play==0){
-    if(mousePressed==true){
-      play=1;
-    }
-  }
-  if(play==1){
-    chunking();
-  
-    if(mousePressed==true){
-      move();
-    }
-      ellipseMode(CENTER);
-      fill(255,200,180);
-      ellipse(mex,mey,rad,rad);  
-   }   
 }
-
-void chunking(){
-  for(int i=1;i<9;i++){
-    stroke(255);
-    line(gap,i*step*ceilht+rad/2,width-gap,i*step*ceilht+rad/2);
-  }
-}
-
-void move(){
-  if(mode==0){
-    move++;
-  }
-    mex=gap+(move%((width-2*gap)/step))*step;
-    mey=100+(int(move/((width-2*gap)/step)))*step*ceilht;
-}
-
     </script>
     <canvas id="sketch" style="border: 1px solid black;"></canvas>
     

@@ -10,111 +10,111 @@
   
   <body>
     <h1>PEARLJITTER</h1>
-    <p>____________________________________________________</p>
+    <p>______________________???????_________________________</p>
 
      <script type="text/processing"> 
        
-        int mode=0;
-        int move=0;
-        int gap=100;
-        int mex=gap;
-        int mey=100;
-        int step=20;
-        int ceilht=5;
-        int rad=30;
-        int last;
-        float resmove=-20;
-        float resx=0;
-        float resy=100;
-        float vres;
-        float ranX;
-        float ranY;
-        float[] vill={20+int(random(-20,20)),60+int(random(-20,20)),100+int(random(-20,20)),140+int(random(-20,20)),180+int(random(-20,20)),220+int(random(-20,20))};
-        int[] hit={3,3,4,4,5,5};
-        int villnum=6;
-        float[] villx=new float[6];
-        float[] villy=new float[6];
-        
-        void setup(){
-          size(900,900);
-          frameRate(10);
-        }
-        
-        
-        void draw(){
-          background(255);
-          fill(0,180);
-          rect(0,0,width,height);
-          chunking(); 
-          resid();
-  
-          if(mousePressed==true){
-            move();
-          }
-            ellipseMode(CENTER);
-            fill(255,200,180);
-            ellipse(mex,mey,rad,rad);
-           
-             for(int i=1;i<villnum+1;i++){
-              if(move==vill[i-1]){
-              mode=i;
-              }
+            int mode=0;
+            int move=0;
+            int gap=100;
+            int mex=gap;
+            int mey=100;
+            int step=20;
+            int ceilht=5;
+            int rad=30;
+            int last;
+            float resmove=-20;
+            float resx=0;
+            float resy=100;
+            float vres;
+            float ranX;
+            float ranY;
+            float[] vill={20+int(random(-20,20)),60+int(random(-20,20)),100+int(random(-20,20)),140+int(random(-20,20)),180+int(random(-20,20)),220+int(random(-20,20))};
+            int[] hit={3,3,4,4,5,5};
+            int villnum=6;
+            float[] villx=new float[6];
+            float[] villy=new float[6];
+            
+            void setup(){
+              size(900,900);
+              frameRate(10);
             }
-     
-          if(move<=resmove){
-            noLoop();
-          }
-          else if(mey>100+7*step*ceilht){
-            noLoop();
-          }    
-        }
-        
-        void chunking(){
-          for(int i=1;i<9;i++){
-            stroke(255);
-            line(gap,i*step*ceilht+rad/2,width-gap,i*step*ceilht+rad/2);
-          }
-          for(int j=last;j<villnum;j++){
-              ranX=random(-20,20);
-              ranY=random(-10,5);
-              villx[j]=gap+(vill[j]%((width-2*gap)/step))*step+ranX;
-              villy[j]=100+(int(vill[j]/((width-2*gap)/step)))*step*ceilht+ranY;
-            fill(max(0,255-hit[j]*130),200,max(0,255-hit[j]*100));
-            ellipse(villx[j],villy[j],rad,rad);
-          }
-        }
-        
-        void move(){
-          if(mode==0){
-            move++;
-          }
-          for(int i=1;i<villnum+1;i++){
-            if(mode==i){
-              if((mouseX >= villx[i-1]-8) && (mouseX <= villx[i-1]+8) && (mouseY >= villy[i-1]-8) && (mouseY <= villy[i-1]+8)){
-                hit[i-1]=hit[i-1]-1;
-                print(hit[i-1]);
+            
+            
+            void draw(){
+              background(255);
+              fill(0,180);
+              rect(0,0,width,height);
+              chunking(); 
+              resid();
+      
+              if(mousePressed==true){
+                move();
               }
-              if(hit[i-1]<1){
-                move++;
-               last=mode;
-                mode=0;
-              }
-             }
-          }
-            mex=gap+(move%((width-2*gap)/step))*step;
-            mey=100+(int(move/((width-2*gap)/step)))*step*ceilht;
-        }
+                ellipseMode(CENTER);
+                fill(255,200,180);
+                ellipse(mex,mey,rad,rad);
+               
+                 for(int i=1;i<villnum+1;i++){
+                  if(move==vill[i-1]){
+                  mode=i;
+                  }
+                }
          
-        void resid(){
-            vres=0.5;
-            resmove=resmove+vres;
-            if(resmove>=0){
-              resx=gap+(resmove%((width-2*gap)/step))*step;
-              resy=100+(int(resmove/((width-2*gap)/step)))*step*ceilht;  
-              fill(255,188,3);
-              ellipse(resx,resy,rad,rad);
+              if(move<=resmove){
+                noLoop();
+              }
+              else if(mey>100+7*step*ceilht){
+                noLoop();
+              }    
             }
-        }
+            
+            void chunking(){
+              for(int i=1;i<9;i++){
+                stroke(255);
+                line(gap,i*step*ceilht+rad/2,width-gap,i*step*ceilht+rad/2);
+              }
+              for(int j=last;j<villnum;j++){
+                  ranX=random(-20,20);
+                  ranY=random(-10,5);
+                  villx[j]=gap+(vill[j]%((width-2*gap)/step))*step+ranX;
+                  villy[j]=100+(int(vill[j]/((width-2*gap)/step)))*step*ceilht+ranY;
+                fill(max(0,255-hit[j]*130),200,max(0,255-hit[j]*100));
+                ellipse(villx[j],villy[j],rad,rad);
+              }
+            }
+            
+            void move(){
+              if(mode==0){
+                move++;
+              }
+              for(int i=1;i<villnum+1;i++){
+                if(mode==i){
+                  if((mouseX >= villx[i-1]-8) && (mouseX <= villx[i-1]+8) && (mouseY >= villy[i-1]-8) && (mouseY <= villy[i-1]+8)){
+                    hit[i-1]=hit[i-1]-1;
+                    print(hit[i-1]);
+                  }
+                  if(hit[i-1]<1){
+                    move++;
+                   last=mode;
+                    mode=0;
+                  }
+                 }
+              }
+                mex=gap+(move%((width-2*gap)/step))*step;
+                mey=100+(int(move/((width-2*gap)/step)))*step*ceilht;
+            }
+             
+            void resid(){
+                vres=0.5;
+                resmove=resmove+vres;
+                if(resmove>=0){
+                  resx=gap+(resmove%((width-2*gap)/step))*step;
+                  resy=100+(int(resmove/((width-2*gap)/step)))*step*ceilht;  
+                  fill(255,188,3);
+                  ellipse(resx,resy,rad,rad);
+                }
+            }
        
     </script>
     <canvas id="sketch" style="border: 1px solid black;"></canvas>  

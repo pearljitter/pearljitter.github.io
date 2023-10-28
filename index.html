@@ -55,12 +55,8 @@ void chunking(){
 void move(){
  if(mousePressed==true){
   if(mode==0){
-    move++;
+    rad++;
   }
-    int mexx=move%((width-2*gap)/step);
-    int meyy=int(move/((width-2*gap)/step));
-    mex=gap+(mexx)*step;
-    mey=100+meyy*step*ceilht;
  }
     fill(255,200,180);
     ellipse(mex,mey,rad,rad);  

@@ -14,8 +14,6 @@
 
     <script type="text/processing"> 
 
-int play=0;
-int mode=0;
 int move=0;
 int gap=100;
 int mex=100;
@@ -42,10 +40,7 @@ void draw(){
   
   if(play==1){
     chunking();
-    
-      fill(255,200,180);
-      ellipse(mex,mey,rad,rad);  
-
+    move();
   }
 }
 
@@ -55,6 +50,20 @@ void chunking(){
     int liney=i*step*ceilht+rad/2;
     line(gap,liney,width-gap,liney);
   }
+}
+
+void move(){
+ if(mousePressed==true){
+  if(mode==0){
+    move++;
+  }
+    int mexx=move%((width-2*gap)/step);
+    int meyy=int(move/((width-2*gap)/step));
+    mex=gap+(mexx)*step;
+    mey=100+meyy*step*ceilht;
+ }
+    fill(255,200,180);
+    ellipse(mex,mey,rad,rad);  
 }
    
     </script>

@@ -28,7 +28,7 @@ int num=60;
 boolean boo=false;
 
 void setup(){
-  size(400,900);
+  size(400,960);
   frameRate(20);
 }
 
@@ -36,15 +36,15 @@ void draw(){
   if(boo==false){
     background(0);
     fill(#3642A2);
-    textSize(40);
-    text("GELAGA",100,200);
+    textSize(90);
+    text("GELAGA",60,200);
     
     textSize(14);
-    text("press left to move left",70,290);
-    text("press right to move right",70,320);
-    text("press spaceship to shoot",70,350);
+    text("press left to move left",120,290);
+    text("press right to move right",120,320);
+    text("press spaceship to shoot",120,350);
     textSize(20);
-    text("click to start",100,400);
+    text("click to start",120,400);
     noLoop();
     if(mousePressed){
       boo=true;
@@ -55,9 +55,9 @@ void draw(){
   background(0);
   noStroke();
   for(int q=1;q<=19;q++){
-   for(int p=1;p<=45;p++){
+   for(int p=1;p<=60;p++){
      fill(255);
-     ellipse((height/45)*q+random(-1,1),((height/45)*p+vs)%height+random(-1,1),2,2);
+     ellipse((width/20)*q+random(-1,1),((height/60)*p+vs)%height+random(-1,1),2,2);
    }
   }
   vs=vs+1+round(((v-9)%14)/2);                 //star velocity
@@ -258,7 +258,7 @@ class Cat{
         float s;
         
         void setup(){
-          size(900,900);
+          size(960,960);
           frameRate(16);
           background(0);
         }

@@ -100,7 +100,7 @@ void draw(){
       xy[j][1]=-30;
       a[j]=2;
      }
-     if(dist(xy[j][0],xy[j][1],x,700)<40){               //if enemy hits the spaceship
+     if(dist(xy[j][0],xy[j][1],x,height-100)<40){               //if enemy hits the spaceship
        stop();
        background(255);
        textSize(30);
@@ -151,7 +151,7 @@ void mousePressed(){
   if(mouseX>=x-20 && mouseX<=x+20){
   m=(m%10)+1;
   rn[m]=x;
-  ln[m]=700;
+  ln[m]=height-100;
   }
   if(mouseX<x-20){
   x=x-2*v;

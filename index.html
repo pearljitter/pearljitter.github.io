@@ -28,7 +28,7 @@ int num=60;
 boolean boo=false;
 
 void setup(){
-  size(400,800);
+  size(400,900);
   frameRate(20);
 }
 
@@ -55,9 +55,9 @@ void draw(){
   background(0);
   noStroke();
   for(int q=1;q<=19;q++){
-   for(int p=1;p<=40;p++){
+   for(int p=1;p<=45;p++){
      fill(255);
-     ellipse(20*q+random(-1,1),(20*p+vs)%800+random(-1,1),2,2);
+     ellipse((height/45)*q+random(-1,1),((height/45)*p+vs)%height+random(-1,1),2,2);
    }
   }
   vs=vs+1+round(((v-9)%14)/2);                 //star velocity
@@ -80,7 +80,7 @@ void draw(){
       
       a[j]--;
       rn[i]=0;
-      ln[i]=700;
+      ln[i]=height-100;
       
       if(a[j]==0){                                          //if bullet hits twice
       score++;
@@ -117,15 +117,15 @@ void draw(){
  
   
   fill(255,0,0);                                        //draw flames
-  ellipse(x,730+vs%80,10,10);
-  ellipse(x,730+(40+vs)%80,10,10);
+  ellipse(x,height-70+vs%80,10,10);
+  ellipse(x,height-70+(40+vs)%80,10,10);
    
    
   fill(#FA6000);
-  ellipse(x,700,30,50);                                  //draw spaceship
-  ellipse(x-40,700,18,30);
-  ellipse(x+40,700,18,30);
-  rect(x-40,700,80,4);
+  ellipse(x,height-100,30,50);                                  //draw spaceship
+  ellipse(x-40,height-100,18,30);
+  ellipse(x+40,height-100,18,30);
+  rect(x-40,height-100,80,4);
   
   
   
@@ -258,7 +258,7 @@ class Cat{
         float s;
         
         void setup(){
-          size(1000,1000);
+          size(900,900);
           frameRate(16);
           background(0);
         }

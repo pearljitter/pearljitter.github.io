@@ -11,244 +11,246 @@
   <body>
     <h1>welcome!</h1>
     <p>works well in PC environment</p>
+    <div>
+      <script type="text/processing"> 
 
-    <script type="text/processing"> 
-
-int[] rn=new int[11];
-int[] ln=new int[11];
-float[][] xy={{200,200},{50,100},{300,50}};
-int[] a={2,2,2};
-int[] xx=new int[3];
-int x=200;
-int v=9;
-int vs=0;
-int m=0;
-int score=0;
-int num=60;
-boolean boo=false;
-
-void setup(){
-  size(400,960);
-  frameRate(20);
-}
-
-void draw(){
-  if(boo==false){
-    background(0);
-    fill(#3642A2);
-    textSize(60);
-    text("GELAGA",60,200);
-    
-    textSize(14);
-    text("press left to move left",120,290);
-    text("press right to move right",120,320);
-    text("press spaceship to shoot",120,350);
-    textSize(20);
-    text("click to start",120,400);
-    noLoop();
-    if(mousePressed){
-      boo=true;
-    loop();
-    }
-  }
-  else if(boo==true){
-  background(0);
-  noStroke();
-  for(int q=1;q<=19;q++){
-   for(int p=1;p<=60;p++){
-     fill(255);
-     ellipse((width/20)*q+random(-1,1),((height/60)*p+vs)%height+random(-1,1),2,2);
-   }
-  }
-  vs=vs+1+round(((v-9)%14)/2);                 //star velocity
-  fill(255);
-  rectMode(CORNER);
-  rect(20,20,width-40,40);
-  fill(#FC03E4);
-  rect(23,23,score*20,34);
-  
-  
-   for(int i=1;i<=10;i++){
-      
-    if(rn[i]!=0){
-    ln[i]=ln[i]-2*v;
-    fill(#3642A2);
-    ellipse(rn[i],ln[i],12,20);     //draw bullet
-    
-    for(int j=0;j<xy.length;j++){
-     if(dist(rn[i],ln[i],xy[j][0],xy[j][1])<=25){    //if bullet hits the enemy
-      
-      a[j]--;
-      rn[i]=0;
-      ln[i]=height-100;
-      
-      if(a[j]==0){                                          //if bullet hits twice
-      score++;
-      bomb(xy[j][0],xy[j][1]);
-      if(score%3==2){
-      v+=2;
-      }
-      xy[j][0]=xy[j][0]+random(-30,30);
-      xy[j][1]=-30;
-      a[j]=2;
-      noLoop();
-      }
-      loop();
-     }
-     if(xy[j][1]>=height){                         //if enemy disappears
-      xy[j][0]=xy[j][0]+random(-30,30);
-      xy[j][1]=-30;
-      a[j]=2;
-     }
-     if(dist(xy[j][0],xy[j][1],x,height-100)<40){               //if enemy hits the spaceship
-       stop();
-       background(255);
-       textSize(30);
-       text("GAME OVER",85,400);
-       textSize(20);
-       text("your score:",110,430);
-       text(score,180,460);
-     }
-    }
- 
-    }
-   }
-   
- 
-  
-  fill(255,0,0);                                        //draw flames
-  ellipse(x,height-70+vs%80,10,10);
-  ellipse(x,height-70+(40+vs)%80,10,10);
-   
-   
-  fill(#FA6000);
-  ellipse(x,height-100,30,50);                                  //draw spaceship
-  ellipse(x-40,height-100,18,30);
-  ellipse(x+40,height-100,18,30);
-  rect(x-40,height-100,80,4);
-  
-  
-  
-  for(int j=0;j<xy.length;j++){
-  if(a[j]>0){
-    fill(80+50*j+40*a[j],80-35*j+50*a[j],230-60*j+60*a[j]);
-    ellipse(xy[j][0],xy[j][1],50+random(-2,+2),50+random(-2,+2));    //draw enemy
-     
-    xy[j][1]+=v/3;
-  }
-  }
-  if(score>=18){
-    stop();
-    background(255);
-    textSize(40);
-    text("CLEAR",120,400+random(-2,2));
-  }
-  }
-}
-
-void mousePressed(){
-  loop();
-  if(mouseX>=x-20 && mouseX<=x+20){
-  m=(m%10)+1;
-  rn[m]=x;
-  ln[m]=height-100;
-  }
-  if(mouseX<x-20){
-  x=x-2*v;
-  }
-  if(mouseX>x+20){
-  x=x+2*v;
-  }
-}
-
-
-void bomb(float x,float y){
-  if(num>0){
-  fill(255,20,20);
-  ellipse(x,y,70,70);
-  num--;
-  }
-  
-}
-      
-    </script>
-    <canvas id="sketch" style="border: 1px solid black;"></canvas>
-
-    <script type="text/processing"> 
-int cnt=30;
-int time;
-Cat[][] purr=new Cat[cnt][cnt];
-
-void setup(){
-  size(960,960);
-  frameRate(120);
-   for(int i=0;i<cnt;i++){
-    for(int j=0;j<cnt;j++){
-      //float random=random(0,1);
-      //if(random>0.6){
-      purr[i][j]=new Cat(width/cnt*(i+0.5),width/cnt*(j+0.5),int(random(10,20)));
-      //}
-      //else{
-      //purr[i][j]=new Cat(width/cnt*(i+0.5),width/cnt*(j+0.5),0);
-     // }
-    }
-  }
-}
-
-void draw(){
-  //background(0);
-  fill(0,25);
-  rect(0,0,width,height);
-  
-  noStroke();
-  time++;
-  time=time%180;
-  for(int i=0;i<cnt;i++){
-    for(int j=0;j<cnt;j++){
-      purr[i][j].look();
-      purr[i][j].display();
-    }
-  }
-}
-
-class Cat{
-  float x,y;
-  float rad;
-  float a,b;
-  float ang;
-  Cat(float xpos,float ypos,float r){
-    x=xpos;
-    y=ypos;
-    rad=r;
-  }
-  
-  void look(){
-    if(x<=mouseX){
-      ang=atan((y-mouseY)/( mouseX-x));
-    }
-    else{
-      ang=radians(180)+atan((y-mouseY)/( mouseX-x));
-    }
-    a=x+rad*cos(ang);
-    b=y-rad*sin(ang);
-    
-  }
-  void display(){
-    ellipseMode(RADIUS);
-    //fill(255);
-    //ellipse(x,y,rad*1.5,rad*1.5*(sin(radians(time*(rad-8)))));
-    
-    fill(rad*15-100,355-rad*15,200*ang);
-    ellipse(a,b,rad/2,rad/2);
-    
-    //fill(0);
-    //ellipse(a,b,rad*0.8,rad*0.8);
-  }
-}
-    </script>
-    <canvas id="sketch" style="border: 1px solid black;"></canvas>
-      
-    <script type="text/processing"> 
+        int[] rn=new int[11];
+        int[] ln=new int[11];
+        float[][] xy={{200,200},{50,100},{300,50}};
+        int[] a={2,2,2};
+        int[] xx=new int[3];
+        int x=200;
+        int v=9;
+        int vs=0;
+        int m=0;
+        int score=0;
+        int num=60;
+        boolean boo=false;
+        
+        void setup(){
+          size(400,960);
+          frameRate(20);
+        }
+        
+        void draw(){
+          if(boo==false){
+            background(0);
+            fill(#3642A2);
+            textSize(60);
+            text("GELAGA",60,200);
+            
+            textSize(14);
+            text("press left to move left",120,290);
+            text("press right to move right",120,320);
+            text("press spaceship to shoot",120,350);
+            textSize(20);
+            text("click to start",120,400);
+            noLoop();
+            if(mousePressed){
+              boo=true;
+            loop();
+            }
+          }
+          else if(boo==true){
+          background(0);
+          noStroke();
+          for(int q=1;q<=19;q++){
+          for(int p=1;p<=60;p++){
+            fill(255);
+            ellipse((width/20)*q+random(-1,1),((height/60)*p+vs)%height+random(-1,1),2,2);
+          }
+          }
+          vs=vs+1+round(((v-9)%14)/2);                 //star velocity
+          fill(255);
+          rectMode(CORNER);
+          rect(20,20,width-40,40);
+          fill(#FC03E4);
+          rect(23,23,score*20,34);
+          
+          
+          for(int i=1;i<=10;i++){
+              
+            if(rn[i]!=0){
+            ln[i]=ln[i]-2*v;
+            fill(#3642A2);
+            ellipse(rn[i],ln[i],12,20);     //draw bullet
+            
+            for(int j=0;j<xy.length;j++){
+            if(dist(rn[i],ln[i],xy[j][0],xy[j][1])<=25){    //if bullet hits the enemy
+              
+              a[j]--;
+              rn[i]=0;
+              ln[i]=height-100;
+              
+              if(a[j]==0){                                          //if bullet hits twice
+              score++;
+              bomb(xy[j][0],xy[j][1]);
+              if(score%3==2){
+              v+=2;
+              }
+              xy[j][0]=xy[j][0]+random(-30,30);
+              xy[j][1]=-30;
+              a[j]=2;
+              noLoop();
+              }
+              loop();
+            }
+            if(xy[j][1]>=height){                         //if enemy disappears
+              xy[j][0]=xy[j][0]+random(-30,30);
+              xy[j][1]=-30;
+              a[j]=2;
+            }
+            if(dist(xy[j][0],xy[j][1],x,height-100)<40){               //if enemy hits the spaceship
+              stop();
+              background(255);
+              textSize(30);
+              text("GAME OVER",85,400);
+              textSize(20);
+              text("your score:",110,430);
+              text(score,180,460);
+            }
+            }
+        
+            }
+          }
+          
+        
+          
+          fill(255,0,0);                                        //draw flames
+          ellipse(x,height-70+vs%80,10,10);
+          ellipse(x,height-70+(40+vs)%80,10,10);
+          
+          
+          fill(#FA6000);
+          ellipse(x,height-100,30,50);                                  //draw spaceship
+          ellipse(x-40,height-100,18,30);
+          ellipse(x+40,height-100,18,30);
+          rect(x-40,height-100,80,4);
+          
+          
+          
+          for(int j=0;j<xy.length;j++){
+          if(a[j]>0){
+            fill(80+50*j+40*a[j],80-35*j+50*a[j],230-60*j+60*a[j]);
+            ellipse(xy[j][0],xy[j][1],50+random(-2,+2),50+random(-2,+2));    //draw enemy
+            
+            xy[j][1]+=v/3;
+          }
+          }
+          if(score>=18){
+            stop();
+            background(255);
+            textSize(40);
+            text("CLEAR",120,400+random(-2,2));
+          }
+          }
+        }
+        
+        void mousePressed(){
+          loop();
+          if(mouseX>=x-20 && mouseX<=x+20){
+          m=(m%10)+1;
+          rn[m]=x;
+          ln[m]=height-100;
+          }
+          if(mouseX<x-20){
+          x=x-2*v;
+          }
+          if(mouseX>x+20){
+          x=x+2*v;
+          }
+        }
+        
+        
+        void bomb(float x,float y){
+          if(num>0){
+          fill(255,20,20);
+          ellipse(x,y,70,70);
+          num--;
+          }
+          
+        }
+              
+      </script>
+      <canvas id="sketch" style="border: 3px solid rgb(255, 255, 255);"></canvas>
+    </div>
+    <div>
+      <script type="text/processing"> 
+        int cnt=30;
+        int time;
+        Cat[][] purr=new Cat[cnt][cnt];
+        
+        void setup(){
+          size(960,960);
+          frameRate(120);
+          for(int i=0;i<cnt;i++){
+            for(int j=0;j<cnt;j++){
+              //float random=random(0,1);
+              //if(random>0.6){
+              purr[i][j]=new Cat(width/cnt*(i+0.5),width/cnt*(j+0.5),int(random(10,20)));
+              //}
+              //else{
+              //purr[i][j]=new Cat(width/cnt*(i+0.5),width/cnt*(j+0.5),0);
+            // }
+            }
+          }
+        }
+        
+        void draw(){
+          //background(0);
+          fill(0,25);
+          rect(0,0,width,height);
+          
+          noStroke();
+          time++;
+          time=time%180;
+          for(int i=0;i<cnt;i++){
+            for(int j=0;j<cnt;j++){
+              purr[i][j].look();
+              purr[i][j].display();
+            }
+          }
+        }
+        
+        class Cat{
+          float x,y;
+          float rad;
+          float a,b;
+          float ang;
+          Cat(float xpos,float ypos,float r){
+            x=xpos;
+            y=ypos;
+            rad=r;
+          }
+          
+          void look(){
+            if(x<=mouseX){
+              ang=atan((y-mouseY)/( mouseX-x));
+            }
+            else{
+              ang=radians(180)+atan((y-mouseY)/( mouseX-x));
+            }
+            a=x+rad*cos(ang);
+            b=y-rad*sin(ang);
+            
+          }
+          void display(){
+            ellipseMode(RADIUS);
+            //fill(255);
+            //ellipse(x,y,rad*1.5,rad*1.5*(sin(radians(time*(rad-8)))));
+            
+            fill(rad*15-100,355-rad*15,200*ang);
+            ellipse(a,b,rad/2,rad/2);
+            
+            //fill(0);
+            //ellipse(a,b,rad*0.8,rad*0.8);
+          }
+        }
+      </script>
+      <canvas id="sketch" style="border: 3px solid rgb(255, 255, 255);"></canvas>
+    </div>
+    <div>
+      <script type="text/processing"> 
         int[][] xy=new int[11][2];
         float[][] ab=new float[11][2];
         float[][] pq={{200,300},{900,450},{500,800}};
@@ -281,13 +283,13 @@ class Cat{
           rotate(0.5*PI-atan2(xy[i][0]-xy[i-1][0],xy[i][1]-xy[i-1][1]));
           if(i>1 && i<7){
             
-           if(i==3){
-             legs(i-4);
-           }
-           else if(i==5){
-             legs(i-4);
-           }
-           
+            if(i==3){
+              legs(i-4);
+            }
+            else if(i==5){
+              legs(i-4);
+            }
+            
           body(30,0);
           }
           
@@ -309,27 +311,27 @@ class Cat{
           ab[i][1]=ab[i-1][1]+30*sin(0.5*PI+atan2(xy[i][0]-xy[i-1][0],xy[i][1]-xy[i-1][1]));
         
         
-         
+          
           }
           ////////////////
           
-         if(pmouseX!=mouseX){
+          if(pmouseX!=mouseX){
           
           for(int i=10;i>=1;i--){
           xy[i][0]=xy[i-1][0];
           xy[i][1]=xy[i-1][1]; 
           }
-         }
+          }
         
-         
+          
         }
         
         void mouseMoved(){
           num=num%16+1;
-           if(num==16){
-             v=-v;
-           }
-           angle=angle+v;
+            if(num==16){
+              v=-v;
+            }
+            angle=angle+v;
         }
         
         void head(int x,int y){
@@ -405,52 +407,52 @@ class Cat{
           endShape();
         }
         void legs(int z){
-             pushMatrix();
-             translate(30+20*angle,0);
-             rotate(angle/3);
-             stroke(#818181);
-             strokeWeight(3);
-             line(z*20*angle,0,z*15,20);        //lineleg1
-             line(z*15,20,z*25,20);     //lineleg2
-             line(z*25,20,z*31,24);     //linefeet
-             line(z*25,20,z*34,20);
-             line(z*25,20,z*31,16);
-             
-             strokeWeight(1);   //shapeleg1
-             beginShape();
-             vertex(z*20*angle,0);
-             vertex(z*20*angle,5);
-             vertex(z*10,20);
-             vertex(z*15,20);
-             vertex(z*15,15);
-             vertex(z*5,0);
-             endShape(CLOSE);
-             
-             popMatrix();
-             
-             pushMatrix();
-             translate(30-20*angle,0);
-             rotate(angle/3);
-             
-             strokeWeight(3);
-             stroke(#818181);
-             line(20*angle,0,z*15,-20);
-             line(z*15,-20,z*25,-20);
-             line(z*25,-20,z*31,-24);
-             line(z*25,-20,z*34,-20);
-             line(z*25,-20,z*31,-16);
-             
-             strokeWeight(1);
-             beginShape();
-             vertex(20*angle,0);
-             vertex(20*angle,-5);
-             vertex(z*10,-20);
-             vertex(z*15,-20);
-             vertex(z*15,-15);
-             vertex(z*5,0);
-             endShape(CLOSE);
-             
-             popMatrix();
+              pushMatrix();
+              translate(30+20*angle,0);
+              rotate(angle/3);
+              stroke(#818181);
+              strokeWeight(3);
+              line(z*20*angle,0,z*15,20);        //lineleg1
+              line(z*15,20,z*25,20);     //lineleg2
+              line(z*25,20,z*31,24);     //linefeet
+              line(z*25,20,z*34,20);
+              line(z*25,20,z*31,16);
+              
+              strokeWeight(1);   //shapeleg1
+              beginShape();
+              vertex(z*20*angle,0);
+              vertex(z*20*angle,5);
+              vertex(z*10,20);
+              vertex(z*15,20);
+              vertex(z*15,15);
+              vertex(z*5,0);
+              endShape(CLOSE);
+              
+              popMatrix();
+              
+              pushMatrix();
+              translate(30-20*angle,0);
+              rotate(angle/3);
+              
+              strokeWeight(3);
+              stroke(#818181);
+              line(20*angle,0,z*15,-20);
+              line(z*15,-20,z*25,-20);
+              line(z*25,-20,z*31,-24);
+              line(z*25,-20,z*34,-20);
+              line(z*25,-20,z*31,-16);
+              
+              strokeWeight(1);
+              beginShape();
+              vertex(20*angle,0);
+              vertex(20*angle,-5);
+              vertex(z*10,-20);
+              vertex(z*15,-20);
+              vertex(z*15,-15);
+              vertex(z*5,0);
+              endShape(CLOSE);
+              
+              popMatrix();
         }
         
         void tail(int x,int y){
@@ -482,9 +484,131 @@ class Cat{
           vertex(x,y-3);
           endShape();
         }
-    </script>
-    <canvas id="sketch" style="border: 1px solid black;"></canvas>
-    
-  </body>
+      </script>
+      <canvas id="sketch" style="border: 3px solid rgb(255, 255, 255);"></canvas>
+    </div>
+    <div>
+      <script type="text/processing"> 
+        
+        int play=0;
+        int mode=0;
+        int move=0;
+        int gap=100;
+        int mex=gap;
+        int mey=100;
+        int step=20;
+        int ceilht=5;
+        int rad=30;
+        int last;
+        float resmove=-20;
+        float resx=0;
+        float resy=100;
+        float vres;
+        float ranX;
+        float ranY;
+        float[] vill={20,60,100,140,180,220};
+        int[] hit={3,3,4,4,5,5};
+        int villnum=6;
+        float[] villx=new float[6];
+        float[] villy=new float[6];
+
+        void setup(){
+          size(960,960);
+          frameRate(20);
+        }
+
+
+        void draw(){
+          background(0);
+          
+          if(play==0){
+            if(mousePressed==true){
+              play=1;
+            }
+          }
+          if(play==1){
+            chunking();
+          
+          ///////////////////////////////////////start resid moving after delay////////////////////////// 
+          
+            resid();
+          
+          //////////////////////////////////////move and draw me//////////////////////////////////////////  
+            if(mousePressed==true){
+              plmove();
+            }
+              ellipseMode(CENTER);
+              fill(255,200,180);
+              ellipse(mex,mey,rad,rad);
+          
+          //////////////////////////////////////meet villain//////////////////////////////////////////       
+              for(int i=1;i<villnum+1;i++){
+                if(move==vill[i-1]){
+                mode=i;
+                }
+              }
+          //////////////////////////////////////get caught//////////////////////////////////////////      
+            if(move<=resmove){
+              noLoop();
+            }
+            else if(mey>100+7*step*ceilht){
+              noLoop();
+            }
+        }   
+        }
+
+
+
+        void chunking(){
+          for(int i=1;i<9;i++){
+            stroke(255);
+            line(gap,i*step*ceilht+rad/2,width-gap,i*step*ceilht+rad/2);
+          }
+          for(int j=last;j<villnum;j++){
+              ranX=random(-20,20);
+              ranY=random(-10,5);
+              villx[j]=gap+(vill[j]%((width-2*gap)/step))*step+ranX;
+              villy[j]=100+(int(vill[j]/((width-2*gap)/step)))*step*ceilht+ranY;
+            fill(max(0,255-hit[j]*130),200,max(0,255-hit[j]*100));
+            ellipse(villx[j],villy[j],rad,rad);
+          }
+        }
+
+        void plmove(){
+          if(mode==0){
+            move++;
+          }
+          for(int i=1;i<villnum+1;i++){
+            if(mode==i){
+              if((mouseX >= villx[i-1]-8) && (mouseX <= villx[i-1]+8) && (mouseY >= villy[i-1]-8) && (mouseY <= villy[i-1]+8)){
+                hit[i-1]=hit[i-1]-1;
+              }
+              if(hit[i-1]<1){
+                move++;
+              last=mode;
+                mode=0;
+              }
+            }
+          }
+            mex=gap+(move%((width-2*gap)/step))*step;
+            mey=100+(int(move/((width-2*gap)/step)))*step*ceilht;
+        }
+        
+        void resid(){
+            vres=0.3;
+            resmove=resmove+vres;
+            if(resmove>=0){
+              resx=gap+(resmove%((width-2*gap)/step))*step;
+              resy=100+(int(resmove/((width-2*gap)/step)))*step*ceilht;  
+              fill(255,188,3);
+              ellipse(resx,resy,rad,rad);
+            }
+        }
+  
+      </script>
+      <canvas id="sketch" style="border: 3px solid rgb(255, 255, 255);"></canvas>
+    </div>
+
+    </body>
   
 </html>

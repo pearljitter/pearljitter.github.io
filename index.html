@@ -44,18 +44,21 @@
         int obsnum=4;
         int arrnum=0;
         int boo=0;
-        
+        int coinloc=0;
+        int score=0;
+
         float move=0;
-        float resmove=-10;
+        float resmove=-14;
         float resx=0;
         float resy=100;
-        float vres;
+        float vres=0.3;
         float ranX;
         float ranY;
-        
+
         int[] arr=new int[15];
         int[] hit={3, 3, 4, 4, 5, 5};
-        
+        int[] coin=new int[50];
+
         float[] vill=new float[6];
         float[] obs=new float[4];
         float[] hole=new float[5];
@@ -69,7 +72,7 @@
         float[] ranpickv=new float[6];
         float[] ranpicko=new float[4];
         float[] ranpickh=new float[5];
-        
+
         PImage io;
         PImage sub;
         PImage kno;
@@ -81,12 +84,12 @@
         PImage foreward;
         PImage ready;
         PImage man1, man2, man3;
-        
+
         void setup() {
           size(900, 900);
           background(0);
           frameRate(8);
-        
+
           io=loadImage("title.png");
           sub=loadImage("subtitle.png");
           foreward=loadImage("foreward.png");
@@ -100,20 +103,20 @@
           man1=loadImage("중경도주_indianman.png");
           man2=loadImage("중경도주_indianman2.png");
           man3=loadImage("중경도주_indianman3.png");
-        
+
           for (int i=0; i<15; i++) {
             arr[i]=999;
           }
-        
+
           while (arrnum<=14) {
             int temp=int(random(0, 15));
-        
+
             for (int i=0; i<15; i++) {
               if (arr[i]==temp) {
                 boo++;
               }
             }
-        
+
             if (boo==0) {
               arr[arrnum]=temp;
               arrnum++;
@@ -121,20 +124,19 @@
               boo=0;
             }
           }
-        
+
           for (int i=0; i<6; i++) {
-            for(int j=0;j<6;j++){
+            for (int j=0; j<6; j++) {
               int temp;
-              if(arr[i]<arr[j]){
-              temp=arr[j];
-              arr[j]=arr[i];
-              arr[i]=temp;
+              if (arr[i]<arr[j]) {
+                temp=arr[j];
+                arr[j]=arr[i];
+                arr[i]=temp;
               }
             }
           }
           for (int i=0; i<6; i++) {
             ranpickv[i]=arr[i];
-        
           }
           for (int i=6; i<11; i++) {
             ranpickh[i-6]=arr[i];
@@ -142,33 +144,31 @@
           for (int i=11; i<15; i++) {
             ranpicko[i-11]=arr[i];
           }
-        
-        
+
+
           for (int i=0; i<6; i++) {
-            vill[i]=25+15*ranpickv[i];
-        
-            if((vill[i]%((width-2*gap)/step))*step<20){
-             vill[i]=vill[i]+5;
-            }
-            else if((vill[i]%((width-2*gap)/step))*step>width-gap*2-20){
+            vill[i]=10+15*ranpickv[i];
+
+            if ((vill[i]%((width-2*gap)/step))*step<20) {
+              vill[i]=vill[i]+5;
+            } else if ((vill[i]%((width-2*gap)/step))*step>width-gap*2-20) {
               vill[i]=vill[i]-5;
-            } 
-        
+            }
           }
           for (int i=0; i<4; i++) {
             ranobs[i]=int(random(-5, 5));
-            obs[i]=25+15*ranpicko[i];
+            obs[i]=10+15*ranpicko[i];
           }
           for (int i=0; i<5; i++) {
-            hole[i]=25+15*ranpickh[i];
+            hole[i]=10+15*ranpickh[i];
           }
         }
-        
+
         void draw() {
           background(0);
           strokeCap(PROJECT);
           if (play==0) {
-        
+
             fill(255, 0, 0, random(60, 100));
             textAlign(CENTER, CENTER);
             imageMode(CENTER);
@@ -177,12 +177,12 @@
             textSize(13);
             fill(180+random(-50, 50), 0, 0);
             text("CLICK", width/2, 650);
-        
+
             textSize(11);
             fill(255);
             text("credit to 2023 HK trip", width/2, 850);
-        
-        
+
+
             if (mousePressed==true) {
               play=1;
             }
@@ -192,12 +192,12 @@
             rect(0, 0, width, height);
             image(foreward, width/2, height/2, 900, 900);
             image(ready, width/2, height/2+150, 1000, random(-5, 5)+600);
-        
+
             if (mousePressed==true && mouseButton==RIGHT) {
               play=2;
             }
           }
-        
+
           if (play==2) {
             bgset();
             if (mousePressed==true) {
@@ -216,19 +216,21 @@
               play=3;
             }
           }
-        
+
           if (play==3) {
             bgset();
+            coinf();
             chunking();
+
             ///////////////////////////////////////start resid moving after delay//////////////////////////
-        
+
             resid();
-        
+
             //////////////////////////////////////move and draw me//////////////////////////////////////////
             if (mousePressed==true && mouseButton==LEFT) {
               plmove();
             }
-        
+
             if (mousePressed==true && mouseButton==RIGHT) {
               jump();
             }
@@ -237,9 +239,9 @@
               jumpy=max(0, jumpy-7);
               move=move+0.5;
             }
-        
+
             pldraw();
-        
+
             //////////////////////////////////////meet villain//////////////////////////////////////////
             for (int i=1; i<villnum+1; i++) {
               if (int(move+0.5)==vill[i-1] && jumpy==0) {
@@ -255,93 +257,143 @@
               noLoop();
               image(gameover, width/2, height/2, 1000, 150);
               noLoop();
-            } else if (mey>100+7*step*ceilht) {
+            } else if (move>272) {
               image(success, width/2, height/2, 1000, 150);
               noLoop();
             }
-        
+
             for (int i=0; i<obsnum; i++) {
-              if (mex>obsx[i]+4 && mex<obsx[i]+22 && mey>obsy[i]-10  && mey<obsy[i]+10 ) {
-        
+              if (mex>obsx[i]-5 && mex<obsx[i]+25 && mey>obsy[i]-10  && mey<obsy[i]+10 ) {
+
                 image(gameover, width/2, height/2, 1000, 150);
                 image(terrible, mex, mey, 700, 80);
                 noLoop();
               }
             }
             for (int i=0; i<5; i++) {
-              if (mex>holex[i]-5 && mex<holex[i]+5 && mey>holey[i]-10  && mey<holey[i]+10 ) {
-        
+              if (mex>holex[i]-20 && mex<holex[i]+70 && mey>holey[i]-10  && mey<holey[i]+10 ) {
+
                 image(gameover, width/2, height/2, 1000, 150);
                 noLoop();
               }
             }
           }
         }
-        
-        
-        
+
+
+
         void bgset() {
           ///////////////////////////////////background////////////////////////////////////////////////////////
           background(0);
+          ////////////////////ground///////////////////////////////////////////////////////////////////
+          fill(50, 50, 50);
+          rect(0, 820, width, height);
+
           /////////////////////door///////////////////////////////////////////////////////////////////
-          for (int q=0; q<49; q++) {
+          for (int q=0; q<42; q++) {
             int dgap=q*5;
             dox=gap+(dgap%((width-2*gap)/step))*step;
             doy=100+(int(dgap/((width-2*gap)/step)))*step*ceilht;
             noStroke();
             rectMode(CORNERS);
-            fill(93-random(0, 50), 37, 0);
+            fill(65, 47, 30);
             rect(dox, doy+rad/2, dox+25, doy-rad);
             fill(0);
             ellipse(dox+5, doy-10, 2, 2);
           }
+          /////////////////////column///////////////////////////////////////////////////////////////////
+          for (int q=42; q<49; q++) {
+            int dgap=q*5;
+            dox=gap+(dgap%((width-2*gap)/step))*step;
+            doy=100+(int(dgap/((width-2*gap)/step)))*step*ceilht;
+            noStroke();
+            rectMode(CORNERS);
+            fill(245, 220, 180);
+            rect(dox, doy+rad/2, dox+5, doy-1.1*rad);
+            rect(dox+95, doy+rad/2, dox+100, doy-1.1*rad);
+
+            int rancol=int(random(-50, 50));
+            fill(120+rancol, 120-rancol, 50);
+            rect(dox, doy-1.1*rad, dox+100, doy-1.1*rad-15);
+
+            fill(150+0.5*rancol, 150-0.5*rancol, 100);
+            rect(dox+5, doy, dox+95, doy+0.45*rad);
+          }
           ////////////////////////slabs//////////////////////////////////////////////////////////////
-          for (int i=1; i<9; i++) {
+          for (int i=1; i<8; i++) {
             noStroke();
             fill(149, 127, 54);
             rectMode(CORNERS);
             rect(gap, i*step*ceilht+rad/2, width-gap, i*step*ceilht+rad/2+10);
           }
-        
+
           ////////////////////////////////////////draw obs////////////////////////////////////////////////////
           for (int j=0; j<obsnum; j++) {
             obsx[j]=gap+(obs[j]%((width-2*gap)/step))*step;
-            obsx[j]=max(gap+80,obsx[j]);
-            obsx[j]=min(width-gap-80,obsx[j]);
+            obsx[j]=max(gap+80, obsx[j]);
+            obsx[j]=min(width-gap-80, obsx[j]);
             obsy[j]=100+(int(obs[j]/((width-2*gap)/step)))*step*ceilht;
             noStroke();
-            fill(160, 186+ranobs[j]*15, 233-ranobs[j]*10);
-            rect(obsx[j]+4, obsy[j]+rad/2, obsx[j]+28, obsy[j]-5);
-            textSize(18);
+            fill(120-ranobs[j]*3, 120+ranobs[j]*3, 50);
+            rect(obsx[j]-5, obsy[j]+rad/2, obsx[j]+25, obsy[j]-15);
+            textSize(21);
             fill(255);
-            text("?", obsx[j]+16, obsy[j]+12);
+            text("?", obsx[j]+10, obsy[j]+6);
           }
           ////////////////////////////////////////draw hole////////////////////////////////////////////////////
           for (int k=0; k<5; k++) {
             holex[k]=gap+(hole[k]%((width-2*gap)/step))*step;
-            holex[k]=max(gap+80,holex[k]);
-            holex[k]=min(width-gap-80,holex[k]);
+            holex[k]=max(gap+80, holex[k]);
+            holex[k]=min(width-gap-80, holex[k]);
             holey[k]=100+(int(hole[k]/((width-2*gap)/step)))*step*ceilht;
             noStroke();
             fill(0);
-            rect(holex[k]-10, holey[k]-50, holex[k]+50, holey[k]+40);
+            rect(holex[k]-20, holey[k]-50, holex[k]+70, holey[k]+33);
           }
-          image(man1, 160+random(-5,5), 790, 52, 64);
-          image(man2, 360+random(-5,5), 790, 52, 64);
-          image(man3, 560+random(-5,5), 790, 52, 64);
+          image(man1, 420, 690+random(-5, 5), 52, 64);
+          image(man2, 560+random(-5, 5), 690, 52, 64);
+          image(man3, 660, 790+random(-5, 5), 52, 64);
+
+
+          textSize(12);
+          fill(255);
+          text("SCORE", 130, 840);
+          text(score, 130, 850);
         }
-        
+        ////////////////////////////////////////draw coin////////////////////////////////////////////////////
+        void coinf() {
+          for (int i=0; i<50; i++) {
+
+            coinloc=i*5;
+            float coinx=1.5*gap+(coinloc%((width-2*gap)/step))*step;
+            float coiny=100+(int(coinloc/((width-2*gap)/step)))*step*ceilht;
+
+            if (dist(coinx, coiny, mex, mey)<40) {
+              coin[i]=1;
+            } else if (coin[i]==0) {
+              fill(200, 200, 0);
+              ellipse(coinx, coiny, random(0, 20), 20);
+            }
+          }
+
+          score=0;
+          for (int i=0; i<50; i++) {
+            score=score+coin[i];
+          }
+        }
+
+
         void chunking() {
           //////////////////////////////////////draw villain//////////////////////////////////////////////
           for (int j=last; j<villnum; j++) {
             ranX=random(-8, 8);
             ranY=random(-3, 3);
-        
+
             villx[j]=gap+(vill[j]%((width-2*gap)/step))*step;
             villy[j]=100+(int(vill[j]/((width-2*gap)/step)))*step*ceilht;
             float tempx=villx[j]+ranX;
             float tempy=villy[j]+ranY;
-        
+
             stroke(165-6*ranX, 40+4*ranX, 40-4*ranX);
             strokeWeight(5);
             line(tempx, tempy, villx[j]-8, villy[j]+rad/2);
@@ -354,19 +406,19 @@
             ellipse(0, -20, rad/2, rad/2.5);
             ellipse(-8, -15-rad/4, rad/6, rad/6);
             ellipse(8, -15-rad/4, rad/6, rad/6);
-        
+
             fill(30, 10, 10);
             ellipse(-5, -10-rad/4, 3, 3);
             ellipse(5, -10-rad/4, 3, 3);
             popMatrix();
-        
+
             fill(255);
             String s=str(hit[j]*10)+"$";
             textSize(15);
             text(s, villx[j], villy[j]);
           }
         }
-        
+
         void plmove() {
           if (mode==0) {
             move++;
@@ -393,35 +445,35 @@
         //////////////////////////////////////////////////////////////////////////jump/////////////////////////////////////////////////////////////////////////////////
         void jump() {
           if (mode==0) {
-            move=move+0.6;
-            jumpy=min(45, jumpy+20);
+            move=move+0.5;
+            jumpy=min(27, jumpy+30);
           }
         }
-        
+
         void pldraw() {
           mex=gap+(int(move)%((width-2*gap)/step))*step;
-          mey=100+(int(move/((width-2*gap)/step)))*step*ceilht-jumpy;
-        
+          mey=100+(int(move/((width-2*gap)/step)))*step*ceilht-2*jumpy;
+
           stroke(255, 100, 3);
           strokeWeight(2);
-        
+
           pushMatrix();
           translate(mex, mey);
           rotate(sin(move)*PI/3);
           line(0, 0, 0, rad/2);
           line(0, rad/2, 5, rad/2);
           popMatrix();
-        
+
           pushMatrix();
           translate(mex, mey);
           rotate(sin(move+2)*PI/3);
           line(0, 0, 0, rad/2);
           line(0, rad/2, 5, rad/2);
           popMatrix();
-        
+
           line(mex, mey, mex, mey-rad/2);
           line(mex, mey-rad/2, mex+rad/2, mey-rad/2);
-        
+
           ellipseMode(CENTER);
           noStroke();
           fill(255, 100, 3);
@@ -431,9 +483,9 @@
           ellipse(mex-2, mey-10-rad/4, 3, 3);
           ellipse(mex+2, mey-10-rad/4, 3, 3);
         }
-        
+
         void resid() {
-          vres=0.7;
+          vres=vres+0.002;
           resmove=resmove+vres;
           if (resmove>=2) {
             resx=gap+(resmove%((width-2*gap)/step))*step;
@@ -441,25 +493,25 @@
             resdraw();
           }
         }
-        
+
         void resdraw() {
           stroke(255, 188, 3);
           strokeWeight(5);
-        
+
           pushMatrix();
           translate(resx, resy);
           rotate(sin(resmove*2)*PI/3);
           line(0, 0, 0, rad/2);
           line(0, rad/2, 5, rad/2);
           popMatrix();
-        
+
           pushMatrix();
           translate(resx, resy);
           rotate(sin(resmove*2+2)*PI/3);
           line(0, 0, 0, rad/2);
           line(0, rad/2, 5, rad/2);
           popMatrix();
-        
+
           fill(255, 188, 3);
           pushMatrix();
           translate(resx, resy);

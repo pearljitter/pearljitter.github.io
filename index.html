@@ -16,9 +16,235 @@
     <h1>WELCOME!</h1>
     <h2>works well in PC environment</h2>
     <p>@pearl.jitter</p>
+
     <div>
-      <h3>I. the CHUNG KING RUN (2023)</h3>
-      <p>escape the chung king mansion successfully after knocking on a random door!</p>
+      <h3>I. A STRAGGLER RESCUER (2024)</h3>
+      <p>the ski slope was too stiff for beginners...</p>
+    </div>
+    <div>
+      <script type="text/processing"> 
+        int steps=100;
+        int mode=-1;
+        int ran=150;
+        int snum=steps/2;
+        int score=0;
+        int pfcnt;
+
+        float tempy;
+        float mmove=0;
+        float jmp=0;
+        float theta=0;
+        float slox[]=new float[steps+2];
+        float sloy[]=new float[steps+2];
+        float gap=450;
+        float mex=0;
+        float mey=100;
+        float pmex[]=new float[snum];
+        float pmey[]=new float[snum];
+        float vx, vy=0;
+        float v=0;
+        float grav=0.8;
+        float cntrl=400;
+        float enx[]=new float[steps/2];
+        float eny[]=new float[steps/2];
+
+        PImage ski;
+        PImage start;
+        PImage meski;
+        PImage sos;
+        PImage ys;
+
+        void setup() {
+          size(900, 900);
+          frameRate(60);
+          background(255);
+          enx[0]=-100;
+          eny[0]=-100;
+          slope();
+
+          ski=loadImage("ski.png");
+          start=loadImage("start.png");
+          meski=loadImage("meski.png");
+          sos=loadImage("sos.png");
+          ys=loadImage("ys.png");
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        void draw() {
+          background(255);
+          pushMatrix();
+          translate(cntrl, 0);
+          //////////////////////////////draw slope////////////////////////////////////////
+          stroke(1);
+          strokeWeight(1);
+          noFill();
+
+          beginShape();
+          for (int i=0; i<steps+2; i++) {
+            curveVertex(slox[i], sloy[i]);
+          }
+          endShape();
+
+          if (mode==-1) {
+            image(ski, -cntrl, 0, width, height);
+
+            if (mousePressed && mouseButton==LEFT) {
+              pfcnt=frameCount;
+              mode=0;
+             }
+            }
+
+          else if(mode==0){
+              image(start, -cntrl, 0, width, height);
+             if (frameCount-pfcnt>200) {
+              mode=1;
+            }
+          }
+        
+
+          //////////////////////////////////////mode 1//////////////////////////////////////////////
+          else if (mode==1) {
+            vy=vy+grav;
+            vx=0;
+            if (mey>=100) {
+              mode=2;
+              vy=0;
+              mex=0;
+              mey=100;
+            }
+          }
+          //////////////////////////////////////mode 2//////////////////////////////////////////////
+          else if (mode==2) {
+            v=sqrt(abs(grav*(mey-240)));
+            ////////////////////////////////////////get 기울기//////////////////////////////////////////
+            for (int i=1; i<steps+1; i++) {
+              if (mex>=slox[i] && mex<=slox[i+1]) {
+                float dx=slox[i+1]-slox[i];
+                float dy=sloy[i+1]-sloy[i];
+                float dz=sqrt(pow(dx, 2)+pow(dy, 2));
+
+                vx=v*dx/dz;
+                vy=v*dy/dz;
+              }
+            }
+          }
+          /////////////////////////////////////////////////////////////////////////////////////////
+          if (mode==2) {
+            shad();
+            en();
+            tilt();
+            jump();
+            me();
+          }
+
+          popMatrix();
+          textSize(15);
+          text(score, 50, 850);
+          fcntrl();
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        void slope() {
+          slox[0]=0;
+          sloy[0]=0;
+          slox[1]=0;
+          sloy[1]=100;
+          slox[steps]=steps*gap-steps;
+          sloy[steps]=400;
+          slox[steps+1]=steps*gap;
+          sloy[steps+1]=400;
+          for (int i=2; i<steps; i++) {
+            slox[i]=i*gap-gap;
+            sloy[i]=400+int(random(-ran, ran));
+            if (i%2==0) {
+              enx[i/2]=slox[i]+random(0, 50);
+              eny[i/2]=sloy[i]+random(80-i, 120+i);
+            }
+          }
+        }
+
+        void en() {
+          for (int i=0; i<snum; i++) {
+            stroke(0);
+            strokeWeight(1);
+            fill(0);
+            image(sos, enx[i], eny[i]-60, 80, 80);
+            if (dist(enx[i], eny[i], mex, tempy)<50) {
+              enx[i]=0;
+              eny[i]=0;
+              score++;
+              grav=grav+0.05;
+            }
+          }
+        }
+
+        void shad() {
+          for (int i=0; i<snum-1; i++) {
+            pmex[i]=pmex[i+1];
+            pmey[i]=pmey[i+1];
+          }
+          pmex[snum-1]=mex;
+          pmey[snum-1]=tempy;
+          if (score>0) {
+            for (int i=snum-1; i>snum-1-score; i--) {
+              fill(0);
+              image(sos, pmex[i], pmey[i]-60, 80, 80);
+            }
+          }
+        }
+
+        void me() {
+          mex=mex+vx;
+          mey=mey+vy;
+
+          fill(0);
+          tempy=mey+100+mmove-jmp;
+          image(meski, mex, tempy-55, 80, 80);
+          stroke(0);
+          strokeCap(SQUARE);
+          strokeWeight(2);
+          line(mex+40, tempy-10, mex+30-3*vx, tempy+25);
+          strokeWeight(4);
+          line(mex+70, tempy+20+3*vy, mex-vx, tempy+20);
+        }
+
+        void tilt() {
+          if (mousePressed && (mouseButton==LEFT) && mouseY >400) {
+            mmove=mmove+5;
+            if (mmove>80) {
+              mmove=80;
+            }
+          } else if (mousePressed && (mouseButton==LEFT) && mouseY <400 ) {
+            mmove=mmove-5;
+            if (mmove<-80) {
+              mmove=-80;
+            }
+          }
+        }
+
+        void jump() {
+          if (mousePressed && (mouseButton==RIGHT)) {
+            theta=theta+0.5;
+          } else {
+            theta=theta%(8*PI);
+            theta=max(theta-0.5, 0);
+          }
+          jmp=200*sin(min(PI, theta/8));
+        }
+
+        void fcntrl() {
+          cntrl=cntrl-vx;
+          if (cntrl<-1*gap*steps+gap) {
+            noLoop();
+            image(ys, 0, 0, width, height);
+            textSize(140);
+            text(score, 400, 600);
+          }
+        }
+  </script>
+  <canvas id="sketch" style="border: 3px solid rgb(255, 255, 255);"></canvas>
+    </div>
+    <div>
+      <h3>II. CHUNG KING RUN (2023)</h3>
+      <p>escape the chung king mansion after knocking on a random door</p>
     </div>
     <div>
       <script type="text/processing"> 
@@ -530,7 +756,7 @@
       <canvas id="sketch" style="border: 3px solid rgb(255, 255, 255);"></canvas>
     </div>
     <div>
-      <h3>II. ORIGAMI DRAGON (2020)</h3>
+      <h3>III. ORIGAMI DRAGON (2020)</h3>
       <p>origami dragon following your mouse</p>
     </div>
     <div>
@@ -772,7 +998,7 @@
       <canvas id="sketch" style="border: 3px solid rgb(255, 255, 255);"></canvas>
     </div>
     <div>
-      <h3>III. GELAGA (2020)</h3>
+      <h3>IV. GELAGA (2020)</h3>
       <p>explore the universe destroying asteroids</p>
     </div>
     <div>
@@ -800,15 +1026,15 @@
           if(boo==false){
             background(0);
             fill(#3642A2);
-            textSize(60);
-            text("GELAGA",60,200);
+            textSize(95);
+            text("GELAGA",3,350);
             
-            textSize(14);
-            text("press left to move left",120,290);
-            text("press right to move right",120,320);
-            text("press spaceship to shoot",120,350);
-            textSize(20);
-            text("click to start",120,400);
+            textSize(25);
+            text("press left to move left",10,530);
+            text("press right to move right",10,560);
+            text("press spaceship to shoot",10,590);
+            textSize(40);
+            text("click to start",180,750);
             noLoop();
             if(mousePressed){
               boo=true;
@@ -939,7 +1165,7 @@
       <canvas id="sketch" style="border: 3px solid rgb(255, 255, 255);"></canvas>
     </div>
     <div>
-      <h3>IV. FUZZY (2023)</h3>
+      <h3>V. FUZZY (2023)</h3>
       <p>fuzzy surface</p>
     </div>
     <div>
@@ -1017,7 +1243,6 @@
       </script>
       <canvas id="sketch" style="border: 3px solid rgb(255, 255, 255);"></canvas>
     </div>
-
     <div>
       <p>credit to @pearl.jitter</p>
     </div>

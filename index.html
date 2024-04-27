@@ -229,11 +229,11 @@
         float enx[]=new float[steps/2];
         float eny[]=new float[steps/2];
 
-        PImage ski;
-        PImage start;
-        PImage meski;
-        PImage sos;
-        PImage ys;
+        PImage imski;
+        PImage imstart;
+        PImage immmeski;
+        PImage imsos;
+        PImage imys;
 
         void setup() {
           size(900, 900);
@@ -243,11 +243,11 @@
           eny[0]=-100;
           slope();
 
-          ski=loadImage("ski.png");
-          start=loadImage("start.png");
-          meski=loadImage("meski.png");
-          sos=loadImage("sos.png");
-          ys=loadImage("ys.png");
+          imski=loadImage("ski.png");
+          imstart=loadImage("start.png");
+          immeski=loadImage("meski.png");
+          imsos=loadImage("sos.png");
+          imys=loadImage("ys.png");
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         void draw() {
@@ -266,7 +266,7 @@
           endShape();
 
           if (mode==-1) {
-            image(ski, -cntrl, 0, width, height);
+            image(imski, -cntrl, 0, width, height);
 
             if (mousePressed && mouseButton==LEFT) {
               pfcnt=frameCount;
@@ -275,7 +275,7 @@
             }
 
           else if(mode==0){
-              image(start, -cntrl, 0, width, height);
+              image(imstart, -cntrl, 0, width, height);
              if (frameCount-pfcnt>200) {
               mode=1;
             }
@@ -347,7 +347,7 @@
             stroke(0);
             strokeWeight(1);
             fill(0);
-            image(sos, enx[i], eny[i]-60, 80, 80);
+            image(imsos, enx[i], eny[i]-60, 80, 80);
             if (dist(enx[i], eny[i], mex, tempy)<50) {
               enx[i]=0;
               eny[i]=0;
@@ -367,7 +367,7 @@
           if (score>0) {
             for (int i=snum-1; i>snum-1-score; i--) {
               fill(0);
-              image(sos, pmex[i], pmey[i]-60, 80, 80);
+              image(imsos, pmex[i], pmey[i]-60, 80, 80);
             }
           }
         }
@@ -378,7 +378,7 @@
 
           fill(0);
           tempy=mey+100+mmove-jmp;
-          image(meski, mex, tempy-55, 80, 80);
+          image(immeski, mex, tempy-55, 80, 80);
           stroke(0);
           strokeCap(SQUARE);
           strokeWeight(2);
@@ -415,7 +415,7 @@
           cntrl=cntrl-vx;
           if (cntrl<-1*gap*steps+gap) {
             noLoop();
-            image(ys, 0, 0, width, height);
+            image(imys, 0, 0, width, height);
             textSize(140);
             text(score, 360, 600);
           }
@@ -507,9 +507,9 @@
           gameover=loadImage("GAME OVER.png");
           terrible=loadImage("terrible.png");
           ready=loadImage("ready.png");
-          man1=loadImage("중경도주_indianman.png");
-          man2=loadImage("중경도주_indianman2.png");
-          man3=loadImage("중경도주_indianman3.png");
+          man1=loadImage("indianman.png");
+          man2=loadImage("indianman2.png");
+          man3=loadImage("indianman3.png");
 
           for (int i=0; i<15; i++) {
             arr[i]=999;
@@ -1430,24 +1430,7 @@
     <h5>                             </h5>
     <p>
       <div id="disqus_thread"></div>
-      <script>
-          /**
-          *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-          *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
-          /*
-          var disqus_config = function () {
-          this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-          this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-          };
-          */
-          (function() { // DON'T EDIT BELOW THIS LINE
-          var d = document, s = d.createElement('script');
-          s.src = 'https://pearljitter.disqus.com/embed.js';
-          s.setAttribute('data-timestamp', +new Date());
-          (d.head || d.body).appendChild(s);
-          })();
-      </script>
-      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      <a href="/https://crud-test-xqmwh.run.goorm.io/board">leave comments</a>
     </p>
 
     </body>

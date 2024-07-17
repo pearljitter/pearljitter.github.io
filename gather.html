@@ -49,8 +49,9 @@
               textSize(15);
               text("gather 3333 dots", 338, 430);
               text("wait to assemble", 338, 450);
-              text("right click to disperse", 325, 470);
-              if (mousePressed) {
+              text("right click to disperse", 338, 470);
+              text("touch to start", 340, 490);
+              if (dist(mouseX,mouseY,400,490)<20) {
                 mode=1;
               }
             } else if (mode==1) {

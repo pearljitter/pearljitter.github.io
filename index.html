@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pearljitter archive</title>
-    <link rel="stylesheet" href="landingstyle.css">
+    <link rel="stylesheet" href="simp_landingstyle.css">
     <style>
         body {
             background-color: rgb(0, 0, 0);
@@ -15,9 +15,9 @@
             display: grid;
             grid-template-columns: repeat(8, 1fr);
             grid-template-rows: repeat(8, 1fr);
-            row-gap: 0px;
+            row-gap: 5px;
             /* 그리드 셀 간의 간격 */
-            column-gap: 0px;
+            column-gap: 5px;
             /* 그리드 셀 간의 간격 */
         }
 
@@ -36,9 +36,9 @@
             padding: 0;
             box-sizing: border-box;
             border-width: 1px;
-            border-style: solid;
+            border-style: hidden;
             border-color: rgba(255, 255, 255, 0.158);
-            background-color: rgb(0, 0, 0);
+            background-color: rgb(7, 7, 7);
         }
 
         .grid-button img {
@@ -51,111 +51,95 @@
 </head>
 
 <body>
-    <div id="container">
-        <div id="header">
-            <h1>P J A R C H I V E</h1>
-        </div>
-        <div id="spacer">
-            <p></p>
-        </div>
-        <div id="toptext">
-            <h3>abstract « » concrete</h3>
-        </div>
-        <div id="topbar">
-            <hr>
-        </div>
-        <div id="sidetext">
-            <h3>large « » small</h3>
-        </div>
-        <div id="sidebar">
-            <div class="vertical-line"></div>
-        </div>
-        <div id="contents">
-            <div class="grid-container">
-                <!-- 1 -->
-                <div class="grid-item"><button class="grid-button" onclick="location.href='gather.html'"><img
-                            src="thumbnail/7.png">the gathering</button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
 
-                <!-- 2 -->
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button" onclick="location.href='galaga.html'"><img
-                            src="thumbnail/5.png"><br></button></div>
-                <!-- 3 -->
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button" onclick="location.href='fuzzy.html'"><img
-                            src="thumbnail/1.png"><br></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <!-- 4 -->
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <!-- 5 -->
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button" onclick="location.href='dragon.html'"><img
-                            src="thumbnail/4.png"><br>fuzzy</button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <!-- 6 -->
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button" onclick="location.href='ski.html'"><img
-                            src="thumbnail/3.png"><br></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <!-- 7 -->
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button" onclick="location.href='pacguy.html'"><img
-                            src="thumbnail/6.png"><br></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button" onclick="location.href='chunking.html'"><img
-                            src="thumbnail/2.png"><br></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <!-- 8 -->
-                <div class="grid-item"><button class="grid-button" onclick="location.href='tanghulu.html'"><img
-                            src="thumbnail/8.png"><br></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-                <div class="grid-item"><button class="grid-button"></button></div>
-            </div>
-        </div>
+    <h2>PEARL JITTER</h2>
+    
+    <h1>A R C H I V E</h1>
+
+    <div class="grid-container">
+        <!-- 1 -->
+        <div class="grid-item"><button class="grid-button" onclick="location.href='gather.html'"><img
+                    src="thumbnail/7.png">the gathering</button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+
+        <!-- 2 -->
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button" onclick="location.href='galaga.html'"><img
+                    src="thumbnail/5.png"><br></button></div>
+        <!-- 3 -->
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button" onclick="location.href='fuzzy.html'"><img
+                    src="thumbnail/1.png"><br></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <!-- 4 -->
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <!-- 5 -->
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button" onclick="location.href='dragon.html'"><img
+                    src="thumbnail/4.png"><br>fuzzy</button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <!-- 6 -->
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button" onclick="location.href='ski.html'"><img
+                    src="thumbnail/3.png"><br></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <!-- 7 -->
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button" onclick="location.href='pacguy.html'"><img
+                    src="thumbnail/6.png"><br></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button" onclick="location.href='chunking.html'"><img
+                    src="thumbnail/2.png"><br></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <!-- 8 -->
+        <div class="grid-item"><button class="grid-button" onclick="location.href='tanghulu.html'"><img
+                    src="thumbnail/8.png"><br></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
+        <div class="grid-item"><button class="grid-button"></button></div>
     </div>
+
 </body>
 
 </html>

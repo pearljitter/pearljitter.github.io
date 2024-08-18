@@ -2,433 +2,516 @@
 <html lang="en">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>pearljitter</title>
-    <script type="text/javascript" src="js/processing.js"></script>
-    <link rel="stylesheet" href="pageStyle.css">
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background-color: rgb(0, 0, 0);
-        }
-    </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>pearljitter</title>
+  <script type="text/javascript" src="js/processing.js"></script>
+  <link rel="stylesheet" href="pageStyle.css">
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: rgb(0, 0, 0);
+    }
+  </style>
 </head>
 
 <body>
-    <div>
-        <script type="text/processing">
-          //gamemode
-          int gamemode=0;
-          
-          //background
-          float theta;
-          int margin=20;
-          float stamina=100;
-          
-          
-          //navigator
-          int butrad=30;
-          int btx[]={400/2+50, 400/2, 400/2-50, 400/2};
-          int bty[]={640-100, 640-50, 640-100, 640-150};
-          
-          //walls
-          int wx1[]={160, 200};
-          int wx2[]={170, 210};
-          int wy1[]={280, 0};
-          int wy2[]={400, 60};
-          int tol=2;
-          
-          //arcs
-          int ax[]={170, 200, 200};
-          int ay[]={ 200, 200, 200};
-          int arad[]={ 100, 60, 140};
-          float aa[]={ PI, 1.5*PI, 0};
-          
-          int axmax[]=new int[ax.length];
-          int aymax[]=new int[ax.length];
-          int axmin[]=new int[ax.length];
-          int aymin[]=new int[ax.length];
-          
-          int thk=10;
-          
-          //me
-          int mex=200;
-          int mey=200;
-          int merad=8;
-          int mev=2;
-          int mvmode=-1;
-          int pevx[]=new int[50];
-          int pevy[]=new int[50];
-          
-          int modhis[]=new int[100];
-          
-          //ememy
-          int enx[]={30, 60, 90, 100, 140, 150, 220, 270, 300, 320};
-          int eny[]={30, 200, 40, 100, 50, 20, 320, 50, 370, 60};
-          int ev[]={1, 1, 1, 1, 2, 2, 2, 2, 3, 3};
-          int enmvmode[]={-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-          int enrad=6;
-          int enfr[]={100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
-          int frcnt=0;
-          
-          //tree
-          int treex[]={-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-          int treey[]={-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-          
-          //class
-          Charactor me=new Charactor(mex, mey, merad, mvmode, mev, 255);
-          Charactor[] enemy=new Charactor[enx.length];
-          
-          //////////////////////////////////////////////setup//////////////////////////////////////////////////
-          
-          void setup() {
-            background(0);
-            size(400, 640);
-            frameRate(60);
-          
-            for (int i=0; i<enx.length; i++) {
-              enemy[i]=new Charactor(enx[i], eny[i], enrad, enmvmode[i], ev[i], 50+int(enx[i]/2));
-            }
-          
-            for (int i=0; i<pevx.length-1; i++) {
-              pevx[i]=200;
-              pevy[i]=200;
-            }
-          }
-          
-          //////////////////////////////////////////////draw//////////////////////////////////////////////////
-          
-          void draw() {
-            if (gamemode==0) {
-              background(0);
-              fill(255);
-              textSize(24);
-              text("GARDEN PARTY SURVIVAL", 40, 100);
-              textSize(12);
-              text("You're hosting a garden party, but you forgot you're an introvert.", 15, 130);
-              textSize(15);
-              text("touch to start", 130, 300);
-              text("[SURVIVAL GUIDLINES]", 80, 410);
-              text("1. Go closer to make a stranger a friend.", 80, 440);
-              text("2. Where a friend is made, a tree grows.", 80, 470);
-              text("3. Replenish your stamina under the tree.", 80, 500);
-              text("4. Make sure not to be exhausted.", 80, 530);
-              if (dist(mouseX, mouseY, width/2, height/2)<30) {
-                gamemode=1;
-              }
-            } else if (gamemode==1) {
-              background(0);
-              fill(255);
-              textSize(15);
-              text("STAMINA", 300, 410);
-              text(int(stamina), 375, 410);
-              drawbgd();
-              drawwall();
-              drawarc();
-              drawtree();
-              control();
-              me.move();
-              me.display();
-          
-              if (stamina<0) {
-                gamemode=2;
-              }
-              if (frcnt==10) {
-                gamemode=3;
-              }
-          
-              for (int i=0; i<enx.length; i++) {
-                if (enfr[i]>0) {
-                  enemy[i].move();
-                  /////////////if enemy is too close///////////////////////
-                  if (dist(enemy[i].x, enemy[i].y, me.x, me.y)<30) {
-                    stamina=stamina-0.3;
-                    enfr[i]--;
-                    if (enfr[i]==1) {
-                      frcnt++;
-                      treex[i]=enemy[i].x;
-                      treey[i]=enemy[i].y;
-                      enfr[i]=0;
-                    }
-                  }
-                  /////////draw enemy friendliness///////////
-                  fill(255, 30);
-                  ellipse(enemy[i].x, enemy[i].y, enfr[i]/5, enfr[i]/5);
-                  enemy[i].display();
-                } else if (dist(treex[i], treey[i], me.x, me.y)<30) {
-                  stamina=stamina+0.2;
-                }
-              }
-              /////////draw me stamina////////////
-              fill(100, 100, 255, 50);
-              ellipse(me.x, me.y, stamina, stamina);
-            } else if (gamemode==2) {
-              background(0);
-              fill(255);
-              text("you're exhausted", 150, 300);
-            } else if (gamemode==3) {
-              background(0);
-              fill(255);
-              text("you won", 150, 300);
-            }
-          }
-          
-          //////////////////////////////////////////////control//////////////////////////////////////////////////
-          
-          void control() {
-            me.mode=-1;
-            for (int i=0; i<4; i++) {
-              if (dist(mouseX, mouseY, btx[i], bty[i])<=butrad) {
-                me.mode=i;
-                for (int j=99; j>0; j--) {
-                  modhis[j]=modhis[j-1];
-                }
-                modhis[0]=i;
-              }
-            }
-          
-            for (int j=0; j<enx.length; j++) {
-              enemy[j].mode=(modhis[j*10]+j)%4;
-            }
-          }
-          
-          //////////////////////////////////////////////charactor//////////////////////////////////////////////////
-          
-          class Charactor {
-            int x, y;
-            int rad;
-            int mode;
-            int v;
-            int col;
-            float gv;
-          
-            Charactor(int xpos, int ypos, int radius, int mmode, int cv, int cc) {
-              x=xpos;
-              y=ypos;
-              rad=radius;
-              mode=mmode;
-              v=cv;
-              col=cc;
-            }
-          
-            void move() {
-              // col=255;
-              if (mode>=0) {
-                theta=PI*mode/2;
-                x=x+round(v*cos(theta));
-                y=y+round(v*sin(theta));
-              }
-          
-          
-              //constrain arc
-              for (int i=0; i<ax.length; i++) {
-          
-                if (x+rad>axmin[i]-thk/2 && x-rad<axmax[i]+thk/2 && y+rad>aymin[i]-thk/2 && y-rad<aymax[i]+thk/2) {
-                  float temp=dist(x, y, ax[i], ay[i]);
-          
-                  if ((temp+rad>(arad[i]-thk/2)) && (temp<=arad[i])) {
-                    //col=0;
-                    float rtemp=arad[i]-thk/2-rad;
-                    x=round(ax[i]+(x-ax[i])*(rtemp/temp));
-                    y=round(ay[i]+(y-ay[i])*(rtemp/temp));
-                  } else if ((temp-rad<(arad[i]+thk/2)) && (temp>arad[i])) {
-                    //col=0;
-                    float rrtemp=arad[i]+thk/2+rad;
-                    x=round(ax[i]+(x-ax[i])*(rrtemp/temp));
-                    y=round(ay[i]+(y-ay[i])*(rrtemp/temp));
-                  }
-                }
-              }
-          
-              //constrain in wall
-              for (int j=0; j<wx1.length; j++) {
-                if ((x+rad)>wx1[j] && (x-rad)<wx1[j]+tol && (y+rad)>wy1[j] && (y-rad)<wy2[j]) {
-                  //col=150;
-                  x=wx1[j]-rad;
-                }
-                if ((x+rad)>wx1[j] && (x-rad)<wx2[j] && (y+rad)>wy1[j] && (y-rad)<wy1[j]+tol) {
-                  // col=150;
-                  gv=0;
-                  y=wy1[j]-rad;
-                }
-                if ((x+rad)>wx2[j]-tol && (x-rad)<wx2[j] && (y+rad)>wy1[j] && (y-rad)<wy2[j]) {
-                  //col=150;
-                  x=wx2[j]+rad;
-                }
-                if ((x+rad)>wx1[j] && (x-rad)<wx2[j] && (y+rad)>wy2[j]-tol && (y-rad)<wy2[j]) {
-                  //col=150;
-                  y=wy2[j]+rad;
-                }
-              }
-          
-          
-              //constrain in frame
-              x=constrain(x, margin+rad, width-margin-rad);
-              y=constrain(y, margin+rad, width-margin-rad);
-              //////////update previous location//////////////////////
-              if (rad>=merad) {
-                for (int i=pevx.length-1; i>0; i--) {
-                  pevx[i]=pevx[i-1];
-                  pevy[i]=pevy[i-1];
-                }
-                pevx[0]=x;
-                pevy[0]=y;
-              }
-              /////////////////////////////////////////////////////
-            }
-          
-          
-          
-            void display() {
-              noStroke();
-              ellipseMode(RADIUS);
-              ///////////////////////draw me////////////////////////////////////////////
-              if (rad>=merad) {
-                for (int i=pevx.length-1-frcnt; i>=0; i--) {
-                  fill(int(255/(pevx.length)*i), 100, 255-int(255/(pevx.length)*i), 50);
-                  ellipse(pevx[i], pevy[i], merad, merad);
-                }
-                for (int i=pevx.length-1; i>pevx.length-1-frcnt; i--) {
-                  fill(255, 50, 50, 100);
-                  ellipse(pevx[i], pevy[i], merad, merad);
-                  ///////////////draw friend enemy face/////////////////////
-                  pushMatrix();
-                  translate(pevx[i], pevy[i]);
-                  rotate(mode*PI/2);
-                  noStroke();
-                  fill(0);
-                  ellipse(3, -2, 1, 1);
-                  ellipse(3, 2, 1, 1);
-          
-                  noStroke();
-                  popMatrix();
-                }
-          
-                fill(0, 100, 255);
-                ellipse(x, y, rad, rad);
-          
-                ///////////////draw meface/////////////////////
-                pushMatrix();
-                translate(x, y);
-                rotate(mode*PI/2);
-                noStroke();
-                fill(0);
-                ellipse(3, -2, 1, 1);
-                ellipse(3, 2, 1, 1);
-                stroke(0, 100, 255);
-                strokeWeight(2);
-                line(rad-2, rad, rad+6, rad);
-                line(rad-2, -rad, rad+6, -rad);
-                fill(0, 100, 255);
-                //ellipseMode(CENTER);
-                ellipse(rad+6,rad,1,1);
-                ellipse(rad+6,-rad,1,1);
-                noStroke();
-                popMatrix();
-              }
-              ///////////////////////draw enemy////////////////////////////////////////////
-              else {
-                fill(col);
-                ellipse(x, y, rad, rad);
-          
-                ///////////////draw enemy face/////////////////////
-                pushMatrix();
-                translate(x, y);
-                rotate(mode*PI/2);
-                noStroke();
-                fill(0);
-                ellipse(3, -2, 1, 1);
-                ellipse(3, 2, 1, 1);
-          
-                noStroke();
-                popMatrix();
-              }
+  <div>
+    <script type="text/processing">
+
+//gamemode
+int gamemode=0;
+
+//background
+float theta;
+int margin=10;
+float score=100;
+int wallheight=15;
+
+//navigator
+int butrad=20;
+int btx[]={400/2+20, 400/2, 400/2-20, 400/2};
+int bty[]={640-100, 640-80, 640-100, 640-120};
+
+int bbutrad=30;
+int bbtx[]={400/2+50, 400/2, 400/2-50, 400/2};
+int bbty[]={640-100, 640-50, 640-100, 640-150};
+
+
+//bullet
+int bullrad=3;
+int bullmode=-1;
+int bullcnt=0;
+int bulldir[]=new int[30];
+int bullx[]=new int[30];
+int bully[]=new int[30];
+int bv=3;
+
+//walls
+int wx1[]={200-40-5, 200-40-5, -40, 80};
+int wx2[]={200-40+5, 320, 200, 90};
+int wy1[]={200, 330, 200-90-5, 40};
+int wy2[]={400, 340, 200-90+5, 200-90-5};
+int tol=2;
+
+//arcs
+int ax[]={200, 200, 200, 200};
+int ay[]={200, 200, 198, 199};
+int arad[]={40, 40, 90, 90};
+float aa[]={PI, 1.5*PI, 0, 1.5*PI};
+
+int axmax[]=new int[ax.length];
+int aymax[]=new int[ax.length];
+int axmin[]=new int[ax.length];
+int aymin[]=new int[ax.length];
+
+int thk=10;
+
+//me
+int mex=200;
+int mey=200;
+int merad=8;
+float mev=2;
+int mvmode=-1;
+int pevx[]=new int[200];
+int pevy[]=new int[200];
+
+int modhis[]=new int[100];
+
+//ememy
+int enx[]={30, 50, 80, 100, 160, 240, 280, 320};
+int eny[]={240, 200, 180, 100, 50, 340, 220, 360};
+int ensc[]={5, 5, 5, 5, 5, 5, 5, 5};
+int ev[]={1, 1, 1, 1, 1, 1, 1, 1};
+int enmvmode[]={-1, -1, -1, -1, -1, -1, -1, -1};
+int enrad=6;
+int epevx[][]=new int[enx.length][50];
+int epevy[][]=new int[enx.length][50];
+
+//class
+Charactor me=new Charactor(mex, mey, merad, mvmode, mev, 255);
+Charactor[] enemy=new Charactor[enx.length];
+//////////////////////////////////////////////setup//////////////////////////////////////////////////
+
+void setup() {
+  background(0);
+  size(400, 640);
+  frameRate(90);
+  for (int i=0; i<enx.length; i++) {
+    enemy[i]=new Charactor(enx[i], eny[i], enrad, enmvmode[i], ev[i], 255);
+  }
+  for (int i=0; i<pevx.length-1; i++) {
+    pevx[i]=200;
+    pevy[i]=200;
+  }
+}
+
+//////////////////////////////////////////////draw//////////////////////////////////////////////////
+
+void draw() {
+  if (gamemode==0) {
+    background(0);
+    fill(255);
+    textSize(24);
+    text("THE MAZE SURVIVAL", 60, 100);
+    textSize(12);
+    textSize(15);
+    text("touch to start", 130, 300);
+    if (dist(mouseX, mouseY, width/2, height/2)<30) {
+      gamemode=1;
+    }
+  } else if (gamemode==1) {
+    background(200-me.maxrad*2, 0, 55+me.maxrad*2);
+    drawshadow();
+    drawwall();
+    drawarc();
+    control();
+    me.wallconst();
+    me.move();
+    me.display();
+    bcontrol();
+    bullshoot();
+    for (int i=0; i<enx.length; i++) {
+      if (ensc[i]>0) {
+        enemy[i].move();
+        enemy[i].display();
+      }
+    }
+
+    ///////////////////////////////////////////////boundary////////////////////////////////////////
+    noFill();
+    strokeWeight(margin*2);
+    stroke(255);
+    rect(margin/2, margin/2, 400-margin/2, 400-margin/2);
+
+    noStroke();
+    fill(255);
+    rect(0, 400, width, height);
+    drawnavi();
+  }
+}
+
+//////////////////////////////////////////////control//////////////////////////////////////////////////
+
+void control() {
+  me.mode=-1;
+  for (int i=0; i<4; i++) {
+    if (dist(mouseX, mouseY, btx[i], bty[i])<=butrad/2) {
+      me.mode=i;
+      for (int j=99; j>0; j--) {
+        modhis[j]=modhis[j-1];
+      }
+      modhis[0]=i;
+    }
+  }
+  for (int j=0; j<enx.length; j++) {
+    enemy[j].mode=(modhis[j*10]+j)%4;
+  }
+}
+
+//////////////////////////////////////////////charactor//////////////////////////////////////////////////
+
+class Charactor {
+  int x, y;
+  int rad;
+  int mode;
+  float v;
+  int col;
+  int maxrad;
+  int mrcnt;
+
+  Charactor(int xpos, int ypos, int radius, int mmode, float cv, int cc) {
+    x=xpos;
+    y=ypos;
+    rad=radius;
+    mode=mmode;
+    v=cv;
+    col=cc;
+  }
+
+  void move() {
+    col=255;
+    if (mode>=0) {
+      theta=PI*mode/2;
+      x=x+round(v*cos(theta));
+      y=y+round(v*sin(theta));
+    }
+
+
+    //constrain arc
+    for (int i=0; i<ax.length; i++) {
+
+      if (x+rad>axmin[i]-thk/2 && x-rad<axmax[i]+thk/2 && y+rad>aymin[i]-thk/2 && y-rad<aymax[i]+thk/2) {
+        float temp=dist(x, y, ax[i], ay[i]);
+
+        if ((temp+rad>(arad[i]-thk/2)) && (temp<=arad[i])) {
+          //col=0;
+          float rtemp=arad[i]-thk/2-rad;
+          x=round(ax[i]+(x-ax[i])*(rtemp/temp));
+          y=round(ay[i]+(y-ay[i])*(rtemp/temp));
+        } else if ((temp-rad<(arad[i]+thk/2)) && (temp>arad[i])) {
+          //col=0;
+          float rrtemp=arad[i]+thk/2+rad;
+          x=round(ax[i]+(x-ax[i])*(rrtemp/temp));
+          y=round(ay[i]+(y-ay[i])*(rrtemp/temp));
+        }
+      }
+    }
+
+    //constrain in wall
+    for (int j=0; j<wx1.length; j++) {
+      if ((x+rad)>wx1[j] && (x-rad)<wx1[j]+tol && (y+rad)>wy1[j] && (y-rad)<wy2[j]) {
+        //col=150;
+        x=wx1[j]-rad;
+      }
+      if ((x+rad)>wx1[j] && (x-rad)<wx2[j] && (y+rad)>wy1[j] && (y-rad)<wy1[j]+tol) {
+        // col=150;
+
+        y=wy1[j]-rad;
+      }
+      if ((x+rad)>wx2[j]-tol && (x-rad)<wx2[j] && (y+rad)>wy1[j] && (y-rad)<wy2[j]) {
+        //col=150;
+        x=wx2[j]+rad;
+      }
+      if ((x+rad)>wx1[j] && (x-rad)<wx2[j] && (y+rad)>wy2[j]-tol && (y-rad)<wy2[j]) {
+        //col=150;
+        y=wy2[j]+rad;
+      }
+    }
+
+
+    //constrain in frame
+    x=constrain(x, margin*2+rad, width-margin*2-rad);
+    y=constrain(y, margin*2+rad, width-margin*2-rad);
+    //////////update previous location//////////////////////
+    if (rad>=merad) {
+      for (int i=pevx.length-1; i>0; i--) {
+        pevx[i]=pevx[i-1];
+        pevy[i]=pevy[i-1];
+      }
+      pevx[0]=x;
+      pevy[0]=y;
+    }
+    /////////////////////////////////////////////////////
+  }
+
+
+  void display() {
+    noStroke();
+    ellipseMode(RADIUS);
+    ///////////////////////draw me////////////////////////////////////////////
+    if (rad>=merad) {
+      for (int i=pevx.length-1; i>=0; i--) {
+        fill(int(255/(pevx.length)*i), 0, 255-int(255/(pevx.length)*i), 50);
+        ellipse(pevx[i], pevy[i], merad, merad);
+      }
+
+      fill(0, 0, 255);
+      ellipse(x, y, rad, rad);
+
+      ///////////////draw face/////////////////////
+      pushMatrix();
+      translate(x, y);
+      rotate(mode*PI/2);
+      noStroke();
+      fill(0);
+      ellipse(3, -2, 1, 1);
+      ellipse(3, 2, 1, 1);
+      noStroke();
+      popMatrix();
+    }
+    ///////////////////////draw enemy////////////////////////////////////////////
+    else {
+      fill(col, 150);
+      ellipse(x, y, rad, rad);
+
+      ///////////////draw enemy face/////////////////////
+      pushMatrix();
+      translate(x, y);
+      rotate(mode*PI/2);
+      noStroke();
+      fill(0);
+      ellipse(3, -2, 1, 1);
+      ellipse(3, 2, 1, 1);
+      noStroke();
+      popMatrix();
+    }
+  }
+
+  void wallconst() {
+    mrcnt=0;
+    maxrad=0;
+    for (int n=0; n<1000; n++) {
+      if (mrcnt==0) {
+        maxrad++;
+        //constrain arc
+        for (int i=0; i<ax.length; i++) {
+
+          if (x+maxrad>axmin[i]-thk/2 && x-maxrad<axmax[i]+thk/2 && y+maxrad>aymin[i]-thk/2 && y-maxrad<aymax[i]+thk/2) {
+            float temp=dist(x, y, ax[i], ay[i]);
+
+            if ((temp+maxrad>(arad[i]-thk/2)) && (temp<=arad[i])) {
+              mrcnt++;
+            } else if ((temp-maxrad<(arad[i]+thk/2)) && (temp>arad[i])) {
+              mrcnt++;
             }
           }
-          
-          
-          
-          //////////////////////////////////////////////background//////////////////////////////////////////////////
-          
-          void drawbgd() {
-          
-            //fill(255,10*int(random(0,3)));
-            //rectMode(CORNERS);
-            //rect(margin, margin, width-margin, width-margin);
-          
-            ////////////////////grid///////////////
-            //for (int i=0; i<80; i++) {
-            //  stroke(255, 30);
-            //  strokeWeight(1);
-            //  line(i*10, 0, i*10, height);
-            //  line(0, i*10, height, i*10);
-            //}
-          
-          
-            //////////////////////////////navigator////////////////////
-            fill(245, 20);
-            ellipse(width/2, 640-100, 75, 75);
-            noStroke();
-            for (int i=0; i<4; i++) {
-              color bfill=150;
-              if (i==me.mode) {
-                bfill=255;
-              }
-          
-              pushMatrix();
-              translate(btx[i], bty[i]);
-              rotate(i*PI/2);
-              noStroke();
-              fill(bfill);
-              triangle(-butrad/2, -butrad/2, -butrad/2, butrad/2, butrad/2, 0);
-              popMatrix();
-            }
+        }
+
+        //constrain in wall
+        for (int j=0; j<wx1.length; j++) {
+          if ((x+maxrad)>wx1[j] && (x-maxrad)<wx1[j]+tol && (y+maxrad)>wy1[j] && (y-maxrad)<wy2[j]) {
+            mrcnt++;
+          } else if ((x+maxrad)>wx1[j] && (x-maxrad)<wx2[j] && (y+maxrad)>wy1[j] && (y-maxrad)<wy1[j]+tol) {
+            mrcnt++;
+          } else if ((x+maxrad)>wx2[j]-tol && (x-maxrad)<wx2[j] && (y+maxrad)>wy1[j] && (y-maxrad)<wy2[j]) {
+            mrcnt++;
+          } else if ((x+maxrad)>wx1[j] && (x-maxrad)<wx2[j] && (y+maxrad)>wy2[j]-tol && (y-maxrad)<wy2[j]) {
+            mrcnt++;
           }
-          
-          void drawwall() {
-            for (int i=0; i<wx1.length; i++) {
-              fill(255);
-              noStroke();
-              rectMode(CORNERS);
-              rect(wx1[i], wy1[i], wx2[i], wy2[i]);
-            }
-          }
-          void drawarc() {
-            for (int i=0; i<ax.length; i++) {
-              stroke(255);
-              strokeCap(SQUARE);
-              strokeWeight(thk);
-              noFill();
-              arc(ax[i], ay[i], arad[i], arad[i], aa[i], aa[i]+0.5*PI);
-          
-              int xdiag=int(ax[i]+arad[i]*sqrt(2)*cos(aa[i]+0.25*PI));
-              int ydiag=int(ay[i]+arad[i]*sqrt(2)*sin(aa[i]+0.25*PI));
-              axmax[i]=max(ax[i], xdiag);
-              axmin[i]=min(ax[i], xdiag);
-              aymax[i]=max(ay[i], ydiag);
-              aymin[i]=min(ay[i], ydiag);
-            }
-          }
-          void drawtree() {
-          
-            /////////////////tree///////////////////////
-            for (int i=0; i<treex.length; i++) {
-              if (treex[i]>0) {
-                fill(255, 30);
-                noStroke();
-                ellipse(treex[i], treey[i], 40+enx[i]/10, 40+enx[i]/10);
-                ellipse(treex[i]-10, treey[i], 37+enx[i]/10, 37+enx[i]/10);
-                //ellipse(treex[i], treey[i]+15, 35+enx[i]/10, 35+enx[i]/10);
-                fill(255);
-                ellipse(treex[i], treey[i], 2, 2);
-              }
-            }
-          }
-          
-          
+        }
+
+        //constrain in boundary
+        if ((x+maxrad)>400-margin || (x-maxrad)<margin || (y+maxrad)>400-margin || (y-maxrad)<margin) {
+          mrcnt++;
+        }
+      }
+    }
+
+    for (int i=0; i<maxrad/3-1; i++) {
+      //stroke(255,255-(255/(maxrad/3))*i);
+      stroke(255, 100);
+      strokeWeight(1);
+      ellipse(x, y, i*3, i*3);
+    }
+  }
+}
+
+
+
+void drawnavi() {
+
+  ///////////////////////////////////navigator////////////////////////////////////
+  noStroke();
+  for (int i=0; i<4; i++) {
+    color bfill=0;
+    if (i==me.mode) {
+      bfill=240;
+    }
+    pushMatrix();
+    translate(btx[i], bty[i]);
+    rotate(i*PI/2);
+    noStroke();
+    fill(bfill);
+    arc(0, 0, butrad/2, butrad/2, -PI/2, PI/2);
+    rect(-butrad/4, -butrad/2, 0, butrad/2);
+    popMatrix();
+  }
+  for (int i=0; i<4; i++) {
+    color bbfill=0;
+    if (i==bullmode) {
+      bbfill=240;
+    }
+    fill(bbfill);
+    ellipse(bbtx[i], bbty[i], butrad/3, butrad/3);
+  }
+}
+
+void drawshadow() {
+
+  /////////////////////////////////////////////////wallheight shadow//////////////////////////////////////
+  for (int j=wallheight-1; j>0; j--) {
+    pushMatrix();
+    translate(j, j);
+    for (int i=0; i<wx1.length; i++) {
+      if (j%3==0) {
+        fill(255, 255-25*j);
+        noStroke();
+        rectMode(CORNERS);
+        rect(wx1[i], wy1[i], wx2[i], wy2[i]);
+      }
+    }
+    popMatrix();
+  }
+  /////////////////////////////////////////////////arcwallheight shadow///////////////////////////////////////
+  for (int j=wallheight-1; j>0; j--) {
+    pushMatrix();
+    translate(j, j);
+    for (int i=0; i<ax.length; i++) {
+      if (j%3==0) {
+        stroke(255, 255-25*j);
+        strokeCap(SQUARE);
+        strokeWeight(thk);
+        noFill();
+        arc(ax[i], ay[i], arad[i], arad[i], aa[i], aa[i]+0.5*PI);
+
+        int xdiag=int(ax[i]+arad[i]*sqrt(2)*cos(aa[i]+0.25*PI));
+        int ydiag=int(ay[i]+arad[i]*sqrt(2)*sin(aa[i]+0.25*PI));
+        axmax[i]=max(ax[i], xdiag);
+        axmin[i]=min(ax[i], xdiag);
+        aymax[i]=max(ay[i], ydiag);
+        aymin[i]=min(ay[i], ydiag);
+      }
+    }
+    popMatrix();
+  }
+}
+
+void drawwall() {
+
+  ///////////////////////////////////////////wall///////////////////////////////////////////////////
+  for (int i=0; i<wx1.length; i++) {
+    fill(255, 255);
+    noStroke();
+    rectMode(CORNERS);
+    rect(wx1[i], wy1[i], wx2[i], wy2[i]);
+  }
+}
+void drawarc() {
+
+  /////////////////////////////////////////////////////arc////////////////////////////////////////////
+  for (int i=0; i<ax.length; i++) {
+    stroke(255, 255);
+    strokeCap(SQUARE);
+    strokeWeight(thk);
+    noFill();
+    arc(ax[i], ay[i], arad[i], arad[i], aa[i], aa[i]+0.5*PI);
+
+    int xdiag=int(ax[i]+arad[i]*sqrt(2)*cos(aa[i]+0.25*PI));
+    int ydiag=int(ay[i]+arad[i]*sqrt(2)*sin(aa[i]+0.25*PI));
+    axmax[i]=max(ax[i], xdiag);
+    axmin[i]=min(ax[i], xdiag);
+    aymax[i]=max(ay[i], ydiag);
+    aymin[i]=min(ay[i], ydiag);
+  }
+}
+void bcontrol() {
+  bullmode=-1;
+  for (int i=0; i<4; i++) {
+    if (dist(mouseX, mouseY, bbtx[i], bbty[i])<=bbutrad/2 && mouseX!=pmouseX && mouseY!=pmouseY) {
+      bullmode=i;
+      bullcnt=(bullcnt+1)%bullx.length;
+      bullx[bullcnt]=me.x;
+      bully[bullcnt]=me.y;
+      bulldir[bullcnt]=bullmode;
+    }
+  }
+}
+void bullshoot() {
+  ///////////////////////////drawbullet///////////////////////////////////
+  for (int b=0; b<bullx.length; b++) {
+    if (bulldir[b]>=0) {
+      float btheta=PI*bulldir[b]/2;
+      bullx[b]=bullx[b]+round(bv*cos(btheta));
+      bully[b]=bully[b]+round(bv*sin(btheta));
+      fill(255);
+      ellipse(bullx[b], bully[b], bullrad, bullrad);
+      /////////////////////////////////////////////////////////////if bullet shoot enemy////////////////////////////////////////////
+      for (int i=0; i<enx.length; i++) {
+        if (dist(enemy[i].x, enemy[i].y, bullx[b], bully[b])<10) {
+          ensc[i]--;
+          fill(255, 30);
+          ellipse(enemy[i].x, enemy[i].y, 150, 150);
+        }
+      }
+    }
+
+    //constrain arc
+    for (int i=0; i<ax.length; i++) {
+
+      if (bullx[b]+bullrad>axmin[i]-thk/2 && bullx[b]-bullrad<axmax[i]+thk/2 && bully[b]+bullrad>aymin[i]-thk/2 && bully[b]-bullrad<aymax[i]+thk/2) {
+        float temp=dist(bullx[b], bully[b], ax[i], ay[i]);
+
+        if ((temp+bullrad>(arad[i]-thk/2)) && (temp<=arad[i])) {
+          bulldir[b]=-1;
+        } else if ((temp-bullrad<(arad[i]+thk/2)) && (temp>arad[i])) {
+          bulldir[b]=-1;
+        }
+      }
+    }
+
+    //constrain in wall
+    for (int j=0; j<wx1.length; j++) {
+      if ((bullx[b]+bullrad)>wx1[j] && (bullx[b]-bullrad)<wx1[j]+tol && (bully[b]+bullrad)>wy1[j] && (bully[b]-bullrad)<wy2[j]) {
+        bulldir[b]=-1;
+      } else if ((bullx[b]+bullrad)>wx1[j] && (bullx[b]-bullrad)<wx2[j] && (bully[b]+bullrad)>wy1[j] && (bully[b]-bullrad)<wy1[j]+tol) {
+        bulldir[b]=-1;
+      } else if ((bullx[b]+bullrad)>wx2[j]-tol && (bullx[b]-bullrad)<wx2[j] && (bully[b]+bullrad)>wy1[j] && (bully[b]-bullrad)<wy2[j]) {
+        bulldir[b]=-1;
+      } else if ((bullx[b]+bullrad)>wx1[j] && (bullx[b]-bullrad)<wx2[j] && (bully[b]+bullrad)>wy2[j]-tol && (bully[b]-bullrad)<wy2[j]) {
+        bulldir[b]=-1;
+      }
+    }
+
+    //constrain in boundary
+    if ((bullx[b]+bullrad)>400-margin || (bullx[b]-bullrad)<margin || (bully[b]+bullrad)>400-margin || (bully[b]-bullrad)<margin) {
+      bulldir[b]=-1;
+    }
+  }
+}
+
     </script>
-        <canvas id="sketch" style="border: 1px solid rgb(0, 0, 0);"></canvas>
-    </div>
+    <canvas id="sketch" style="border: 1px solid rgb(0, 0, 0);"></canvas>
+  </div>
 </body>
 
 </html>

@@ -1,0 +1,87 @@
+h1 {
+    position: absolute;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 40px;
+    text-align: left;
+    font-size: 28px;
+    color: rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 800;
+    writing-mode: vertical-rl;
+    /* 세로 텍스트 */
+    text-orientation: upright;
+    /* 글자 방향 유지 */
+    z-index: 10;
+    pointer-events: none;
+}
+
+h2 {
+    position: absolute;
+    margin-top: 35px;
+    margin-bottom: 20px;
+    margin-left: 75px;
+    text-align: left;
+    font-size: 14px;
+    font-weight:100;
+    color: rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    z-index: 20;
+    pointer-events: none;
+}
+
+h3 {
+    margin-top: 0px;
+    margin-bottom: 100px;
+    text-align: left;
+    font-size: 10px;
+    color: rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: lighter;
+}
+
+p {
+    margin-top: 0px;
+    margin-bottom: 10px;
+    text-align: left;
+    font-size: 10px;
+    color: rgb(255, 255, 255);
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: lighter;
+}
+
+canvas {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    /* 캔버스를 뒤로 배치 */
+}
+.image-popup {
+    position: absolute;
+    display: none;
+    width: 100px; /* 이미지 크기 조절 */
+    height: 100px;
+    border: 1px solid white; /* 흰색 테두리 추가 */
+    border-radius: 10px; /* 둥근 테두리 효과 */
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.8); /* 부드러운 빛 효과 */
+    background-color: rgba(255, 255, 255, 0.1); /* 배경 반투명 */
+    pointer-events: none; /* 마우스 이벤트 방지 */
+}
+#dotDescription {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 1);
+    color: rgb(0, 0, 0);
+    font-size: 12px;
+    border-radius: 2px;
+    display: none; /* 🚀 기본적으로 숨김 */
+}
+

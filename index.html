@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>landing page</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0 0px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .button img {
+            width: 120px;
+            height: auto;
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .button span {
+            width: 100%;
+            text-align: center;
+        }
+
+        .button:hover img {
+            transform: scale(1.1);
+        }
+        .main-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3 class="main-title">@pearl.jitter</h3>
+
+    <div class="content-container">
+        <a href="FOLDER/mobile.html" class="button">
+            <img src="FOLDER/landing/mobile.png" alt="모바일 버전">
+            <span>Phone Guy</span>
+        </a>
+        <div class="container">
+            <h1>Welcome</h1>
+            <p>Who are you?</p>
+        </div>
+        <a href="FOLDER/pc.html" class="button">
+            <img src="FOLDER/landing/pc.png" alt="웹 버전">
+            <span>Computer Guy</span>
+        </a>
+    </div>
+</body>
+
+</html>

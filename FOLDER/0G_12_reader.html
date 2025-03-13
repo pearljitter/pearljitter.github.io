@@ -26,7 +26,7 @@
 
   <script>
 
-    let clipboardText = "PRESS ENTER TO PASTE";
+    let clipboardText = "CLICK TO PASTE";
     let mode = 0;
 
     let startIndex = 0;  // 시작 단어 인덱스
@@ -34,8 +34,12 @@
     let cnt = 7;
     let gap = 9;
 
+    let stepmark = 0;
+    let pstepmark = 0;
+    let time = 0;
+
     function setup() {
-      createCanvas(900, 900);
+      createCanvas(1800, 900);
     }
 
     function draw() {
@@ -48,24 +52,19 @@
         text(clipboardText, width / 2, 40);
         textSize(40);
         text("LINE BY LINE", width / 2, 400);
-        if (keyCode == ENTER) {
-          pastetxt();
-          mode = 1;
-        }
+
       } else if (mode == 1) {
         background(0);
         fill(255);
         textSize(10);
         textAlign(CENTER, CENTER);
-        text("PRESS SHIFT TO READ", width / 2, 40);
+        text("click to read", width / 2, 40);
 
         fill(255);
         textSize(10);
         textAlign(CENTER, TOP);
         text(setWords(clipboardText), width / 2, height / 4);
-        if (keyCode == SHIFT) {
-          mode = 2;
-        }
+
       } else if (mode == 2) {
         background(0);
         let words = getWords(clipboardText);
@@ -77,13 +76,28 @@
 
           if (abs(mouseX - (i + 1) * width / (words.length + 2)) < (width / (words.length + 2)) / 2) {
             fill(255);
+            stepmark = i;
+            ellipse((i + 1) * width / (words.length + 2), 700, time, time);
           }
-          ellipse((i + 1) * width / (words.length + 2), 700, (width / words.length + 2) / 2, (width / words.length + 2) / 2);
+          else {
+            ellipse((i + 1) * width / (words.length + 2), 700, 10, 10);
+          }
         }
+        if (pstepmark == stepmark) {
+          time = min(time + 10, 20);
+        } else {
+          time = 0;
+        }
+        pstepmark = stepmark;
+
+
         //-----------------------------------------------------------------------------
         // 첫 번째 부분: 기본 색상
         for (let i = startIndex; i < startIndex + Math.floor((gap - cnt) / 2); i++) {
           fill(255);
+          rectMode(CENTER);
+          rect(width / 2, height / 4 + (i - startIndex) * 40, new TextEncoder().encode(words[i]).length*10+5,45);
+          fill(0);
           textSize(24);
           textAlign(CENTER, CENTER);
           text(words[i], width / 2, height / 4 + (i - startIndex) * 40);
@@ -111,6 +125,12 @@
 
     // 마우스 클릭 시 초기화 버튼 처리
     function mousePressed() {
+      if (mode == 0) {
+        pastetxt();
+        mode = 1;
+      } else if (mode == 1) {
+        mode = 2;
+      }
       // 버튼 클릭 위치 확인
       if (dist(mouseX, mouseY, 25, 25) < 10) {
         mode = 0;
@@ -135,7 +155,7 @@
       let tempwords = str.trim().split(/\s+/); // 여러 공백 제거 후 단어 배열 생성
       let swords = [];
 
-      for (let i = 0; i < tempwords.length; i += 18) {
+      for (let i = 0; i < tempwords.length; i += 12) {
         swords.push(tempwords.slice(i, i + 18).join(" ")); // 단어를 문자열로 결합
       }
 
@@ -149,8 +169,8 @@
       let groupedwords = [];
 
 
-      for (let i = 0; i < tempwords.length; i += 9) {
-        groupedwords.push(tempwords.slice(i, i + 9).join(" ")); // 9개 단어를 문자열로 결합
+      for (let i = 0; i < tempwords.length; i += 12) {
+        groupedwords.push(tempwords.slice(i, i + 12).join(" ")); // 9개 단어를 문자열로 결합
       }
 
       // 마우스의 X 위치를 기준으로 startIndex와 endIndex 계산

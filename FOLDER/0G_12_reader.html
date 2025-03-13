@@ -193,7 +193,7 @@
       }
 
       // 마우스의 X 위치를 기준으로 startIndex와 endIndex 계산
-      startIndex = int((mouseX / width) * groupedwords.length);
+      startIndex = int(min(width-1,(max(1,mouseX))) / width * groupedwords.length);
       endIndex = startIndex + gap;
 
       if (endIndex > groupedwords.length) {

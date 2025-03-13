@@ -74,17 +74,17 @@
           ellipseMode(CENTER);
           fill(55);
 
-          if (abs(mouseX - (i + 1) * width / (words.length + 2)) < (width / (words.length + 2)) / 2) {
+          if (abs(mouseX - (i + 0.5) * width / (words.length)) < (width / (words.length)) / 2) {
             fill(255);
             stepmark = i;
-            ellipse((i + 1) * width / (words.length + 2), 700, time, time);
+            ellipse(width * (i + 0.5) / (words.length), 700, min(time + 10, 50), min(time + 10, 50));
           }
           else {
-            ellipse((i + 1) * width / (words.length + 2), 700, 10, 10);
+            ellipse(width * (i + 0.5) / (words.length), 700, 10, 10);
           }
         }
         if (pstepmark == stepmark) {
-          time = min(time + 10, 20);
+          time = min(time + 0.5, 200);
         } else {
           time = 0;
         }
@@ -92,30 +92,49 @@
 
 
         //-----------------------------------------------------------------------------
-        // 첫 번째 부분: 기본 색상
-        for (let i = startIndex; i < startIndex + Math.floor((gap - cnt) / 2); i++) {
-          fill(255);
-          rectMode(CENTER);
-          rect(width / 2, height / 4 + (i - startIndex) * 40, new TextEncoder().encode(words[i]).length*10+5,45);
-          fill(0);
-          textSize(24);
-          textAlign(CENTER, CENTER);
-          text(words[i], width / 2, height / 4 + (i - startIndex) * 40);
-        }
-
         // 중간 부분: 흰색
         for (let i = startIndex + Math.floor((gap - cnt) / 2); i < endIndex - Math.floor((gap - cnt) / 2); i++) {
           fill(55);  // 흰색
           textSize(18);
-          text(words[i], width / 2, height / 4 + (i - startIndex) * 40);
+          textAlign(LEFT, CENTER);
+          text(words[i], width / 3, height / 4 + (i - startIndex) * 40);
         }
 
         // 마지막 부분: 기본 색상
         for (let i = endIndex - Math.floor((gap - cnt) / 2); i < endIndex; i++) {
           fill(55);
           textSize(18);
-          text(words[i], width / 2, height / 4 + (i - startIndex) * 40);
+          textAlign(LEFT, CENTER);
+          text(words[i], width / 3, height / 4 + (i - startIndex) * 40);
         }
+        // 첫 번째 부분: 기본 색상
+        for (let i = startIndex; i < startIndex + Math.floor((gap - cnt) / 2); i++) {
+
+
+          // text(words[i], width / 2, height / 4 + (i - startIndex) * 40);
+          let tempwords = words[i].trim().split('');
+          let temptime = 0;
+
+          if (time >= 0 && time < tempwords.length) {
+            temptime = time;
+          } else {
+            temptime = tempwords.length;
+          }
+          for (let j = 1; j < temptime; j++) {
+            tempwords[j] = tempwords[j - 1] + tempwords[j];
+
+            // fill(255);
+            // rectMode(CORNER);
+            // rect(width / 3-10, height / 4 + (i - startIndex) * 40-20, new TextEncoder().encode(tempwords[j]).length * 16, 40);
+
+            fill(255);
+            textSize(24);
+            textAlign(LEFT, CENTER);
+            text(tempwords[j], width / 3, height / 4 + (i - startIndex) * 40);
+          }
+        }
+
+
         //button
         fill(255, 0, 0);
         ellipseMode(CENTER);

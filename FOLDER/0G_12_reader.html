@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>pearljitter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.js"></script>
+  <link rel="stylesheet" href="pageStyle.css">
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      text-align: center;
+      font-family: 'Pixelify Sans', sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="decontainer">
+    <div class="moveback-link">
+      <a href="pc.html" class="btn">BACK</a>
+    </div>
+  </div>
+
+  <script>
+
+    let clipboardText = "CLICK TO PASTE";
+    let mode = 0;
+
+    let startIndex = 0;  // 시작 단어 인덱스
+    let endIndex = startIndex + 6;  // 끝 단어 인덱스
+    let cnt = 7;
+    let gap = 9;
+
+    let stepmark = 0;
+    let pstepmark = 0;
+    let time = 0;
+
+    function setup() {
+      createCanvas(1800, 900);
+    }
+
+    function draw() {
+
+      if (mode == 0) {
+        background(0);
+        fill(255);
+        textSize(10);
+        textAlign(CENTER, CENTER);
+        text(clipboardText, width / 2, 40);
+        textSize(40);
+        text("LINE BY LINE", width / 2, 400);
+
+      } else if (mode == 1) {
+        background(0);
+        fill(255);
+        textSize(10);
+        textAlign(CENTER, CENTER);
+        text("click to read", width / 2, 40);
+
+        fill(255);
+        textSize(10);
+        textAlign(CENTER, TOP);
+        text(setWords(clipboardText), width / 2, height / 4);
+
+      } else if (mode == 2) {
+        background(0);
+        let words = getWords(clipboardText);
+
+        //percentage mark--------------------------------------------------------------
+        for (i = 0; i < words.length; i++) {
+          ellipseMode(CENTER);
+          fill(55);
+
+          if (abs(mouseX - (i + 0.5) * width / (words.length)) < (width / (words.length)) / 2) {
+            fill(255);
+            stepmark = i;
+            ellipse(width * (i + 0.5) / (words.length), 700, min(time + 10, 50), min(time + 10, 50));
+          }
+          else {
+            ellipse(width * (i + 0.5) / (words.length), 700, 10, 10);
+          }
+        }
+        if (pstepmark == stepmark) {
+          time = min(time + 0.5, 200);
+        } else {
+          time = 0;
+        }
+        pstepmark = stepmark;
+
+
+        //-----------------------------------------------------------------------------
+        // 중간 부분: 흰색
+        for (let i = startIndex + Math.floor((gap - cnt) / 2); i < endIndex - Math.floor((gap - cnt) / 2); i++) {
+          fill(55);  // 흰색
+          textSize(18);
+          textAlign(LEFT, CENTER);
+          text(words[i], width / 3, height / 4 + (i - startIndex) * 40);
+        }
+
+        // 마지막 부분: 기본 색상
+        for (let i = endIndex - Math.floor((gap - cnt) / 2); i < endIndex; i++) {
+          fill(55);
+          textSize(18);
+          textAlign(LEFT, CENTER);
+          text(words[i], width / 3, height / 4 + (i - startIndex) * 40);
+        }
+        // 첫 번째 부분: 기본 색상
+        for (let i = startIndex; i < startIndex + Math.floor((gap - cnt) / 2); i++) {
+
+
+          // text(words[i], width / 2, height / 4 + (i - startIndex) * 40);
+          let tempwords = words[i].trim().split('');
+          let temptime = 0;
+
+          if (time >= 0 && time < tempwords.length) {
+            temptime = time;
+          } else {
+            temptime = tempwords.length;
+          }
+          for (let j = 1; j < temptime; j++) {
+            tempwords[j] = tempwords[j - 1] + tempwords[j];
+
+            // fill(255);
+            // rectMode(CORNER);
+            // rect(width / 3-10, height / 4 + (i - startIndex) * 40-20, new TextEncoder().encode(tempwords[j]).length * 16, 40);
+
+            fill(255);
+            textSize(24);
+            textAlign(LEFT, CENTER);
+            text(tempwords[j], width / 3, height / 4 + (i - startIndex) * 40);
+          }
+        }
+
+
+        //button
+        fill(255, 0, 0);
+        ellipseMode(CENTER);
+        ellipse(25, 25, 20);
+      }
+    }
+
+    // 마우스 클릭 시 초기화 버튼 처리
+    function mousePressed() {
+      if (mode == 0) {
+        pastetxt();
+        mode = 1;
+      } else if (mode == 1) {
+        mode = 2;
+      }
+      // 버튼 클릭 위치 확인
+      if (dist(mouseX, mouseY, 25, 25) < 10) {
+        mode = 0;
+        clipboardText = "PRESS ENTER TO PASTE";
+      }
+    }
+
+    function pastetxt() {
+      navigator.clipboard.readText().then(text => {
+        clipboardText = text.replace(/[\r\n]+/g, ' ');  // 줄바꿈을 공백으로 변경
+      }
+      ).catch(err => {
+        clipboardText = "Error accessing clipboard!";
+        console.error(err);
+      }
+      );
+    }
+
+
+    // 오리진 문자열 정렬
+    function setWords(str) {
+      let tempwords = str.trim().split(/\s+/); // 여러 공백 제거 후 단어 배열 생성
+      let swords = [];
+
+      for (let i = 0; i < tempwords.length; i += 12) {
+        swords.push(tempwords.slice(i, i + 18).join(" ")); // 단어를 문자열로 결합
+      }
+
+      return swords.join("\n"); // 줄바꿈을 추가하여 하나의 문자열로 반환
+    }
+
+
+    // 문자열에서 단어를 추출하는 함수
+    function getWords(str) {
+      let tempwords = str.split(" ");
+      let groupedwords = [];
+
+
+      for (let i = 0; i < tempwords.length; i += 12) {
+        groupedwords.push(tempwords.slice(i, i + 12).join(" ")); // 9개 단어를 문자열로 결합
+      }
+
+      // 마우스의 X 위치를 기준으로 startIndex와 endIndex 계산
+      startIndex = int(min(width-1,(max(1,mouseX))) / width * groupedwords.length);
+      endIndex = startIndex + gap;
+
+      if (endIndex > groupedwords.length) {
+        endIndex = groupedwords.length;
+      }
+      return groupedwords;
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>pearljitter</title>
+        <script type="text/javascript" src="js/processing.js"></script>
+        <link rel="stylesheet" href="pageStyle.css">
+        <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap" rel="stylesheet">
+        <style>
+            body {
+                background-color: rgb(0, 0, 0);
+            }
+        </style>
+    </head>
+<body>
+
+  <div class="decontainer">
+    <div class="moveback-link">
+      <a href="pc.html" class="btn">BACK</a>
+    </div>
+  </div>
+  
+    <div>
+        <script type="text/processing"> 
+          int bodyW=30;
+          int bodyH=50;
+          int armlength=50;
+          int leglength=60;
+          int legthk=8;
+          int frameCnt=0;
+          float angle=0;
+          color col=255;
+          
+          People man[][]=new People[4][4];
+          People meman;
+          int xpos[][]=new int[4][4];
+          int ypos[][]=new int[4][4];
+          float dens[][]=new float[4][4];
+          
+          
+          void setup() {
+            size(800, 1000);
+            frameRate(15);
+            background(0);
+            for (int i=0; i<4; i++) {
+              for (int j=0; j<4; j++) {
+                xpos[i][j]=100+i*200;
+                ypos[i][j]=90+j*250;
+                man[i][j]=new People(xpos[i][j], ypos[i][j], int(random(1, 7)), 0, 4);
+              }
+            }
+            meman=new People(mouseX, 290, 0, 0, 2);
+          }
+          
+          
+          void draw() {
+            background(0);
+            //fill(0,20);
+            //rect(0,0,width,height);
+            frameCnt=(frameCnt+30)%360;
+            angle=PI/6*sin(radians(frameCnt));
+            col=255;
+            for (int i=0; i<4; i++) {
+              for (int j=0; j<4; j++) {
+                man[i][j]=new People(man[i][j].cenX, man[i][j].cenY, man[i][j].xvec, man[i][j].yvec, man[i][j].density);
+                man[i][j].walk();
+                man[i][j].drawPeople();
+              }
+            }
+            col=#40FFA4;
+            meman=new People(mouseX, mouseY, 0, 0, meman.density);
+            if (pmouseX==mouseX && pmouseY==mouseY) {
+              angle=0;
+              col=#FF4047;
+            }
+            meman.walk();
+            meman.drawPeople();
+          }
+          
+          class People {
+            int cenX, cenY;
+            int hX, hY;
+            int laX, laY;
+            int raX, raY;
+            int llX, llY;
+            int rlX, rlY;
+            int xvec, yvec;
+            float density;
+          
+            People(int x, int y, int vx, int vy, float dens) {
+              cenX=x;
+              cenY=y;
+              xvec=vx;
+              yvec=vy;
+              density=dens;
+            }
+          
+            void walk() {
+              if (cenX<0 || cenX>width) {
+                xvec=-xvec;
+              } else if (cenY<0 || cenY>height) {
+                yvec=-yvec;
+              }
+              cenX=cenX+xvec;
+              cenY=cenY+yvec;
+              density=min(8, density+0.1);
+          
+              for (int i=0; i<4; i++) {
+                for (int j=0; j<4; j++) {
+                  if (dist(cenX, cenY, man[i][j].cenX, man[i][j].cenY)!=0 && dist(cenX, cenY, man[i][j].cenX, man[i][j].cenY)<10) {
+                    density=1;
+                  } else if (dist(cenX, cenY, meman.cenX, meman.cenY)!=0 && dist(cenX, cenY, meman.cenX, meman.cenY)<10) {
+                    density=1;
+                  }
+                }
+              }
+            }
+          
+            void drawPeople() {
+              hX=cenX;
+              hY=cenY-bodyH/2-legthk*2;
+              laX=cenX-bodyW/2;
+              laY=cenY-bodyH/2;
+              raX=cenX+bodyW/2;
+              raY=cenY-bodyH/2;
+              llX=cenX-bodyW/4;
+              llY=cenY+bodyH/2;
+              rlX=cenX+bodyW/4;
+              rlY=cenY+bodyH/2;
+          
+              //body
+              moving(laX, laY, raX, rlY, 0, density);
+              //head
+              moving(hX-legthk, hY-legthk, hX+legthk, hY+legthk, 0, density);
+              //left arm
+              moving(laX, laY, laX-armlength, laY+legthk, -angle-PI/2, density);
+              //right arm
+              moving(raX, raY, raX+armlength, raY+legthk, angle+PI/2, density);
+              //left leg
+              moving(llX, llY, llX-legthk, llY+leglength, angle, density);
+              //right leg
+              moving(rlX, rlY, rlX+legthk, rlY+leglength, -angle, density);
+            }
+          }
+          
+          void moving(int xa, int ya, int xb, int yb, float theta, float densi) {
+          
+            pushMatrix();
+            translate(xa, ya);
+            rotate(theta);
+            particlize(xb-xa, yb-ya, densi);
+            popMatrix();
+          }
+          
+          void particlize(int xb, int yb, float densi) {
+            for (int i=0; i<int(abs(xb)/densi); i++) {
+              for (int j=0; j<int(abs(yb)/densi); j++) {
+                fill(col);
+                noStroke();
+                ellipse(min(0, xb)+i*densi+random(-(10-densi), 10-densi), min(0, yb)+j*densi+random(-(10-densi), 10-densi), 2, 2);
+              }
+            }
+          }
+        </script>
+        <canvas id="sketch" style="border: 1px solid rgb(0, 0, 0);"></canvas>
+      </div>
+
+</body>
+</html>

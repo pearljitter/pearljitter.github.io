@@ -56,6 +56,7 @@
 
 <body>
     <h1>THE ARCHIVE</h1>
+    <h2>(abstraction, conceptual depth, scale)</h2>
     <div class="container">
         <div class="moveback-link">
             <a href="../index.html" class="btn">Go to Index</a>
@@ -90,7 +91,7 @@
                 i * (gridSize / gridDivisions), gridSize / 0.8, 0
             ]);
             geometryX.setAttribute('position', new THREE.BufferAttribute(verticesX, 3));
-            const lineX = new THREE.Line(geometryX, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.025, transparent: true }));
+            const lineX = new THREE.Line(geometryX, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
             gridLines.push(lineX);
             scene.add(lineX);
 
@@ -101,7 +102,7 @@
                 gridSize / 0.8, i * (gridSize / gridDivisions), 0
             ]);
             geometryY.setAttribute('position', new THREE.BufferAttribute(verticesY, 3));
-            const lineY = new THREE.Line(geometryY, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.025, transparent: true }));
+            const lineY = new THREE.Line(geometryY, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
             gridLines.push(lineY);
             scene.add(lineY);
         }
@@ -117,7 +118,7 @@
                 0, i * (gridSize / gridDivisions), gridSize / 0.8
             ]);
             geometryY.setAttribute('position', new THREE.BufferAttribute(verticesY, 3));
-            const lineY = new THREE.Line(geometryY, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.025, transparent: true }));
+            const lineY = new THREE.Line(geometryY, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
             gridLines.push(lineY);
             scene.add(lineY);
 
@@ -128,7 +129,7 @@
                 0, gridSize / 0.8, i * (gridSize / gridDivisions)
             ]);
             geometryZ.setAttribute('position', new THREE.BufferAttribute(verticesZ, 3));
-            const lineZ = new THREE.Line(geometryZ, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.025, transparent: true }));
+            const lineZ = new THREE.Line(geometryZ, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
             gridLines.push(lineZ);
             scene.add(lineZ);
         }
@@ -144,7 +145,7 @@
                 i * (gridSize / gridDivisions), 0, gridSize / 0.8
             ]);
             geometryZ.setAttribute('position', new THREE.BufferAttribute(verticesZ, 3));
-            const lineZ = new THREE.Line(geometryZ, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.025, transparent: true }));
+            const lineZ = new THREE.Line(geometryZ, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
             gridLines.push(lineZ);
             scene.add(lineZ);
 
@@ -155,7 +156,7 @@
                 gridSize / 0.8, 0, i * (gridSize / gridDivisions)
             ]);
             geometryX.setAttribute('position', new THREE.BufferAttribute(verticesX, 3));
-            const lineX = new THREE.Line(geometryX, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.025, transparent: true }));
+            const lineX = new THREE.Line(geometryX, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
             gridLines.push(lineX);
             scene.add(lineX);
         }
@@ -184,7 +185,7 @@
             loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
                 const textGeometry = new THREE.TextGeometry(text, {
                     font: font,
-                    size: 0.5,
+                    size: 0.7,
                     height: 0,
                     curveSegments: 12,
                 });
@@ -210,10 +211,24 @@
         createText('PLAYFUL', new THREE.Vector3(0, 0, -gridSize / 0.5));
 
         const titles = [
-            "FUZZY UNIVERSE", "CHUNKING RUN", "STRAGGLER CARRIER", "ORIGAMI DRAGON",
-            "GALAGA", "PACGUY", "GATHER", "TANGHULU",
-            "THOUGHTS", "VIRTIAL ESSENCE", "A SHELTER OF HOMEOSTASIS", "READER", "PEOPLE",
-            "A HALFWAY KITCHEN", "COMPENSATION FOR CONDENSATION", "UPTOWN RUNWAY", "YUJIN MANSIONS", "DINING WAY"
+            "FUZZY UNIVERSE", 
+            "CHUNKING RUN", 
+            "STRAGGLER CARRIER", 
+            "ORIGAMI DRAGON",
+            "GALAGA", 
+            "PACGUY", 
+            "GATHER", 
+            "TANGHULU",
+            "THOUGHTS", 
+            "VIRTIAL ESSENCE", 
+            "A SHELTER OF HOMEOSTASIS", 
+            "READER", 
+            "PEOPLE",
+            "A HALFWAY KITCHEN", 
+            "COMPENSATION FOR CONDENSATION", 
+            "UPTOWN RUNWAY", 
+            "YUJIN MANSIONS", 
+            "DINING WAY"
         ];
 
         // 점 설명 배열
@@ -235,26 +250,53 @@
             "COMPENSATION FOR CONDENSATION_mobile home for metropolitan seoul_15.01.24",
             "UPTOWN RUNWAY_neighborhood garment recycling infrastructure_23.09.22",
             "YUJIN MANSIONS_Yujin Mansion Revitalization_21.12.21",
-            "DINING WAY_Combination of Restaurand and Gallery_20.06.21"
+            "DINING WAY_an exclusive food center for singles_20.06.21"
         ];
 
         // 📍 흰색 점 추가
         const whiteDotMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const dots = [];
         const dotUrls = [
-            "0G_1_fuzzy.html", "0G_2_chunking.html", "0G_3_ski.html", "0G_4_dragon.html",
-            "0G_5_galaga.html", "0G_6_pacguy.html", "0G_7_gather.html", "0G_8_tanghulu.html",
-            "0T_9_blog.html", "0G_10_virtualEssence.html", "0A_11_homeostasis.html", "0G_12_reader.html", "0G_13_people.html", "0A_12_verticalfarms.html",
-            "0A_13_condcomp.html", "0A_14_ur.html", "0A_15_yj.html", "0A_16_dw.html"
+            "0G_1_fuzzy.html", 
+            "0G_2_chunking.html", 
+            "0G_3_ski.html", 
+            "0G_4_dragon.html",
+            "0G_5_galaga.html", 
+            "0G_6_pacguy.html", 
+            "0G_7_gather.html", 
+            "0G_8_tanghulu.html",
+            "0T_9_blog.html", 
+            "0G_10_virtualEssence.html", 
+            "0A_11_homeostasis.html", 
+            "0G_12_reader.html", 
+            "0G_13_people.html", 
+            "0A_12_verticalfarms.html",
+            "0A_13_condcomp.html", 
+            "0A_14_ur.html", 
+            "0A_15_yj.html", 
+            "0A_16_dw.html"
         ];
 
         // (concreteness, bigness, seriousness)
         const fixedPositions = [
-            new THREE.Vector3(-6, 5, -3), new THREE.Vector3(2, -3, -4), new THREE.Vector3(1, -1, -3),
-            new THREE.Vector3(-2, -5, 1), new THREE.Vector3(1, 5, 1), new THREE.Vector3(0, -4, -4),
-            new THREE.Vector3(-5, 6, -2), new THREE.Vector3(-4, -6, -5), new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(3, 0, 5), new THREE.Vector3(6, -2, 6), new THREE.Vector3(6, 0, 2), new THREE.Vector3(7, -5, 4),
-            new THREE.Vector3(7, 6, 6), new THREE.Vector3(6, -6, 4), new THREE.Vector3(4, 3, 6), new THREE.Vector3(5, 7, 6), new THREE.Vector3(5, 2, 5)
+            new THREE.Vector3(-6, 5, -3), 
+            new THREE.Vector3(2, -3, -4), 
+            new THREE.Vector3(1, -1, -3),
+            new THREE.Vector3(-2, -5, 1), 
+            new THREE.Vector3(1, 5, 1), 
+            new THREE.Vector3(0, -4, -4),
+            new THREE.Vector3(-5, 6, -2), 
+            new THREE.Vector3(-4, -6, -5), 
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(3, 0, 5), 
+            new THREE.Vector3(6, -2, 6), 
+            new THREE.Vector3(6, 0, 2), 
+            new THREE.Vector3(7, -5, 4),
+            new THREE.Vector3(7, 6, 6), 
+            new THREE.Vector3(6, -6, 4), 
+            new THREE.Vector3(4, 3, 6), 
+            new THREE.Vector3(5, 7, 6), 
+            new THREE.Vector3(5, 2, 5)
         ];
         const loader = new THREE.TextureLoader();
 
@@ -289,7 +331,7 @@
             const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
             const sprite = new THREE.Sprite(spriteMaterial);
 
-            sprite.scale.set(1.6, 0.6, 0.6); // 라벨 크기
+            sprite.scale.set(1.3, 0.4, 0.4); // 라벨 크기
             sprite.position.copy(pos.clone().add(new THREE.Vector3(0, 0.5, 0))); // 점 근처 위치
             scene.add(sprite);
         }
@@ -337,8 +379,8 @@
             dots.push(whiteDot);
 
             // 점 옆에 텍스트 및 이미지 추가
-            createDotTextAndImage(whiteDot, "No." + (i + 1));
-            //createDotTextAndImage(whiteDot, dotUrls[i]);
+            //createDotTextAndImage(whiteDot, "No." + (i + 1));
+            createDotTextAndImage(whiteDot, titles[i]);
         }
 
         // 카메라 위치 설정
@@ -444,8 +486,8 @@
                         imageDiv = document.createElement('div');
                         imageDiv.id = imageDivId;
                         imageDiv.style.position = 'absolute';
-                        imageDiv.style.width = '100px';
-                        imageDiv.style.height = '100px';
+                        imageDiv.style.width = '200px';
+                        imageDiv.style.height = '200px';
                         imageDiv.style.pointerEvents = 'none';
                         imageDiv.style.border = '1px solid white';
                         imageDiv.style.borderRadius = '0px';
@@ -453,8 +495,8 @@
                         document.body.appendChild(imageDiv);
                     }
                     imageDiv.style.display = 'block';
-                    imageDiv.style.left = `${event.clientX - 110}px`;
-                    imageDiv.style.top = `${event.clientY - 110}px`;
+                    imageDiv.style.left = `${event.clientX - 210}px`;
+                    imageDiv.style.top = `${event.clientY - 210}px`;
                     imageDiv.style.backgroundImage = `url('thumbnail/${i + 1}.jpg')`;
                     imageDiv.style.backgroundSize = 'cover';
                 } else {

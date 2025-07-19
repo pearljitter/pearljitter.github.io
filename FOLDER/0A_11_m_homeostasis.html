@@ -19,6 +19,7 @@
             font-weight: 600;
             pointer-events: none;
         }
+
         h2 {
             margin-top: 10px;
             margin-bottom: 20px;
@@ -33,7 +34,8 @@
         }
 
         body {
-            user-select: none; /* 드래그 방지 */
+            user-select: none;
+            /* 드래그 방지 */
             font-family: Arial, sans-serif;
             color: white;
             display: flex;
@@ -117,57 +119,59 @@
         <span class="close" onclick="closePopup()">&times;</span>
         <img id="popupImg" src="" alt="">
         <p id="popupText"></p>
-        <div style="position: absolute; left: 20px; font-size: 20px; cursor: pointer;" onclick="showPrevImage()">&#8592;</div>
-        <div style="position: absolute; right: 20px; font-size: 20px; cursor: pointer;" onclick="showNextImage()">&#8594;</div>
+        <div style="position: absolute; left: 20px; font-size: 20px; cursor: pointer;" onclick="showPrevImage()">&#8592;
+        </div>
+        <div style="position: absolute; right: 20px; font-size: 20px; cursor: pointer;" onclick="showNextImage()">
+            &#8594;</div>
     </div>
 
     <script>
         const images = [
             { src: "./A_a_hs/1.jpg", text: "#1" },
-            { src: "./A_a_hs/2.jpg", text: "#2" }, 
+            { src: "./A_a_hs/2.jpg", text: "#2" },
             { src: "./A_a_hs/3.jpg", text: "#3" },
-            { src: "./A_a_hs/4.jpg", text: "#4" }, 
+            { src: "./A_a_hs/4.jpg", text: "#4" },
             { src: "./A_a_hs/5.jpg", text: "#5" },
-            { src: "./A_a_hs/6.jpg", text: "#6" }, 
+            { src: "./A_a_hs/6.jpg", text: "#6" },
             { src: "./A_a_hs/7.jpg", text: "#7" },
-            { src: "./A_a_hs/8.jpg", text: "#8" }, 
+            { src: "./A_a_hs/8.jpg", text: "#8" },
             { src: "./A_a_hs/9.jpg", text: "#9" },
-            { src: "./A_a_hs/10.jpg", text: "#10" }, 
+            { src: "./A_a_hs/10.jpg", text: "#10" },
             { src: "./A_a_hs/11.jpg", text: "#11" },
             { src: "./A_a_hs/12.jpg", text: "#12" }
         ];
-    
+
         let currentIndex = 0;
-    
+
         function openPopup(imageSrc, text) {
             currentIndex = images.findIndex(img => img.src === imageSrc);
             updatePopup();
             document.getElementById('popup').style.display = 'flex';
         }
-    
+
         function updatePopup() {
             document.getElementById('popupImg').src = images[currentIndex].src;
             document.getElementById('popupText').textContent = images[currentIndex].text;
         }
-    
+
         function closePopup() {
             document.getElementById('popup').style.display = 'none';
         }
-    
+
         function showPrevImage() {
             if (currentIndex > 0) {
                 currentIndex--;
                 updatePopup();
             }
         }
-    
+
         function showNextImage() {
             if (currentIndex < images.length - 1) {
                 currentIndex++;
                 updatePopup();
             }
         }
-    
+
         document.addEventListener('keydown', function (e) {
             if (document.getElementById('popup').style.display === 'flex') {
                 if (e.key === 'ArrowLeft') {
@@ -177,17 +181,17 @@
                 } else if (e.key === 'Escape') {
                     closePopup();
                 }
-                
+
             }
         });
     </script>
 
-   <div class="decontainer">
-    <div class="moveback-link">
-      <a href="pc.html" class="btn">BACK</a>
+    <div class="decontainer">
+        <div class="moveback-link">
+            <a href="pc.html" class="btn">BACK</a>
+        </div>
     </div>
-   </div>
-   <h2></h2>
+    <h2></h2>
 </body>
 
 </html>

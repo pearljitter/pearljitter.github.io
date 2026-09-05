@@ -55,19 +55,6 @@
             color: black;
         }
 
-        #dotPreview {
-            position: absolute;
-            display: none;
-            width: 200px;
-            height: 200px;
-            pointer-events: none;
-            border: 1px solid white;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-            background-size: cover;
-            background-position: center;
-            z-index: 15;
-        }
-
         /* 터치 기기에서만 보이는 조작 안내. */
         #touchHint {
             display: none;
@@ -136,8 +123,7 @@
         </div>
     </div>
     <div id="dotDescription"></div>
-    <div id="dotPreview"></div>
-    <div id="touchHint">한 손가락 드래그: 회전 &nbsp;·&nbsp; 두 손가락: 확대 · 축소<br>점을 탭하면 설명, 한 번 더 탭하면 열기</div>
+    <div id="touchHint">한 손가락 드래그: 회전 &nbsp;·&nbsp; 두 손가락: 확대 · 축소<br>점을 탭하면 크게, 한 번 더 탭하면 열기</div>
 
     <script>
         // 🚀 Three.js 기본 설정
@@ -243,16 +229,18 @@
          * 향하고 크기가 일정해서 여섯 축이 같은 무게로 읽힌다.
          * 덤으로 threejs.org에서 받아오던 폰트 의존성도 사라진다.
          */
-        function makeTextSprite(rows, worldHeight, opacity) {
+        function makeTextSprite(rows, worldHeight, opacity, image) {
             const PAD = 10;
             const GAP = 6;
+            const THUMB = 190;        // 캔버스 안에서의 썸네일 한 변
+            const THUMB_GAP = 12;
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
 
             const font = row => (row.weight || '400') + ' ' + row.size + 'px Arial';
 
-            let width = 0;
-            let height = PAD * 2;
+            let width = image ? THUMB : 0;
+            let height = PAD * 2 + (image ? THUMB + THUMB_GAP : 0);
             rows.forEach(function (row, i) {
                 context.font = font(row);
                 width = Math.max(width, context.measureText(row.text).width);
@@ -262,9 +250,19 @@
             canvas.width = Math.ceil(width) + PAD * 2;
             canvas.height = Math.ceil(height);
 
+            let y = PAD;
+            if (image) {
+                const x = (canvas.width - THUMB) / 2;
+                context.drawImage(image, x, y, THUMB, THUMB);
+                // 검은 배경 위에서 썸네일 경계를 잡아주는 얇은 테두리.
+                context.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+                context.lineWidth = 2;
+                context.strokeRect(x + 1, y + 1, THUMB - 2, THUMB - 2);
+                y += THUMB + THUMB_GAP;
+            }
+
             context.textAlign = 'center';
             context.textBaseline = 'top';
-            let y = PAD;
             rows.forEach(function (row, i) {
                 context.font = font(row);
                 context.fillStyle = row.color || '#ffffff';
@@ -283,6 +281,8 @@
                 opacity: opacity
             }));
             sprite.scale.set(worldHeight * (canvas.width / canvas.height), worldHeight, 1);
+            // 선택했을 때 되돌아올 기준 크기.
+            sprite.userData.baseScale = sprite.scale.clone();
             return sprite;
         }
 
@@ -344,11 +344,17 @@
             ['UPTOWN RUNWAY', 'UPTOWN RUNWAY(2025)_neighborhood garment recycling infrastructure_19.11.25', '0A_17_uptownrunway.html', [7, 3, 6]]
         ];
 
-        // 📍 흰색 점 + 라벨 스프라이트
-        // 라벨은 평소 흐리게 두고 가리킨 것만 밝힌다 — 점이 몰린 구간에서
-        // 모든 제목이 같은 세기로 겹치면 읽기 어려웠다.
-        const LABEL_IDLE_OPACITY = 0.5;
+        /*
+         * 📍 흰색 점 + 라벨 스프라이트
+         *
+         * 썸네일은 예전처럼 마우스를 올렸을 때만 뜨는 HTML 오버레이가 아니라
+         * 라벨 자체에 그려 넣어 항상 보이게 한다. 열아홉 개가 한 화면에
+         * 있으니 평소에는 흐리게 두고, 가리킨 것만 밝히고 고른 것만 키운다.
+         */
+        const LABEL_IDLE_OPACITY = 0.72;
         const LABEL_ACTIVE_OPACITY = 1;
+        const LABEL_HEIGHT = 2.0;
+        const SELECTED_GROWTH = 1.3;   // 클릭했을 때 커지는 정도
 
         const whiteDotMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const dotGeometry = new THREE.SphereGeometry(0.09, 16, 16);
@@ -365,22 +371,30 @@
             dots.push(dot);
 
             /*
-             * 작업 라벨.
-             * 이전에는 글자 길이와 상관없이 scale이 (1.3, 0.4)로 고정돼 있어서
+             * 라벨은 글자 길이와 상관없이 scale이 (1.3, 0.4)로 고정돼 있어서
              * 'COMPENSATION FOR CONDENSATION'은 찌그러지고 'GALAGA'는 늘어났다.
              * 캔버스 비율 그대로 스케일을 잡아 글자 모양을 유지한다.
              */
-            const sprite = makeTextSprite([
+            const rows = [
                 { text: title, size: 40, weight: '600' },
                 // 좌표는 제목보다 한 단계 낮은 정보라 작고 흐리게.
                 { text: '(' + coords.join(', ') + ')', size: 28, color: 'rgba(255,255,255,0.55)' }
-            ], 0.36, LABEL_IDLE_OPACITY);
+            ];
 
-            sprite.position.copy(pos).add(new THREE.Vector3(0, 0.18, 0));
-            sprite.center.set(0.5, 0);   // 점 바로 위에 붙인다
-            scene.add(sprite);
+            function attach(image) {
+                const sprite = makeTextSprite(rows, LABEL_HEIGHT, LABEL_IDLE_OPACITY, image);
+                sprite.position.copy(pos).add(new THREE.Vector3(0, 0.18, 0));
+                sprite.center.set(0.5, 0);   // 점 바로 위에 붙인다
+                scene.add(sprite);
+                dot.userData.sprite = sprite;
+                invalidate();
+            }
 
-            dot.userData.sprite = sprite;
+            // 썸네일을 받은 뒤 라벨을 만든다. 못 받으면 글자만으로 만든다.
+            const image = new Image();
+            image.onload = function () { attach(image); };
+            image.onerror = function () { attach(null); };
+            image.src = dot.userData.thumb;
         });
 
         /*
@@ -391,7 +405,7 @@
          * 좁은 쪽 화각을 기준으로 거리를 정하고, 화면 높이에 비례하는 축
          * 라벨은 세로 화면에서 폭을 덜 차지하도록 함께 줄인다.
          */
-        const FIT_RADIUS = 9.6;
+        const FIT_RADIUS = 11.5;
         const MAX_FIT_DISTANCE = 26;
         let zoomTouched = false;   // 사용자가 직접 확대했으면 건드리지 않는다
 
@@ -421,14 +435,13 @@
 
         // 🎮 조작 — 마우스와 터치를 함께 지원한다.
         const descDiv = document.getElementById('dotDescription');
-        const previewDiv = document.getElementById('dotPreview');
         const touchHint = document.getElementById('touchHint');
 
         let isDragging = false;
         let dragMoved = false;
         let previousMousePosition = { x: 0, y: 0 };
         let hovered = null;
-        let selected = null;   // 터치에서 첫 번째 탭으로 고른 점
+        let selected = null;   // 첫 클릭/탭으로 고른 점
         const rotationSpeed = 0.005;
         const currentRotation = { x: 0, y: 0 };
 
@@ -463,35 +476,57 @@
             return best;
         }
 
-        // 미리보기가 화면 밖으로 나가지 않도록 위치를 잡는다.
-        function positionPreview(x, y) {
-            const size = previewDiv.offsetWidth || 200;
-            const left = Math.min(Math.max(x - size - 10, 8), window.innerWidth - size - 8);
-            const top = Math.min(Math.max(y - size - 10, 8), window.innerHeight - size - 8);
-            previewDiv.style.left = left + 'px';
-            previewDiv.style.top = top + 'px';
+        // 라벨의 밝기와 크기는 상태에 따라 세 단계다: 기본 / 가리킴 / 선택.
+        function applyLabelState(dot) {
+            const sprite = dot.userData.sprite;
+            if (!sprite) return;   // 썸네일을 아직 못 받았다
+
+            const isSelected = dot === selected;
+            const isActive = isSelected || dot === hovered;
+
+            sprite.material.opacity = isActive ? LABEL_ACTIVE_OPACITY : LABEL_IDLE_OPACITY;
+            const growth = isSelected ? SELECTED_GROWTH : 1;
+            sprite.scale.copy(sprite.userData.baseScale).multiplyScalar(growth);
+            // 커진 라벨이 이웃에 가리지 않도록 앞으로 꺼낸다.
+            sprite.renderOrder = isSelected ? 2 : (isActive ? 1 : 0);
+            dot.scale.setScalar(isActive ? 2 : 1);
         }
 
-        function showDot(dot, x, y) {
-            if (hovered && hovered !== dot) {
-                hovered.scale.set(1, 1, 1);
-                hovered.userData.sprite.material.opacity = LABEL_IDLE_OPACITY;
-            }
+        function setHovered(dot) {
+            if (hovered === dot) return;
+            const previous = hovered;
             hovered = dot;
+            if (previous) applyLabelState(previous);
+            if (dot) applyLabelState(dot);
 
-            if (dot) {
-                dot.scale.set(2, 2, 2);
-                dot.userData.sprite.material.opacity = LABEL_ACTIVE_OPACITY;
-                descDiv.textContent = dot.userData.description;
+            const shown = dot || selected;
+            if (shown) {
+                descDiv.textContent = shown.userData.description;
                 descDiv.style.display = 'block';
-                previewDiv.style.backgroundImage = "url('" + dot.userData.thumb + "')";
-                previewDiv.style.display = 'block';
-                positionPreview(x, y);
-                document.body.style.cursor = 'pointer';
             } else {
                 descDiv.style.display = 'none';
-                previewDiv.style.display = 'none';
-                document.body.style.cursor = '';
+            }
+            document.body.style.cursor = dot ? 'pointer' : '';
+            invalidate();
+        }
+
+        // 첫 클릭(탭)은 고르기, 같은 점을 다시 누르면 열기.
+        function activate(dot) {
+            if (dot && dot === selected) {
+                window.location.href = dot.userData.url;
+                return;
+            }
+
+            const previous = selected;
+            selected = dot;
+            if (previous) applyLabelState(previous);
+            if (dot) {
+                applyLabelState(dot);
+                descDiv.textContent = dot.userData.description;
+                descDiv.style.display = 'block';
+                if (touchHint) touchHint.style.opacity = '0';
+            } else if (!hovered) {
+                descDiv.style.display = 'none';
             }
             invalidate();
         }
@@ -535,16 +570,14 @@
                 previousMousePosition = { x: event.clientX, y: event.clientY };
             }
 
-            const dot = pickAt(event.clientX, event.clientY, 14);
-            if (dot !== hovered) showDot(dot, event.clientX, event.clientY);
-            else if (dot) positionPreview(event.clientX, event.clientY);
+            setHovered(pickAt(event.clientX, event.clientY, 18));
         });
 
-        // 📍 점을 클릭하면 해당 작업으로 이동 (드래그로 회전한 경우는 제외)
+        // 📍 클릭은 고르기, 같은 점을 한 번 더 클릭하면 이동
+        // (드래그로 회전한 경우는 제외)
         window.addEventListener('click', function (event) {
             if (dragMoved) return;
-            const dot = pickAt(event.clientX, event.clientY, 14);
-            if (dot) window.location.href = dot.userData.url;
+            activate(pickAt(event.clientX, event.clientY, 18));
         });
 
         window.addEventListener('wheel', function (event) {
@@ -609,17 +642,8 @@
             const y = touchStart.y;
             touchStart = null;
 
-            const dot = pickAt(x, y, 44);
-
-            if (dot && dot === selected) {
-                // 같은 점을 한 번 더 탭하면 연다.
-                window.location.href = dot.userData.url;
-                return;
-            }
-
-            selected = dot;
-            showDot(dot, x, y);
-            if (dot && touchHint) touchHint.style.opacity = '0';
+            // 마우스 클릭과 같은 흐름: 첫 탭은 고르기, 다시 탭하면 열기.
+            activate(pickAt(x, y, 44));
         });
 
         // 🖥 창 크기가 바뀌어도 화면이 유지되도록 한다.

@@ -7,7 +7,6 @@
     <title>PEARL JITTER ARCHIVE</title>
     <meta name="description" content="An archive of architecture and interactive work by pearl jitter, plotted by abstraction, scale and tone.">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://threejs.org">
     <link rel="stylesheet" type="text/css" href="simp_landingstyle.css">
     <style>
         body {
@@ -153,79 +152,173 @@
         let needsRender = true;
         const invalidate = () => { needsRender = true; };
 
-        // 📌 그리드의 크기와 간격 설정
-        const gridSize = 16;   // 그리드 크기
-        const gridDivisions = 32;  // 그리드 간격
-        const half = gridSize / 0.8;
+        /*
+         * 📌 좌표 격자
+         *
+         * 이전 격자는 선 간격이 ±7.5 범위인데 선 길이는 ±20이라, 정사각형이
+         * 만들어지지 않고 원점에서 뻗어나가는 줄무늬처럼 보였다. 여기서는
+         * 범위와 간격을 맞춰 실제 정사각 격자를 만들고, 원점에서 멀어질수록
+         * 정점 색을 검정으로 빼서 가장자리가 잘리지 않고 녹아 사라지게 한다.
+         * 가산 블렌딩이라 검정은 아무것도 더하지 않고, 선이 겹치는 축 부근만
+         * 자연스럽게 밝아진다.
+         */
+        const GRID_EXTENT = 8;      // 작업 좌표가 ±7 안에 들어온다
+        const GRID_STEP = 1;
+        const MAJOR_EVERY = 4;      // 네 칸마다 굵은 선
+        const FADE_RADIUS = GRID_EXTENT * 1.15;
+        const SEGMENTS = 24;        // 한 선을 나눠 그라데이션을 준다
 
-        // 그리드 라인 그리기 (최외각선 제외)
-        // 세 평면 × 두 방향을 한 번에 처리한다.
-        const gridPlanes = [
-            (t, s) => [[t, -s, 0], [t, s, 0]],   // XY 평면 / X축 라인
-            (t, s) => [[-s, t, 0], [s, t, 0]],   // XY 평면 / Y축 라인
-            (t, s) => [[0, t, -s], [0, t, s]],   // YZ 평면 / Y축 라인
-            (t, s) => [[0, -s, t], [0, s, t]],   // YZ 평면 / Z축 라인
-            (t, s) => [[t, 0, -s], [t, 0, s]],   // ZX 평면 / Z축 라인
-            (t, s) => [[-s, 0, t], [s, 0, t]]    // ZX 평면 / X축 라인
-        ];
+        const MINOR_LEVEL = 0.16;
+        const MAJOR_LEVEL = 0.40;
+        const AXIS_LEVEL = 0.85;
+        const AXIS_LENGTH = 13;
 
-        for (let i = -gridDivisions / 2; i <= gridDivisions / 2; i++) {
-            if (i === -gridDivisions / 2 || i === gridDivisions / 2) continue; // 최외각선 제외
+        const minor = { position: [], color: [] };
+        const major = { position: [], color: [] };
 
-            const t = i * (gridSize / gridDivisions);
-            // 같은 불투명도를 쓰는 라인끼리 머티리얼을 공유한다.
-            const material = new THREE.LineBasicMaterial({
-                color: 0xffffff,
-                opacity: 0.3 - Math.abs(i) * 0.03,
+        // 원점에서의 거리에 따라 0까지 떨어지는 밝기
+        function falloff(x, y, z) {
+            const r = Math.sqrt(x * x + y * y + z * z) / FADE_RADIUS;
+            return Math.max(0, 1 - r * r);
+        }
+
+        function addLine(a, b, level, target) {
+            for (let s = 0; s < SEGMENTS; s++) {
+                for (const t of [s / SEGMENTS, (s + 1) / SEGMENTS]) {
+                    const x = a[0] + (b[0] - a[0]) * t;
+                    const y = a[1] + (b[1] - a[1]) * t;
+                    const z = a[2] + (b[2] - a[2]) * t;
+                    const c = falloff(x, y, z) * level;
+                    target.position.push(x, y, z);
+                    target.color.push(c, c, c);
+                }
+            }
+        }
+
+        const E = GRID_EXTENT;
+        for (let i = -E; i <= E; i += GRID_STEP) {
+            if (i === 0) continue; // 축은 따로 그린다
+
+            const target = i % MAJOR_EVERY === 0 ? major : minor;
+            const level = i % MAJOR_EVERY === 0 ? MAJOR_LEVEL : MINOR_LEVEL;
+
+            addLine([i, -E, 0], [i, E, 0], level, target);   // XY 평면
+            addLine([-E, i, 0], [E, i, 0], level, target);
+            addLine([0, i, -E], [0, i, E], level, target);   // YZ 평면
+            addLine([0, -E, i], [0, E, i], level, target);
+            addLine([i, 0, -E], [i, 0, E], level, target);   // ZX 평면
+            addLine([-E, 0, i], [E, 0, i], level, target);
+        }
+
+        // 📌 x, y, z 축 — 격자와 같은 방식으로 흐려진다
+        for (const dir of [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) {
+            addLine(
+                [-dir[0] * AXIS_LENGTH, -dir[1] * AXIS_LENGTH, -dir[2] * AXIS_LENGTH],
+                [dir[0] * AXIS_LENGTH, dir[1] * AXIS_LENGTH, dir[2] * AXIS_LENGTH],
+                AXIS_LEVEL, major
+            );
+        }
+
+        // 선 186개를 두 개의 LineSegments로 합친다.
+        for (const data of [minor, major]) {
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.position, 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(data.color, 3));
+
+            const lines = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
                 transparent: true
+            }));
+            lines.renderOrder = -1;
+            scene.add(lines);
+        }
+
+        /*
+         * 🔤 글자를 캔버스에 그려 스프라이트로 만든다.
+         *
+         * 축 라벨은 원래 3D TextGeometry였는데, 원근 때문에 카메라 쪽 축의
+         * 글자만 몇 배로 커져 구도를 깨뜨렸다. 스프라이트는 항상 카메라를
+         * 향하고 크기가 일정해서 여섯 축이 같은 무게로 읽힌다.
+         * 덤으로 threejs.org에서 받아오던 폰트 의존성도 사라진다.
+         */
+        function makeTextSprite(rows, worldHeight, opacity) {
+            const PAD = 10;
+            const GAP = 6;
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            const font = row => (row.weight || '400') + ' ' + row.size + 'px Arial';
+
+            let width = 0;
+            let height = PAD * 2;
+            rows.forEach(function (row, i) {
+                context.font = font(row);
+                width = Math.max(width, context.measureText(row.text).width);
+                height += row.size + (i ? GAP : 0);
             });
 
-            for (const plane of gridPlanes) {
-                const [a, b] = plane(t, half);
-                const geometry = new THREE.BufferGeometry();
-                geometry.setAttribute('position', new THREE.BufferAttribute(
-                    new Float32Array([a[0], a[1], a[2], b[0], b[1], b[2]]), 3
-                ));
-                scene.add(new THREE.Line(geometry, material));
-            }
+            canvas.width = Math.ceil(width) + PAD * 2;
+            canvas.height = Math.ceil(height);
+
+            context.textAlign = 'center';
+            context.textBaseline = 'top';
+            let y = PAD;
+            rows.forEach(function (row, i) {
+                context.font = font(row);
+                context.fillStyle = row.color || '#ffffff';
+                context.fillText(row.text, canvas.width / 2, y + (i ? GAP : 0));
+                y += row.size + (i ? GAP : 0);
+            });
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.minFilter = THREE.LinearFilter; // 2의 거듭제곱이 아닌 크기
+            texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                depthWrite: false,
+                opacity: opacity
+            }));
+            sprite.scale.set(worldHeight * (canvas.width / canvas.height), worldHeight, 1);
+            return sprite;
         }
 
-        // 📌 더 긴 x, y, z 축 흰색 선 그리기
-        const axisLength = 100;
-        const axisMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-        for (const dir of [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) {
-            const geometry = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(-dir[0] * axisLength, -dir[1] * axisLength, -dir[2] * axisLength),
-                new THREE.Vector3(dir[0] * axisLength, dir[1] * axisLength, dir[2] * axisLength)
-            ]);
-            scene.add(new THREE.Line(geometry, axisMaterial));
-        }
-
-        // 📚 축 라벨 — 폰트는 한 번만 받아서 여섯 개를 함께 만든다.
+        // 📚 축 라벨 — 여섯 개를 같은 거리, 같은 크기로.
+        // (이전에는 BIG/SMALL만 10.7, 나머지는 32라 축마다 거리가 달랐다.)
+        const AXIS_LABEL_RADIUS = 8.9;
         const axisLabels = [
-            ['CONCRETE', new THREE.Vector3(gridSize / 0.5, 0, 0)],
-            ['ABSTRACT', new THREE.Vector3(-gridSize / 0.5, 0, 0)],
-            ['BIG', new THREE.Vector3(0, gridSize / 1.5, 0)],
-            ['SMALL', new THREE.Vector3(0, -gridSize / 1.5, 0)],
-            ['SERIOUS', new THREE.Vector3(0, 0, gridSize / 0.5)],
-            ['PLAYFUL', new THREE.Vector3(0, 0, -gridSize / 0.5)]
+            ['CONCRETE', [1, 0, 0]],
+            ['ABSTRACT', [-1, 0, 0]],
+            ['BIG', [0, 1, 0]],
+            ['SMALL', [0, -1, 0]],
+            ['SERIOUS', [0, 0, 1]],
+            ['PLAYFUL', [0, 0, -1]]
         ];
 
-        new THREE.FontLoader().load(
-            'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-            function (font) {
-                const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-                for (const [text, position] of axisLabels) {
-                    const geometry = new THREE.TextGeometry(text, {
-                        font: font, size: 0.7, height: 0, curveSegments: 12
-                    });
-                    const mesh = new THREE.Mesh(geometry, material);
-                    mesh.position.copy(position);
-                    scene.add(mesh);
-                }
-                invalidate();
-            }
-        );
+        const AXIS_LABEL_SIZE = 0.055;
+        const axisSprites = [];
+
+        for (const [text, dir] of axisLabels) {
+            const sprite = makeTextSprite([{ text: text, size: 40, weight: '600' }], AXIS_LABEL_SIZE, 0.8);
+            /*
+             * 축 이름은 좌표계의 기준이라 여섯 개가 같은 무게로 읽혀야 한다.
+             * 원근 축소를 끄면 어느 축이 카메라 쪽으로 돌아오든 크기가 같다.
+             * (작업 라벨은 반대로 원근을 유지해서 멀수록 물러나게 둔다.)
+             */
+            sprite.material.sizeAttenuation = false;
+            sprite.position.set(
+                dir[0] * AXIS_LABEL_RADIUS,
+                dir[1] * AXIS_LABEL_RADIUS,
+                dir[2] * AXIS_LABEL_RADIUS
+            );
+            // 화면 비율에 맞춰 다시 계산할 때 쓴다.
+            sprite.userData.aspect = sprite.scale.x / sprite.scale.y;
+            axisSprites.push(sprite);
+            scene.add(sprite);
+        }
 
         // 📍 작업 목록 — 제목 / 설명 / 링크 / 좌표를 한 곳에서 관리한다.
         // 좌표는 (구체성, 규모, 진지함).
@@ -252,8 +345,13 @@
         ];
 
         // 📍 흰색 점 + 라벨 스프라이트
+        // 라벨은 평소 흐리게 두고 가리킨 것만 밝힌다 — 점이 몰린 구간에서
+        // 모든 제목이 같은 세기로 겹치면 읽기 어려웠다.
+        const LABEL_IDLE_OPACITY = 0.5;
+        const LABEL_ACTIVE_OPACITY = 1;
+
         const whiteDotMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const dotGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+        const dotGeometry = new THREE.SphereGeometry(0.09, 16, 16);
         const dots = [];
 
         works.forEach(function (work, i) {
@@ -266,34 +364,60 @@
             scene.add(dot);
             dots.push(dot);
 
-            // 라벨을 캔버스 텍스처 스프라이트로 그린다.
-            const labelText = title + '\n(' + coords.join(', ') + ')';
-            const lines = labelText.split('\n');
-            const fontSize = 48;
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
+            /*
+             * 작업 라벨.
+             * 이전에는 글자 길이와 상관없이 scale이 (1.3, 0.4)로 고정돼 있어서
+             * 'COMPENSATION FOR CONDENSATION'은 찌그러지고 'GALAGA'는 늘어났다.
+             * 캔버스 비율 그대로 스케일을 잡아 글자 모양을 유지한다.
+             */
+            const sprite = makeTextSprite([
+                { text: title, size: 40, weight: '600' },
+                // 좌표는 제목보다 한 단계 낮은 정보라 작고 흐리게.
+                { text: '(' + coords.join(', ') + ')', size: 28, color: 'rgba(255,255,255,0.55)' }
+            ], 0.36, LABEL_IDLE_OPACITY);
 
-            context.font = fontSize + 'px Arial';
-            canvas.width = Math.max.apply(null, lines.map(l => context.measureText(l).width));
-            canvas.height = fontSize * lines.length;
-
-            context.font = fontSize + 'px Arial';
-            context.fillStyle = 'white';
-            context.textBaseline = 'top';
-            lines.forEach((line, j) => context.fillText(line, 0, j * fontSize));
-
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-                map: new THREE.CanvasTexture(canvas),
-                transparent: true
-            }));
-            sprite.scale.set(1.3, 0.4, 0.4);
-            sprite.position.copy(pos).add(new THREE.Vector3(0, 0.5, 0));
+            sprite.position.copy(pos).add(new THREE.Vector3(0, 0.18, 0));
+            sprite.center.set(0.5, 0);   // 점 바로 위에 붙인다
             scene.add(sprite);
+
+            dot.userData.sprite = sprite;
         });
 
-        // 카메라 위치 설정
-        camera.position.set(10, 10, 10);
-        camera.lookAt(0, 0, 0);
+        /*
+         * 카메라와 축 라벨을 화면 비율에 맞춘다.
+         *
+         * 세로로 긴 휴대폰에서는 가로 화각이 훨씬 좁아서, 데스크톱 기준으로
+         * 잡아둔 거리로는 ABSTRACT / PLAYFUL 라벨이 좌우로 잘려 나갔다.
+         * 좁은 쪽 화각을 기준으로 거리를 정하고, 화면 높이에 비례하는 축
+         * 라벨은 세로 화면에서 폭을 덜 차지하도록 함께 줄인다.
+         */
+        const FIT_RADIUS = 9.6;
+        const MAX_FIT_DISTANCE = 26;
+        let zoomTouched = false;   // 사용자가 직접 확대했으면 건드리지 않는다
+
+        camera.position.set(1, 1, 1);
+
+        function layoutForViewport() {
+            const vFov = camera.fov * Math.PI / 180;
+            const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
+            const distance = Math.min(
+                FIT_RADIUS / Math.sin(Math.min(vFov, hFov) / 2),
+                MAX_FIT_DISTANCE
+            );
+
+            if (!zoomTouched) {
+                camera.position.setLength(distance);
+                camera.lookAt(0, 0, 0);
+            }
+
+            const size = AXIS_LABEL_SIZE * Math.min(1, camera.aspect / 1.3);
+            for (const sprite of axisSprites) {
+                sprite.scale.set(size * sprite.userData.aspect, size, 1);
+            }
+            invalidate();
+        }
+
+        layoutForViewport();
 
         // 🎮 조작 — 마우스와 터치를 함께 지원한다.
         const descDiv = document.getElementById('dotDescription');
@@ -349,11 +473,15 @@
         }
 
         function showDot(dot, x, y) {
-            if (hovered && hovered !== dot) hovered.scale.set(1, 1, 1);
+            if (hovered && hovered !== dot) {
+                hovered.scale.set(1, 1, 1);
+                hovered.userData.sprite.material.opacity = LABEL_IDLE_OPACITY;
+            }
             hovered = dot;
 
             if (dot) {
                 dot.scale.set(2, 2, 2);
+                dot.userData.sprite.material.opacity = LABEL_ACTIVE_OPACITY;
                 descDiv.textContent = dot.userData.description;
                 descDiv.style.display = 'block';
                 previewDiv.style.backgroundImage = "url('" + dot.userData.thumb + "')";
@@ -380,6 +508,7 @@
         }
 
         function zoomTo(distance) {
+            zoomTouched = true;
             camera.position.setLength(Math.min(Math.max(distance, MIN_DISTANCE), MAX_DISTANCE));
             camera.lookAt(0, 0, 0);
             invalidate();
@@ -498,7 +627,7 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            invalidate();
+            layoutForViewport();
         });
 
         // 🔄 애니메이션 루프

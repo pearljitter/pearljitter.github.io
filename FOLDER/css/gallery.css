@@ -1,0 +1,176 @@
+/* Shared styles for every project gallery page (PC + mobile variants). */
+
+:root {
+    --bg: #000;
+    --fg: #fff;
+    --gap: 6px;
+    --tile: 200px;
+    --cols: 6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body.gallery-page {
+    margin: 0;
+    padding: 20px 12px 40px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body.gallery-page h1 {
+    margin: 20px 20px 10px;
+    text-align: left;
+    align-self: flex-start;
+    font-size: 28px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+body.gallery-page h2 {
+    margin: 10px 20px 20px;
+    text-align: left;
+    align-self: flex-start;
+    font-size: 14px;
+    font-weight: 400;
+    pointer-events: none;
+}
+
+/* Mobile variant: centred headings, tighter grid, no text selection. */
+body.gallery-page.is-mobile {
+    user-select: none;
+    -webkit-user-select: none;
+    --tile: 120px;
+    --cols: 3;
+}
+
+body.gallery-page.is-mobile h1 {
+    align-self: center;
+    text-align: center;
+    font-size: 18px;
+    margin-top: 60px;
+}
+
+body.gallery-page.is-mobile h2 {
+    align-self: center;
+    text-align: center;
+}
+
+/*
+ * At most --cols columns, but the grid drops to fewer on narrow screens
+ * instead of overflowing horizontally.
+ */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, var(--tile));
+    gap: var(--gap);
+    justify-content: center;
+    width: 100%;
+    max-width: calc(var(--cols) * (var(--tile) + var(--gap)));
+    margin: 20px auto 40px;
+}
+
+.gallery img {
+    width: var(--tile);
+    height: var(--tile);
+    cursor: pointer;
+    object-fit: cover;
+    background-color: #111;
+    display: block;
+}
+
+/* Mobile variant keeps three columns and lets the tiles stretch to fit. */
+body.gallery-page.is-mobile {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.gallery-page.is-mobile .gallery {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 420px;
+}
+
+body.gallery-page.is-mobile .gallery img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+}
+
+/* ---------------------------------------------------------------- lightbox */
+
+.lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.95);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: var(--fg);
+}
+
+.lightbox.is-open {
+    display: flex;
+}
+
+.lightbox img {
+    max-width: 90%;
+    max-height: 85%;
+    object-fit: contain;
+}
+
+.lightbox p {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.lightbox button {
+    position: absolute;
+    background: none;
+    border: 0;
+    color: var(--fg);
+    cursor: pointer;
+    font-family: inherit;
+    line-height: 1;
+    padding: 10px;
+}
+
+.lightbox .lb-close {
+    top: 20px;
+    right: 30px;
+    font-size: 30px;
+}
+
+.lightbox .lb-prev,
+.lightbox .lb-next {
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+}
+
+.lightbox .lb-prev {
+    left: 20px;
+}
+
+.lightbox .lb-next {
+    right: 20px;
+}
+
+.lightbox button[disabled] {
+    opacity: 0.25;
+    cursor: default;
+}
+
+@media (max-width: 600px) {
+    .lightbox img {
+        max-width: 96%;
+    }
+}

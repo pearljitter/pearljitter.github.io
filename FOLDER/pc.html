@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PEARL JITTER ARCHIVE</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <meta name="description" content="An archive of architecture and interactive work by pearl jitter, plotted by abstraction, scale and tone.">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://threejs.org">
     <link rel="stylesheet" type="text/css" href="simp_landingstyle.css">
     <style>
         body {
@@ -51,7 +53,21 @@
             background-color: white;
             color: black;
         }
+
+        #dotPreview {
+            position: absolute;
+            display: none;
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+            border: 1px solid white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            background-size: cover;
+            background-position: center;
+            z-index: 15;
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 
 <body>
@@ -63,466 +79,268 @@
         </div>
     </div>
     <div id="dotDescription"></div>
+    <div id="dotPreview"></div>
 
     <script>
         // 🚀 Three.js 기본 설정
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
+        // 정적인 장면이라 매 프레임이 아니라 변화가 있을 때만 렌더링한다.
+        let needsRender = true;
+        const invalidate = () => { needsRender = true; };
 
         // 📌 그리드의 크기와 간격 설정
-        const gridSize = 16;  // 그리드 크기
+        const gridSize = 16;   // 그리드 크기
         const gridDivisions = 32;  // 그리드 간격
+        const half = gridSize / 0.8;
 
         // 그리드 라인 그리기 (최외각선 제외)
-        const gridLines = [];
+        // 세 평면 × 두 방향을 한 번에 처리한다.
+        const gridPlanes = [
+            (t, s) => [[t, -s, 0], [t, s, 0]],   // XY 평면 / X축 라인
+            (t, s) => [[-s, t, 0], [s, t, 0]],   // XY 평면 / Y축 라인
+            (t, s) => [[0, t, -s], [0, t, s]],   // YZ 평면 / Y축 라인
+            (t, s) => [[0, -s, t], [0, s, t]],   // YZ 평면 / Z축 라인
+            (t, s) => [[t, 0, -s], [t, 0, s]],   // ZX 평면 / Z축 라인
+            (t, s) => [[-s, 0, t], [s, 0, t]]    // ZX 평면 / X축 라인
+        ];
 
-        // XY 평면 (X축, Y축)
         for (let i = -gridDivisions / 2; i <= gridDivisions / 2; i++) {
             if (i === -gridDivisions / 2 || i === gridDivisions / 2) continue; // 최외각선 제외
 
-            // X축 라인 (XY 평면)
-            const geometryX = new THREE.BufferGeometry();
-            const verticesX = new Float32Array([
-                i * (gridSize / gridDivisions), -gridSize / 0.8, 0,
-                i * (gridSize / gridDivisions), gridSize / 0.8, 0
-            ]);
-            geometryX.setAttribute('position', new THREE.BufferAttribute(verticesX, 3));
-            const lineX = new THREE.Line(geometryX, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
-            gridLines.push(lineX);
-            scene.add(lineX);
+            const t = i * (gridSize / gridDivisions);
+            // 같은 불투명도를 쓰는 라인끼리 머티리얼을 공유한다.
+            const material = new THREE.LineBasicMaterial({
+                color: 0xffffff,
+                opacity: 0.3 - Math.abs(i) * 0.03,
+                transparent: true
+            });
 
-            // Y축 라인 (XY 평면)
-            const geometryY = new THREE.BufferGeometry();
-            const verticesY = new Float32Array([
-                -gridSize / 0.8, i * (gridSize / gridDivisions), 0,
-                gridSize / 0.8, i * (gridSize / gridDivisions), 0
-            ]);
-            geometryY.setAttribute('position', new THREE.BufferAttribute(verticesY, 3));
-            const lineY = new THREE.Line(geometryY, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
-            gridLines.push(lineY);
-            scene.add(lineY);
-        }
-
-        // YZ 평면 (Y축, Z축)
-        for (let i = -gridDivisions / 2; i <= gridDivisions / 2; i++) {
-            if (i === -gridDivisions / 2 || i === gridDivisions / 2) continue; // 최외각선 제외
-
-            // Y축 라인 (YZ 평면)
-            const geometryY = new THREE.BufferGeometry();
-            const verticesY = new Float32Array([
-                0, i * (gridSize / gridDivisions), -gridSize / 0.8,
-                0, i * (gridSize / gridDivisions), gridSize / 0.8
-            ]);
-            geometryY.setAttribute('position', new THREE.BufferAttribute(verticesY, 3));
-            const lineY = new THREE.Line(geometryY, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
-            gridLines.push(lineY);
-            scene.add(lineY);
-
-            // Z축 라인 (YZ 평면)
-            const geometryZ = new THREE.BufferGeometry();
-            const verticesZ = new Float32Array([
-                0, -gridSize / 0.8, i * (gridSize / gridDivisions),
-                0, gridSize / 0.8, i * (gridSize / gridDivisions)
-            ]);
-            geometryZ.setAttribute('position', new THREE.BufferAttribute(verticesZ, 3));
-            const lineZ = new THREE.Line(geometryZ, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
-            gridLines.push(lineZ);
-            scene.add(lineZ);
-        }
-
-        // ZX 평면 (Z축, X축)
-        for (let i = -gridDivisions / 2; i <= gridDivisions / 2; i++) {
-            if (i === -gridDivisions / 2 || i === gridDivisions / 2) continue; // 최외각선 제외
-
-            // Z축 라인 (ZX 평면)
-            const geometryZ = new THREE.BufferGeometry();
-            const verticesZ = new Float32Array([
-                i * (gridSize / gridDivisions), 0, -gridSize / 0.8,
-                i * (gridSize / gridDivisions), 0, gridSize / 0.8
-            ]);
-            geometryZ.setAttribute('position', new THREE.BufferAttribute(verticesZ, 3));
-            const lineZ = new THREE.Line(geometryZ, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
-            gridLines.push(lineZ);
-            scene.add(lineZ);
-
-            // X축 라인 (ZX 평면)
-            const geometryX = new THREE.BufferGeometry();
-            const verticesX = new Float32Array([
-                -gridSize / 0.8, 0, i * (gridSize / gridDivisions),
-                gridSize / 0.8, 0, i * (gridSize / gridDivisions)
-            ]);
-            geometryX.setAttribute('position', new THREE.BufferAttribute(verticesX, 3));
-            const lineX = new THREE.Line(geometryX, new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.3 - Math.abs(i) * 0.03, transparent: true }));
-            gridLines.push(lineX);
-            scene.add(lineX);
+            for (const plane of gridPlanes) {
+                const [a, b] = plane(t, half);
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.BufferAttribute(
+                    new Float32Array([a[0], a[1], a[2], b[0], b[1], b[2]]), 3
+                ));
+                scene.add(new THREE.Line(geometry, material));
+            }
         }
 
         // 📌 더 긴 x, y, z 축 흰색 선 그리기
-        function createAxisLine(start, end, color) {
-            const material = new THREE.LineBasicMaterial({ color: color });
-            const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
-            const line = new THREE.Line(geometry, material);
-            scene.add(line);
+        const axisLength = 100;
+        const axisMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+        for (const dir of [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) {
+            const geometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(-dir[0] * axisLength, -dir[1] * axisLength, -dir[2] * axisLength),
+                new THREE.Vector3(dir[0] * axisLength, dir[1] * axisLength, dir[2] * axisLength)
+            ]);
+            scene.add(new THREE.Line(geometry, axisMaterial));
         }
 
-        const axisLength = 100; // 축 길이 설정
-
-        // X축 (흰색)
-        createAxisLine(new THREE.Vector3(-axisLength, 0, 0), new THREE.Vector3(axisLength, 0, 0), 0xffffff);
-        // Y축 (흰색)
-        createAxisLine(new THREE.Vector3(0, -axisLength, 0), new THREE.Vector3(0, axisLength, 0), 0xffffff);
-        // Z축 (흰색)
-        createAxisLine(new THREE.Vector3(0, 0, -axisLength), new THREE.Vector3(0, 0, axisLength), 0xffffff);
-
-
-        // 📚 텍스트 생성 함수
-        function createText(text, position) {
-            const loader = new THREE.FontLoader();
-            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
-                const textGeometry = new THREE.TextGeometry(text, {
-                    font: font,
-                    size: 0.7,
-                    height: 0,
-                    curveSegments: 12,
-                });
-
-                const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-                const mesh = new THREE.Mesh(textGeometry, textMaterial);
-                mesh.position.set(position.x, position.y, position.z);
-                scene.add(mesh);
-            });
-        }
-
-
-
-        //링크업데이트
-
-
-        // x축, y축, z축 텍스트 추가
-        createText('CONCRETE', new THREE.Vector3(gridSize / 0.5, 0, 0));
-        createText('ABSTRACT', new THREE.Vector3(-gridSize / 0.5, 0, 0));
-        createText('BIG', new THREE.Vector3(0, gridSize / 1.5, 0));
-        createText('SMALL', new THREE.Vector3(0, -gridSize / 1.5, 0));
-        createText('SERIOUS', new THREE.Vector3(0, 0, gridSize / 0.5));
-        createText('PLAYFUL', new THREE.Vector3(0, 0, -gridSize / 0.5));
-
-        const titles = [
-            "FUZZY UNIVERSE", 
-            "CHUNKING RUN", 
-            "STRAGGLER CARRIER", 
-            "ORIGAMI DRAGON",
-            "GALAGA", 
-            "PACGUY", 
-            "GATHER", 
-            "TANGHULU",
-            "THOUGHTS", 
-            "VIRTIAL ESSENCE", 
-            "A SHELTER OF HOMEOSTASIS", 
-            "READER", 
-            "PEOPLE",
-            "A HALFWAY KITCHEN", 
-            "COMPENSATION FOR CONDENSATION", 
-            "UPTOWN RUNWAY", 
-            "YUJIN MANSIONS", 
-            "DINING WAY",
-            "UPTOWN RUNWAY"
+        // 📚 축 라벨 — 폰트는 한 번만 받아서 여섯 개를 함께 만든다.
+        const axisLabels = [
+            ['CONCRETE', new THREE.Vector3(gridSize / 0.5, 0, 0)],
+            ['ABSTRACT', new THREE.Vector3(-gridSize / 0.5, 0, 0)],
+            ['BIG', new THREE.Vector3(0, gridSize / 1.5, 0)],
+            ['SMALL', new THREE.Vector3(0, -gridSize / 1.5, 0)],
+            ['SERIOUS', new THREE.Vector3(0, 0, gridSize / 0.5)],
+            ['PLAYFUL', new THREE.Vector3(0, 0, -gridSize / 0.5)]
         ];
 
-        // 점 설명 배열
-        const descriptions = [
-            "FUZZY UNIVERSE_Interactive Sketch_Object Exercise_11.09.23",
-            "CHUNKING RUN_Flash Game_A Sequel of a Trip to Hong Kong_01.01.24",
-            "STRAGGLER CARRIER_Flash Game_A Sequel of a Trip to JungSeon_11.02.24",
-            "ORIGAMI DRAGON_Interactive Sketch_Mouse Interaction Exercise_01.08.20",
-            "GALAGA_Flash Game_Arcade Game Exercise_11.09.20",
-            "PACGUY_Flash Game_Arcade Game Exercise_29.09.20",
-            "GATHER_Interactive Sketch_Gravity Exercise_14.04.24",
-            "TANGHULU_Interactive Sketch_Object Exercise_11.09.10",
-            "THOUGHTS_Text_27.01.25~",
-            "VIRTIAL ESSENCE_Series of Interactive Sketches_06.12.24~",
-            "A SHELTER OF HOMEOSTASIS_a sustainable alternative to an 'idealized nature'_21.11.24",
-            "READER_09.03.25",
-            "PEOPLE_01.02.25",
-            "A HALFWAY KITCHEN_a vertical farm for food truck docking_21.05.25",
-            "COMPENSATION FOR CONDENSATION_mobile home for metropolitan seoul_15.01.24",
-            "UPTOWN RUNWAY(2022)_neighborhood garment recycling infrastructure_23.09.22",
-            "YUJIN MANSIONS_Yujin Mansion Revitalization_21.12.21",
-            "DINING WAY_an exclusive food center for singles_20.06.21",
-            "UPTOWN RUNWAY(2025)_neighborhood garment recycling infrastructure_19.11.25"
-        ];
-
-        // 📍 흰색 점 추가
-        const whiteDotMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const dots = [];
-        const dotUrls = [
-            "0G_1_fuzzy.html", 
-            "0G_2_chunking.html", 
-            "0G_3_ski.html", 
-            "0G_4_dragon.html",
-            "0G_5_galaga.html", 
-            "0G_6_pacguy.html", 
-            "0G_7_gather.html", 
-            "0G_8_tanghulu.html",
-            "0T_9_blog.html", 
-            "0G_10_virtualEssence.html", 
-            "0A_11_homeostasis.html", 
-            "0G_12_reader.html", 
-            "0G_13_people.html", 
-            "0A_12_verticalfarms.html",
-            "0A_13_condcomp.html", 
-            "0A_14_ur.html", 
-            "0A_15_yj.html", 
-            "0A_16_dw.html",
-            "0A_17_uptownrunway.html"
-        ];
-
-        // (concreteness, bigness, seriousness)
-        const fixedPositions = [
-            new THREE.Vector3(-6, 5, -3), 
-            new THREE.Vector3(2, -3, -4), 
-            new THREE.Vector3(1, -1, -3),
-            new THREE.Vector3(-2, -5, 1), 
-            new THREE.Vector3(1, 5, 1), 
-            new THREE.Vector3(0, -4, -4),
-            new THREE.Vector3(-5, 6, -2), 
-            new THREE.Vector3(-4, -6, -5), 
-            new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(3, 0, 5), 
-            new THREE.Vector3(6, -2, 6), 
-            new THREE.Vector3(6, 0, 2), 
-            new THREE.Vector3(7, -5, 4),
-            new THREE.Vector3(7, 6, 6), 
-            new THREE.Vector3(6, -6, 4), 
-            new THREE.Vector3(4, 3, 6), 
-            new THREE.Vector3(5, 7, 6), 
-            new THREE.Vector3(5, 2, 5),
-            new THREE.Vector3(7, 3, 6)
-        ];
-        const loader = new THREE.TextureLoader();
-
-        // 점 라벨 추가
-        for (let i = 0; i < fixedPositions.length; i++) {
-            const pos = fixedPositions[i];
-            const title = titles[i];
-            const coordText = `(${pos.x}, ${pos.y}, ${pos.z})`;
-            const labelText = `${title}\n${coordText}`;
-
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-            const fontSize = 48;
-            context.font = `${fontSize}px Arial`;
-
-            // 여러 줄 텍스트 처리
-            const lines = labelText.split("\n");
-            const textWidth = Math.max(...lines.map(line => context.measureText(line).width));
-            const textHeight = fontSize * lines.length;
-
-            canvas.width = textWidth;
-            canvas.height = textHeight;
-
-            context.font = `${fontSize}px Arial`;
-            context.fillStyle = "white";
-            context.textBaseline = "top";
-            for (let j = 0; j < lines.length; j++) {
-                context.fillText(lines[j], 0, j * fontSize);
+        new THREE.FontLoader().load(
+            'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
+            function (font) {
+                const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                for (const [text, position] of axisLabels) {
+                    const geometry = new THREE.TextGeometry(text, {
+                        font: font, size: 0.7, height: 0, curveSegments: 12
+                    });
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.copy(position);
+                    scene.add(mesh);
+                }
+                invalidate();
             }
+        );
 
-            const texture = new THREE.CanvasTexture(canvas);
-            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
-            const sprite = new THREE.Sprite(spriteMaterial);
+        // 📍 작업 목록 — 제목 / 설명 / 링크 / 좌표를 한 곳에서 관리한다.
+        // 좌표는 (구체성, 규모, 진지함).
+        const works = [
+            ['FUZZY UNIVERSE', 'FUZZY UNIVERSE_Interactive Sketch_Object Exercise_11.09.23', '0G_1_fuzzy.html', [-6, 5, -3]],
+            ['CHUNKING RUN', 'CHUNKING RUN_Flash Game_A Sequel of a Trip to Hong Kong_01.01.24', '0G_2_chunking.html', [2, -3, -4]],
+            ['STRAGGLER CARRIER', 'STRAGGLER CARRIER_Flash Game_A Sequel of a Trip to JungSeon_11.02.24', '0G_3_ski.html', [1, -1, -3]],
+            ['ORIGAMI DRAGON', 'ORIGAMI DRAGON_Interactive Sketch_Mouse Interaction Exercise_01.08.20', '0G_4_dragon.html', [-2, -5, 1]],
+            ['GALAGA', 'GALAGA_Flash Game_Arcade Game Exercise_11.09.20', '0G_5_galaga.html', [1, 5, 1]],
+            ['PACGUY', 'PACGUY_Flash Game_Arcade Game Exercise_29.09.20', '0G_6_pacguy.html', [0, -4, -4]],
+            ['GATHER', 'GATHER_Interactive Sketch_Gravity Exercise_14.04.24', '0G_7_gather.html', [-5, 6, -2]],
+            ['TANGHULU', 'TANGHULU_Interactive Sketch_Object Exercise_11.09.10', '0G_8_tanghulu.html', [-4, -6, -5]],
+            ['THOUGHTS', 'THOUGHTS_Text_27.01.25~', '0T_9_blog.html', [0, 0, 0]],
+            ['VIRTIAL ESSENCE', 'VIRTIAL ESSENCE_Series of Interactive Sketches_06.12.24~', '0G_10_virtualEssence.html', [3, 0, 5]],
+            ['A SHELTER OF HOMEOSTASIS', "A SHELTER OF HOMEOSTASIS_a sustainable alternative to an 'idealized nature'_21.11.24", '0A_11_homeostasis.html', [6, -2, 6]],
+            ['READER', 'READER_09.03.25', '0G_12_reader.html', [6, 0, 2]],
+            ['PEOPLE', 'PEOPLE_01.02.25', '0G_13_people.html', [7, -5, 4]],
+            ['A HALFWAY KITCHEN', 'A HALFWAY KITCHEN_a vertical farm for food truck docking_21.05.25', '0A_12_verticalfarms.html', [7, 6, 6]],
+            ['COMPENSATION FOR CONDENSATION', 'COMPENSATION FOR CONDENSATION_mobile home for metropolitan seoul_15.01.24', '0A_13_condcomp.html', [6, -6, 4]],
+            ['UPTOWN RUNWAY', 'UPTOWN RUNWAY(2022)_neighborhood garment recycling infrastructure_23.09.22', '0A_14_ur.html', [4, 3, 6]],
+            ['YUJIN MANSIONS', 'YUJIN MANSIONS_Yujin Mansion Revitalization_21.12.21', '0A_15_yj.html', [5, 7, 6]],
+            ['DINING WAY', 'DINING WAY_an exclusive food center for singles_20.06.21', '0A_16_dw.html', [5, 2, 5]],
+            ['UPTOWN RUNWAY', 'UPTOWN RUNWAY(2025)_neighborhood garment recycling infrastructure_19.11.25', '0A_17_uptownrunway.html', [7, 3, 6]]
+        ];
 
-            sprite.scale.set(1.3, 0.4, 0.4); // 라벨 크기
-            sprite.position.copy(pos.clone().add(new THREE.Vector3(0, 0.5, 0))); // 점 근처 위치
+        // 📍 흰색 점 + 라벨 스프라이트
+        const whiteDotMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const dotGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+        const dots = [];
+
+        works.forEach(function (work, i) {
+            const [title, description, url, coords] = work;
+            const pos = new THREE.Vector3(coords[0], coords[1], coords[2]);
+
+            const dot = new THREE.Mesh(dotGeometry, whiteDotMaterial);
+            dot.position.copy(pos);
+            dot.userData = { url: url, description: description, thumb: 'thumbnail/' + (i + 1) + '.jpg' };
+            scene.add(dot);
+            dots.push(dot);
+
+            // 라벨을 캔버스 텍스처 스프라이트로 그린다.
+            const labelText = title + '\n(' + coords.join(', ') + ')';
+            const lines = labelText.split('\n');
+            const fontSize = 48;
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            context.font = fontSize + 'px Arial';
+            canvas.width = Math.max.apply(null, lines.map(l => context.measureText(l).width));
+            canvas.height = fontSize * lines.length;
+
+            context.font = fontSize + 'px Arial';
+            context.fillStyle = 'white';
+            context.textBaseline = 'top';
+            lines.forEach((line, j) => context.fillText(line, 0, j * fontSize));
+
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: new THREE.CanvasTexture(canvas),
+                transparent: true
+            }));
+            sprite.scale.set(1.3, 0.4, 0.4);
+            sprite.position.copy(pos).add(new THREE.Vector3(0, 0.5, 0));
             scene.add(sprite);
-        }
-
-        
-        // 점에 텍스트와 이미지를 추가하는 함수
-        function createDotTextAndImage(dot, text) {
-            const loader = new THREE.FontLoader();
-            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
-                const textGeometry = new THREE.TextGeometry(text, {
-                    font: font,
-                    size: 0.3,
-                    height: 0,
-                    curveSegments: 12,
-                });
-
-                const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-                const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-                textMesh.position.set(dot.position.x + 0.5, dot.position.y, dot.position.z);
-                textMesh.visible = false;  // 텍스트 숨기기
-                scene.add(textMesh);
-                dot.textMesh = textMesh;
-            });
-
-            // 이미지 평면 생성
-            const textureLoader = new THREE.TextureLoader();
-            const texture = textureLoader.load(`https://example.com/images/${text}.png`);
-            const planeGeometry = new THREE.PlaneGeometry(1, 1);
-            const planeMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-            plane.position.set(dot.position.x, dot.position.y + 1, dot.position.z);
-            plane.visible = false;
-            scene.add(plane);
-            dot.imagePlane = plane;
-        }
-
-        // 점 n개 생성
-        for (let i = 0; i < dotUrls.length; i++) {
-            const dotGeometry = new THREE.SphereGeometry(0.1, 32, 32);
-            const whiteDot = new THREE.Mesh(dotGeometry, whiteDotMaterial);
-            whiteDot.position.copy(fixedPositions[i]);
-            scene.add(whiteDot);
-            whiteDot.url = dotUrls[i];
-            whiteDot.description = descriptions[i]; // 설명을 배열에서 가져와 할당
-            dots.push(whiteDot);
-
-            // 점 옆에 텍스트 및 이미지 추가
-            //createDotTextAndImage(whiteDot, "No." + (i + 1));
-            createDotTextAndImage(whiteDot, titles[i]);
-        }
+        });
 
         // 카메라 위치 설정
         camera.position.set(10, 10, 10);
         camera.lookAt(0, 0, 0);
 
-        // 🎮 마우스 드래그 제어
+        // 🎮 마우스 드래그 제어 + 호버 감지 (리스너 하나로 처리)
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+        const descDiv = document.getElementById('dotDescription');
+        const previewDiv = document.getElementById('dotPreview');
+
         let isDragging = false;
+        let dragMoved = false;
         let previousMousePosition = { x: 0, y: 0 };
+        let hovered = null;
         const rotationSpeed = 0.005;
-        let currentRotation = { x: 0, y: 0 };
+        const currentRotation = { x: 0, y: 0 };
 
-        function onMouseDown(event) {
+        function pick(event) {
+            pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+            pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(pointer, camera);
+            // 점 19개를 한 번에 검사한다 (예전에는 점마다 따로 레이캐스트했다).
+            const hits = raycaster.intersectObjects(dots, false);
+            return hits.length ? hits[0].object : null;
+        }
+
+        function setHovered(dot, event) {
+            if (hovered === dot) {
+                if (dot) {
+                    previewDiv.style.left = (event.clientX - 210) + 'px';
+                    previewDiv.style.top = (event.clientY - 210) + 'px';
+                }
+                return;
+            }
+
+            if (hovered) hovered.scale.set(1, 1, 1);
+            hovered = dot;
+
+            if (dot) {
+                dot.scale.set(2, 2, 2);
+                descDiv.textContent = dot.userData.description;
+                descDiv.style.display = 'block';
+                previewDiv.style.backgroundImage = "url('" + dot.userData.thumb + "')";
+                previewDiv.style.left = (event.clientX - 210) + 'px';
+                previewDiv.style.top = (event.clientY - 210) + 'px';
+                previewDiv.style.display = 'block';
+                document.body.style.cursor = 'pointer';
+            } else {
+                descDiv.style.display = 'none';
+                previewDiv.style.display = 'none';
+                document.body.style.cursor = '';
+            }
+            invalidate();
+        }
+
+        window.addEventListener('mousedown', function (event) {
             isDragging = true;
+            dragMoved = false;
             previousMousePosition = { x: event.clientX, y: event.clientY };
-        }
+        });
 
-        function onMouseUp(event) {
+        window.addEventListener('mouseup', function () {
             isDragging = false;
-        }
+        });
 
-        function onMouseMove(event) {
-            if (!isDragging) return;
+        window.addEventListener('mousemove', function (event) {
+            if (isDragging) {
+                const deltaX = event.clientX - previousMousePosition.x;
+                const deltaY = event.clientY - previousMousePosition.y;
+                if (Math.abs(deltaX) + Math.abs(deltaY) > 2) dragMoved = true;
 
-            const deltaX = event.clientX - previousMousePosition.x;
-            const deltaY = event.clientY - previousMousePosition.y;
+                currentRotation.y += deltaX * rotationSpeed;
+                currentRotation.x += deltaY * rotationSpeed;
+                currentRotation.x = Math.max(Math.min(currentRotation.x, Math.PI / 2), -Math.PI / 2);
+                currentRotation.y = (currentRotation.y + Math.PI) % (Math.PI * 2) - Math.PI;
 
-            currentRotation.y += deltaX * rotationSpeed;
-            currentRotation.x += deltaY * rotationSpeed;
+                scene.rotation.x = currentRotation.x;
+                scene.rotation.y = currentRotation.y;
 
-            currentRotation.x = Math.max(Math.min(currentRotation.x, Math.PI / 2), -Math.PI / 2);
-            currentRotation.y = (currentRotation.y + Math.PI) % (Math.PI * 2) - Math.PI;
+                previousMousePosition = { x: event.clientX, y: event.clientY };
+                invalidate();
+            }
 
-            scene.rotation.x = currentRotation.x;
-            scene.rotation.y = currentRotation.y;
+            setHovered(pick(event), event);
+        });
 
-            previousMousePosition = { x: event.clientX, y: event.clientY };
-        }
+        // 📍 점을 클릭하면 해당 작업으로 이동 (드래그로 회전한 경우는 제외)
+        window.addEventListener('click', function (event) {
+            if (dragMoved) return;
+            const dot = pick(event);
+            if (dot) window.location.href = dot.userData.url;
+        });
 
-        window.addEventListener("mousedown", onMouseDown);
-        window.addEventListener("mouseup", onMouseUp);
-        window.addEventListener("mousemove", onMouseMove);
+        // 🖥 창 크기가 바뀌어도 화면이 유지되도록 한다.
+        window.addEventListener('resize', function () {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            invalidate();
+        });
 
         // 🔄 애니메이션 루프
         function animate() {
             requestAnimationFrame(animate);
+            if (!needsRender) return;
+            needsRender = false;
             renderer.render(scene, camera);
         }
         animate();
-
-        // 📍 마우스 클릭으로 점 클릭 감지
-        function onMouseClick(event) {
-            const mouse = new THREE.Vector2();
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, camera);
-
-            for (let i = 0; i < dots.length; i++) {
-                const dot = dots[i];
-                const intersects = raycaster.intersectObject(dot);
-
-                if (intersects.length > 0) {
-                    window.location.href = dot.url;
-                    break;
-                }
-            }
-        }
-
-        window.addEventListener("click", onMouseClick, false);
-
-        // 📍 점 크기 변경 & 텍스트와 이미지 표시
-        function onMouseMoveForScaling(event) {
-            const mouse = new THREE.Vector2();
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, camera);
-
-            let foundHover = false;
-
-            for (let i = 0; i < dots.length; i++) {
-                const dot = dots[i];
-                const intersects = raycaster.intersectObject(dot);
-                const imageDivId = "dotImage" + i;
-
-                if (intersects.length > 0) {
-                    foundHover = true;
-                    dot.scale.set(2, 2, 2);
-
-                    if (dot.textMesh) {
-                        dot.textMesh.visible = true;
-                    }
-
-                    const descDiv = document.getElementById("dotDescription");
-                    descDiv.innerText = dot.description;
-                    descDiv.style.display = "block";
-
-                    let imageDiv = document.getElementById(imageDivId);
-                    if (!imageDiv) {
-                        imageDiv = document.createElement('div');
-                        imageDiv.id = imageDivId;
-                        imageDiv.style.position = 'absolute';
-                        imageDiv.style.width = '200px';
-                        imageDiv.style.height = '200px';
-                        imageDiv.style.pointerEvents = 'none';
-                        imageDiv.style.border = '1px solid white';
-                        imageDiv.style.borderRadius = '0px';
-                        imageDiv.style.boxShadow = '0px 0px 10px rgba(255, 255, 255, 0.8)';
-                        document.body.appendChild(imageDiv);
-                    }
-                    imageDiv.style.display = 'block';
-                    imageDiv.style.left = `${event.clientX - 210}px`;
-                    imageDiv.style.top = `${event.clientY - 210}px`;
-                    imageDiv.style.backgroundImage = `url('thumbnail/${i + 1}.jpg')`;
-                    imageDiv.style.backgroundSize = 'cover';
-                } else {
-                    dot.scale.set(1, 1, 1);
-
-                    if (dot.textMesh) {
-                        dot.textMesh.visible = false;
-                    }
-
-                    const imageDiv = document.getElementById(imageDivId);
-                    if (imageDiv) {
-                        imageDiv.style.display = 'none';
-                    }
-                }
-            }
-
-            if (!foundHover) {
-                document.getElementById("dotDescription").style.display = "none";
-            }
-        }
-
-        window.addEventListener("mousemove", onMouseMoveForScaling, false);
     </script>
 </body>
 

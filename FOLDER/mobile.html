@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mobile</title>
+    <title>Latest Releases — pearl jitter</title>
+    <meta name="description" content="Recent architecture and interactive work by pearl jitter.">
     <style>
         * {
             margin: 0;
@@ -134,7 +135,7 @@
              <div class="slide">
                 <div class="text">Architecture</div>
                 <a href="0A_17_m_uptownrunway.html" class="image-link">
-                    <img src="thumbnail/19.jpg" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/19.jpg" alt="Uptown Runway (2025)" width="200" height="200">
                 </a>
 
                 <div class="text2">Uptown Runway(2025)</div>
@@ -144,7 +145,7 @@
             <div class="slide">
                 <div class="text">Architecture</div>
                 <a href="0A_12_m_verticalfarms.html" class="image-link">
-                    <img src="thumbnail/14.jpg" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/14.jpg" alt="A Halfway Kitchen" width="200" height="200">
                 </a>
 
                 <div class="text2">a Halfway Kitchen</div>
@@ -153,7 +154,7 @@
             <div class="slide">
                 <div class="text">Architecture</div>
                 <a href="0A_11_m_homeostasis.html" class="image-link">
-                    <img src="thumbnail/11.jpg" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/11.jpg" alt="The Shelter of Homeostasis" width="200" height="200">
                 </a>
 
                 <div class="text2">the Shelter of Homeostasis</div>
@@ -162,7 +163,7 @@
             <div class="slide">
                 <div class="text">Architecture</div>
                 <a href="0A_13_m_condcomp.html" class="image-link">
-                    <img src="thumbnail/15.jpg" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/15.jpg" alt="Condensation for Compensation" width="200" height="200">
                 </a>
 
                 <div class="text2">Condensation for Compensation</div>
@@ -171,7 +172,7 @@
             <div class="slide">
                 <div class="text">Architecture</div>
                 <a href="0A_14_m_ur.html" class="image-link">
-                    <img src="thumbnail/16.jpg" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/16.jpg" alt="Uptown Runway (2022)" width="200" height="200">
                 </a>
 
                 <div class="text2">Uptown Runway(2022)</div>
@@ -181,7 +182,7 @@
             <div class="slide">
                 <div class="text">Architecture</div>
                 <a href="0A_15_m_yj.html" class="image-link">
-                    <img src="thumbnail/17.jpg" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/17.jpg" alt="Yujin Mansions" width="200" height="200">
                 </a>
 
                 <div class="text2">Yujin Mansions</div>
@@ -191,7 +192,7 @@
             <div class="slide">
                 <div class="text">Architecture</div>
                 <a href="0A_16_m_dw.html" class="image-link">
-                    <img src="thumbnail/18.jpg" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/18.jpg" alt="Dining Way" width="200" height="200">
                 </a>
 
                 <div class="text2">Dining Way</div>
@@ -200,7 +201,7 @@
             <div class="slide">
                 <div class="text">Game</div>
                 <a href="0G_m_ve_1_mies.html" class="image-link">
-                    <img src="thumbnail/ve1.png" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/ve1.png" alt="The Brick House" width="200" height="200">
                 </a>
 
                 <div class="text2">the Brick House</div>
@@ -209,7 +210,7 @@
             <div class="slide">
                 <div class="text">Game</div>
                 <a href="0G_7_gather.html" class="image-link">
-                    <img src="thumbnail/7.jpg" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/7.jpg" alt="Gather" width="200" height="200">
                 </a>
 
                 <div class="text2">Gather</div>
@@ -217,7 +218,7 @@
             <div class="slide">
                 <div class="text">Game</div>
                 <a href="0G_8_tanghulu.html" class="image-link">
-                    <img src="thumbnail/8.jpg" alt="이미지 1" width="200" height="200">
+                    <img loading="lazy" decoding="async" src="thumbnail/8.jpg" alt="Tanghulu" width="200" height="200">
                 </a>
 
                 <div class="text2">Tangulu</div>
@@ -226,8 +227,9 @@
            
 
         </div>
-        <div class="prev">&#10092;</div> /* 화살표 모양 9198 9197 */
-        <div class="next">&#10093;</div>
+        <!-- 화살표 모양: 9198 9197 -->
+        <div class="prev" role="button" tabindex="0" aria-label="이전">&#10092;</div>
+        <div class="next" role="button" tabindex="0" aria-label="다음">&#10093;</div>
     </div>
     <script>
         let index = 0;
@@ -247,6 +249,19 @@
         function updateSlide() {
             slides.style.transform = `translateX(-${index * 100}vw)`;
         }
+
+        document.querySelectorAll('.prev, .next').forEach(function (el) {
+            el.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    el.click();
+                }
+            });
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowLeft') document.querySelector('.prev').click();
+            else if (e.key === 'ArrowRight') document.querySelector('.next').click();
+        });
 
         let startX = 0;
         document.querySelector('.slider-container').addEventListener('touchstart', (e) => {

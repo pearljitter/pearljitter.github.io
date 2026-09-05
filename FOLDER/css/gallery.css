@@ -3,9 +3,23 @@
 :root {
     --bg: #000;
     --fg: #fff;
+    --tile-bg: #111;
+    --lightbox-bg: rgba(0, 0, 0, 0.95);
     --gap: 6px;
     --tile: 200px;
     --cols: 6;
+}
+
+/*
+ * 건축 프로젝트(0A_*)는 흰 배경으로 뒤집는다. 도면과 렌더가 대부분
+ * 밝은 이미지라 검은 바탕에서는 타일마다 테두리가 튀어 보였다.
+ * 색은 전부 토큰이라 여기서만 갈아끼우면 된다.
+ */
+body.gallery-page.theme-light {
+    --bg: #fff;
+    --fg: #111;
+    --tile-bg: #ebebeb;
+    --lightbox-bg: rgba(255, 255, 255, 0.97);
 }
 
 * {
@@ -82,7 +96,7 @@ body.gallery-page.is-mobile h2 {
     height: var(--tile);
     cursor: pointer;
     object-fit: cover;
-    background-color: #111;
+    background-color: var(--tile-bg);
     display: block;
 }
 
@@ -110,7 +124,7 @@ body.gallery-page.is-mobile .gallery img {
     position: fixed;
     inset: 0;
     z-index: 100;
-    background: rgba(0, 0, 0, 0.95);
+    background: var(--lightbox-bg);
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -173,4 +187,15 @@ body.gallery-page.is-mobile .gallery img {
     .lightbox img {
         max-width: 96%;
     }
+}
+
+/* pageStyle.css의 BACK 버튼은 흰색 고정이라 흰 배경에서 사라진다. */
+body.gallery-page.theme-light .btn {
+    border-color: var(--fg);
+    color: var(--fg);
+}
+
+body.gallery-page.theme-light .btn:hover {
+    background-color: var(--fg);
+    color: var(--bg);
 }

@@ -18,6 +18,8 @@
 
         canvas {
             display: block;
+            /* 드래그·핀치를 브라우저 스크롤/줌에 뺏기지 않게 한다. */
+            touch-action: none;
         }
 
         .container {
@@ -66,6 +68,62 @@
             background-position: center;
             z-index: 15;
         }
+
+        /* 터치 기기에서만 보이는 조작 안내. */
+        #touchHint {
+            display: none;
+            position: fixed;
+            left: 50%;
+            bottom: 12px;
+            transform: translateX(-50%);
+            z-index: 25;
+            max-width: 92vw;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 3px;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            line-height: 1.5;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.6);
+            transition: opacity 0.4s ease;
+        }
+
+        @media (pointer: coarse) {
+            #touchHint {
+                display: block;
+            }
+        }
+
+        /* 좁은 화면에서 세로 제목과 부제가 'Go to Index' 버튼을 침범하던 문제. */
+        @media (max-width: 600px) {
+            h2 {
+                margin-top: 30px;
+                margin-left: 60px;
+                max-width: calc(100vw - 190px);
+                font-size: 11px;
+                line-height: 1.4;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            /* 설명은 오른쪽 고정 패널 대신 화면 아래 전체 폭으로. */
+            #dotDescription {
+                right: 0;
+                left: 0;
+                top: auto;
+                bottom: 56px;
+                width: auto;
+                transform: none;
+                padding: 10px 16px;
+                font-size: 13px;
+                text-align: center;
+                background: rgba(0, 0, 0, 0.6);
+            }
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -80,6 +138,7 @@
     </div>
     <div id="dotDescription"></div>
     <div id="dotPreview"></div>
+    <div id="touchHint">한 손가락 드래그: 회전 &nbsp;·&nbsp; 두 손가락: 확대 · 축소<br>점을 탭하면 설명, 한 번 더 탭하면 열기</div>
 
     <script>
         // 🚀 Three.js 기본 설정
@@ -236,38 +295,61 @@
         camera.position.set(10, 10, 10);
         camera.lookAt(0, 0, 0);
 
-        // 🎮 마우스 드래그 제어 + 호버 감지 (리스너 하나로 처리)
-        const raycaster = new THREE.Raycaster();
-        const pointer = new THREE.Vector2();
+        // 🎮 조작 — 마우스와 터치를 함께 지원한다.
         const descDiv = document.getElementById('dotDescription');
         const previewDiv = document.getElementById('dotPreview');
+        const touchHint = document.getElementById('touchHint');
 
         let isDragging = false;
         let dragMoved = false;
         let previousMousePosition = { x: 0, y: 0 };
         let hovered = null;
+        let selected = null;   // 터치에서 첫 번째 탭으로 고른 점
         const rotationSpeed = 0.005;
         const currentRotation = { x: 0, y: 0 };
 
-        function pick(event) {
-            pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-            pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(pointer, camera);
-            // 점 19개를 한 번에 검사한다 (예전에는 점마다 따로 레이캐스트했다).
-            const hits = raycaster.intersectObjects(dots, false);
-            return hits.length ? hits[0].object : null;
+        const MIN_DISTANCE = 6;
+        const MAX_DISTANCE = 45;
+
+        /*
+         * 화면 좌표로 점을 고른다.
+         * 레이캐스트는 반지름 0.1짜리 구를 정확히 맞춰야 해서 손가락으로는 거의
+         * 불가능했다. 대신 점을 화면에 투영해 가장 가까운 것을 반경 안에서 찾는다.
+         */
+        const _projected = new THREE.Vector3();
+
+        function pickAt(clientX, clientY, radiusPx) {
+            let best = null;
+            let bestDistance = radiusPx;
+
+            for (const dot of dots) {
+                // 씬 전체가 회전할 뿐이라 회전만 적용하면 월드 좌표가 나온다.
+                _projected.copy(dot.position).applyQuaternion(scene.quaternion).project(camera);
+                if (_projected.z > 1) continue; // 카메라 뒤
+
+                const sx = (_projected.x * 0.5 + 0.5) * window.innerWidth;
+                const sy = (-_projected.y * 0.5 + 0.5) * window.innerHeight;
+                const distance = Math.hypot(sx - clientX, sy - clientY);
+
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = dot;
+                }
+            }
+            return best;
         }
 
-        function setHovered(dot, event) {
-            if (hovered === dot) {
-                if (dot) {
-                    previewDiv.style.left = (event.clientX - 210) + 'px';
-                    previewDiv.style.top = (event.clientY - 210) + 'px';
-                }
-                return;
-            }
+        // 미리보기가 화면 밖으로 나가지 않도록 위치를 잡는다.
+        function positionPreview(x, y) {
+            const size = previewDiv.offsetWidth || 200;
+            const left = Math.min(Math.max(x - size - 10, 8), window.innerWidth - size - 8);
+            const top = Math.min(Math.max(y - size - 10, 8), window.innerHeight - size - 8);
+            previewDiv.style.left = left + 'px';
+            previewDiv.style.top = top + 'px';
+        }
 
-            if (hovered) hovered.scale.set(1, 1, 1);
+        function showDot(dot, x, y) {
+            if (hovered && hovered !== dot) hovered.scale.set(1, 1, 1);
             hovered = dot;
 
             if (dot) {
@@ -275,9 +357,8 @@
                 descDiv.textContent = dot.userData.description;
                 descDiv.style.display = 'block';
                 previewDiv.style.backgroundImage = "url('" + dot.userData.thumb + "')";
-                previewDiv.style.left = (event.clientX - 210) + 'px';
-                previewDiv.style.top = (event.clientY - 210) + 'px';
                 previewDiv.style.display = 'block';
+                positionPreview(x, y);
                 document.body.style.cursor = 'pointer';
             } else {
                 descDiv.style.display = 'none';
@@ -287,6 +368,24 @@
             invalidate();
         }
 
+        function rotateBy(deltaX, deltaY) {
+            currentRotation.y += deltaX * rotationSpeed;
+            currentRotation.x += deltaY * rotationSpeed;
+            currentRotation.x = Math.max(Math.min(currentRotation.x, Math.PI / 2), -Math.PI / 2);
+            currentRotation.y = (currentRotation.y + Math.PI) % (Math.PI * 2) - Math.PI;
+
+            scene.rotation.x = currentRotation.x;
+            scene.rotation.y = currentRotation.y;
+            invalidate();
+        }
+
+        function zoomTo(distance) {
+            camera.position.setLength(Math.min(Math.max(distance, MIN_DISTANCE), MAX_DISTANCE));
+            camera.lookAt(0, 0, 0);
+            invalidate();
+        }
+
+        // ---------------------------------------------------------------- 마우스
         window.addEventListener('mousedown', function (event) {
             isDragging = true;
             dragMoved = false;
@@ -303,26 +402,95 @@
                 const deltaY = event.clientY - previousMousePosition.y;
                 if (Math.abs(deltaX) + Math.abs(deltaY) > 2) dragMoved = true;
 
-                currentRotation.y += deltaX * rotationSpeed;
-                currentRotation.x += deltaY * rotationSpeed;
-                currentRotation.x = Math.max(Math.min(currentRotation.x, Math.PI / 2), -Math.PI / 2);
-                currentRotation.y = (currentRotation.y + Math.PI) % (Math.PI * 2) - Math.PI;
-
-                scene.rotation.x = currentRotation.x;
-                scene.rotation.y = currentRotation.y;
-
+                rotateBy(deltaX, deltaY);
                 previousMousePosition = { x: event.clientX, y: event.clientY };
-                invalidate();
             }
 
-            setHovered(pick(event), event);
+            const dot = pickAt(event.clientX, event.clientY, 14);
+            if (dot !== hovered) showDot(dot, event.clientX, event.clientY);
+            else if (dot) positionPreview(event.clientX, event.clientY);
         });
 
         // 📍 점을 클릭하면 해당 작업으로 이동 (드래그로 회전한 경우는 제외)
         window.addEventListener('click', function (event) {
             if (dragMoved) return;
-            const dot = pick(event);
+            const dot = pickAt(event.clientX, event.clientY, 14);
             if (dot) window.location.href = dot.userData.url;
+        });
+
+        window.addEventListener('wheel', function (event) {
+            event.preventDefault();
+            zoomTo(camera.position.length() * (event.deltaY > 0 ? 1.1 : 0.9));
+        }, { passive: false });
+
+        // ---------------------------------------------------------------- 터치
+        // 한 손가락은 회전, 두 손가락은 확대·축소. 탭은 손가락 굵기를 감안해
+        // 넉넉한 반경으로 판정하고, 실수로 열리지 않도록 두 단계로 나눈다.
+        let touchStart = null;
+        let pinchStartDistance = 0;
+        let pinchStartCameraDistance = 0;
+
+        function touchGap(touches) {
+            return Math.hypot(
+                touches[0].clientX - touches[1].clientX,
+                touches[0].clientY - touches[1].clientY
+            );
+        }
+
+        renderer.domElement.addEventListener('touchstart', function (event) {
+            if (event.touches.length === 1) {
+                const t = event.touches[0];
+                touchStart = { x: t.clientX, y: t.clientY, time: Date.now(), moved: false };
+                previousMousePosition = { x: t.clientX, y: t.clientY };
+            } else if (event.touches.length === 2) {
+                touchStart = null;
+                pinchStartDistance = touchGap(event.touches);
+                pinchStartCameraDistance = camera.position.length();
+            }
+        }, { passive: true });
+
+        renderer.domElement.addEventListener('touchmove', function (event) {
+            event.preventDefault();
+
+            if (event.touches.length === 1 && touchStart) {
+                const t = event.touches[0];
+                const deltaX = t.clientX - previousMousePosition.x;
+                const deltaY = t.clientY - previousMousePosition.y;
+
+                if (Math.abs(t.clientX - touchStart.x) + Math.abs(t.clientY - touchStart.y) > 10) {
+                    touchStart.moved = true;
+                }
+
+                rotateBy(deltaX, deltaY);
+                previousMousePosition = { x: t.clientX, y: t.clientY };
+            } else if (event.touches.length === 2 && pinchStartDistance > 0) {
+                const gap = touchGap(event.touches);
+                if (gap > 0) zoomTo(pinchStartCameraDistance * (pinchStartDistance / gap));
+            }
+        }, { passive: false });
+
+        renderer.domElement.addEventListener('touchend', function (event) {
+            if (event.touches.length === 0) pinchStartDistance = 0;
+            if (!touchStart || touchStart.moved || Date.now() - touchStart.time > 500) {
+                touchStart = null;
+                return;
+            }
+
+            const x = touchStart.x;
+            const y = touchStart.y;
+            touchStart = null;
+
+            const dot = pickAt(x, y, 44);
+
+            if (dot && dot === selected) {
+                // 같은 점을 한 번 더 탭하면 연다.
+                window.location.href = dot.userData.url;
+                return;
+            }
+
+            selected = dot;
+            showDot(dot, x, y);
+            if (dot && touchHint) touchHint.style.opacity = '0';
         });
 
         // 🖥 창 크기가 바뀌어도 화면이 유지되도록 한다.

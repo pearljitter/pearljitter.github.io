@@ -272,3 +272,29 @@ body.gallery-page.is-mobile .story p {
 body.gallery-page.is-mobile .story .lede {
     font-size: 16px;
 }
+
+/* ---------------------------------------------------------------- 블로그 글 */
+/*
+ * THOUGHTS(0T_9_blog.html)가 쓰는 글 단위. .story 안에 이어 붙는 여러 편의
+ * 글 각각을 감싼다 — 날짜(h3 재사용, 이미 작게·연하게 스타일됨), 제목, 본문.
+ */
+.post__date {
+    /* .story h3 의 크기·자간은 그대로 두고 대문자 강제만 푼다 — 날짜는
+       숫자라 대문자로 바꿔도 의미가 없다. */
+    text-transform: none;
+}
+
+.post__title {
+    max-width: 680px;
+    margin: 0 auto 20px;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: var(--tracking-tight);
+}
+
+/* 글 안에서 대괄호로 표시한 소제목 — 예: [ANT, OOO] */
+.post__sub {
+    font-weight: 700;
+    margin-top: 1.8em;
+}

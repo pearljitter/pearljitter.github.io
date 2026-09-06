@@ -13,8 +13,19 @@ window.BlogRender = (function () {
     }
 
     // 대괄호로만 된 줄은 문단이 아니라 글 안의 작은 소제목으로 다룬다.
+    // ![대체텍스트](경로) 형태의 줄은 그림판(js/blog-editor.js)이 끼워 넣은
+    // 이미지다 — 프로젝트 페이지와 같은 .story figure 스타일을 그대로 쓴다.
+    var IMAGE_LINE = /^!\[([^\]]*)\]\(([^)]+)\)$/;
+
     function renderParagraph(text) {
         var trimmed = text.trim();
+        var imageMatch = IMAGE_LINE.exec(trimmed);
+        if (imageMatch) {
+            var alt = imageMatch[1];
+            var src = imageMatch[2].replace(/"/g, '&quot;');
+            var caption = alt ? '<figcaption>' + esc(alt) + '</figcaption>' : '';
+            return '<figure><img src="' + src + '" alt="' + esc(alt) + '" loading="lazy">' + caption + '</figure>';
+        }
         if (trimmed.charAt(0) === '[' && trimmed.charAt(trimmed.length - 1) === ']') {
             return '<p class="post__sub">' + esc(trimmed.slice(1, -1)) + '</p>';
         }

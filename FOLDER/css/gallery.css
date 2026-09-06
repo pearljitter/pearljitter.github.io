@@ -451,3 +451,95 @@ body.gallery-page.is-mobile .story .lede {
 .composer__status.is-ok {
     color: #7ee787;
 }
+
+/* ---------------------------------------------------------------- 그림판 */
+/*
+ * 본문 아래에 여는 간단한 그림판. 캔버스에 그린 그림은 "삽입" 즉시 별도
+ * 파일로 커밋되고, 본문에는 그 파일을 가리키는 이미지 줄만 남는다
+ * (js/blog-editor.js, js/blog-render.js 참고).
+ */
+#drawpad-open {
+    margin-top: 14px;
+}
+
+.drawpad {
+    margin: 12px 0 0;
+    padding: 14px;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 10px;
+    background: rgba(128, 128, 128, 0.05);
+}
+
+.drawpad[hidden] {
+    display: none;
+}
+
+.drawpad__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.drawpad__swatches {
+    display: flex;
+    gap: 6px;
+}
+
+.drawpad__swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(128, 128, 128, 0.4);
+    padding: 0;
+    cursor: pointer;
+}
+
+.drawpad__toolbar input[type="color"] {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid rgba(128, 128, 128, 0.4);
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+}
+
+.drawpad__size {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.drawpad__toolbar button.is-active {
+    opacity: 1;
+    background: rgba(128, 128, 128, 0.25);
+    border-radius: 999px;
+}
+
+.drawpad__canvas-wrap {
+    width: 100%;
+    line-height: 0;
+}
+
+#drawpad-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 640 / 440;
+    background: #fff;
+    border-radius: 6px;
+    touch-action: none;
+    cursor: crosshair;
+}
+
+.drawpad__actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}

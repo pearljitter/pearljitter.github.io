@@ -91,6 +91,30 @@
         });
     });
 
+    /*
+     * 연도 아래 본문에 실린 그림도 같은 라이트박스로 연다.
+     * 본문 그림과 그리드 타일은 같은 원본을 가리키므로 data-full 로 짝을 찾는다.
+     */
+    var indexBySource = {};
+    items.forEach(function (item, i) { indexBySource[item.src] = i; });
+
+    Array.prototype.forEach.call(
+        document.querySelectorAll('.story img[data-full]'),
+        function (img) {
+            var i = indexBySource[img.getAttribute('data-full')];
+            if (i === undefined) return;
+            img.setAttribute('tabindex', '0');
+            img.setAttribute('role', 'button');
+            img.addEventListener('click', function () { open(i); });
+            img.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    open(i);
+                }
+            });
+        }
+    );
+
     box.querySelector('.lb-close').addEventListener('click', close);
     prevBtn.addEventListener('click', function () { step(-1); });
     nextBtn.addEventListener('click', function () { step(1); });

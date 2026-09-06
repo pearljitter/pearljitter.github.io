@@ -28,7 +28,16 @@ if not defined CHANGED (
     goto :end
 )
 
-echo [1/4] 변경된 파일
+rem CSS/JS 는 파일명이 그대로라, 고쳐 올려도 방문자 브라우저가 예전 것을
+rem 계속 쓴다. 링크에 내용 해시를 붙여 바뀐 것만 다시 받게 한다.
+where python >nul 2>&1
+if not errorlevel 1 (
+    echo [1/5] 스타일/스크립트 버전 갱신
+    python tools\stamp_assets.py
+    echo.
+)
+
+echo [2/5] 변경된 파일
 echo ------------------------------------------
 git -c core.quotepath=false status --short
 echo ------------------------------------------
@@ -44,15 +53,15 @@ if "%MSG%"=="" (
 )
 
 echo.
-echo [2/4] 변경 사항 담는 중...
+echo [3/5] 변경 사항 담는 중...
 git add -A
 if errorlevel 1 goto :failed
 
-echo [3/4] 커밋 중...
+echo [4/5] 커밋 중...
 git commit -m "%MSG%"
 if errorlevel 1 goto :failed
 
-echo [4/4] GitHub 으로 올리는 중... (브랜치: %BRANCH%)
+echo [5/5] GitHub 으로 올리는 중... (브랜치: %BRANCH%)
 git push origin %BRANCH%
 if errorlevel 1 (
     echo.

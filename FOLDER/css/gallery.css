@@ -190,3 +190,81 @@ body.gallery-page.theme-light .btn:hover {
     background-color: var(--fg);
     color: var(--bg);
 }
+
+/* ------------------------------------------------------------- 프로젝트 글 */
+/*
+ * 연도 아래에 들어가는 본문. 갤러리는 그 아래에 그대로 남는다.
+ * 글줄은 읽기 좋은 폭으로 묶고, 그림은 그보다 넓게 두어 도면이 눌리지 않게 한다.
+ */
+.story {
+    width: 100%;
+    max-width: 980px;
+    margin: 8px auto 56px;
+    text-align: left;
+}
+
+.story p {
+    max-width: 680px;
+    margin: 0 auto 1.15em;
+    font-size: 15px;
+    line-height: 1.78;
+}
+
+.story .lede {
+    font-size: 18px;
+    line-height: 1.7;
+    margin-bottom: 1.6em;
+}
+
+.story h3 {
+    max-width: 680px;
+    margin: 52px auto 18px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+.story figure {
+    margin: 30px 0 34px;
+}
+
+.story figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    background-color: var(--tile-bg);
+    cursor: zoom-in;
+}
+
+.story figcaption {
+    max-width: 680px;
+    margin: 10px auto 0;
+    font-size: 12px;
+    line-height: 1.65;
+    opacity: 0.6;
+}
+
+/* 본문과 갤러리 사이를 조용히 끊어준다. */
+.story-end {
+    width: 100%;
+    max-width: 680px;
+    height: 1px;
+    margin: 0 auto;
+    border: 0;
+    background: currentColor;
+    opacity: 0.18;
+}
+
+body.gallery-page.is-mobile .story {
+    padding: 0 18px;
+}
+
+body.gallery-page.is-mobile .story p {
+    font-size: 14px;
+}
+
+body.gallery-page.is-mobile .story .lede {
+    font-size: 16px;
+}

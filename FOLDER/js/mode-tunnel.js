@@ -7,13 +7,16 @@
  * 정렬은 추상적인 것 → 유쾌한 것 → 작은 것 순이고, G 코드가 먼저 온다.
  * 좌표는 (구체성, 규모, 진지함)이라 세 축 모두 오름차순이면
  * 추상적이고 유쾌하고 작은 것이 앞쪽에 놓인다.
+ *
+ * 관문은 안쪽으로 틀지 않고 카메라를 똑바로 바라보게 세운다. 방향이
+ * 항상 깊이(스크롤) 축과 수직이라, 어디까지 스크롤했든 썸네일이
+ * 찌그러지거나 비뚤어져 보이지 않고 통로를 따라 똑바로 늘어선다.
  */
 window.ModeTunnel = (function () {
     'use strict';
 
     var GAP = 540;          // 관문 사이 안쪽 거리(px)
     var LEAD = 380;         // 첫 관문까지의 여유
-    var TILT = 26;          // 관문이 안쪽을 보도록 돌리는 각도
     var side = 300;         // 통로 반폭 — 화면 폭에 따라 다시 잡는다
 
     var stage, track, edgeLayer, scroll, spacer, started = false;
@@ -58,13 +61,13 @@ window.ModeTunnel = (function () {
                 (edge.dataset.y * halfHeight) + 'px, -5700px) rotateY(90deg)';
         });
 
+        // 썸네일은 늘 정사각형(CSS aspect-ratio) — 회전 없이 카메라를 정면으로 바라본다.
         gates.forEach(function (gate) {
             gate.element.style.width = gateWidth + 'px';
             gate.element.style.marginTop = -(gateWidth * 0.42 + 24) + 'px';
-            gate.element.querySelector('img').style.height = (gateWidth * 0.84) + 'px';
             gate.element.style.transform =
                 'translateX(-50%) translate3d(' + (gate.side * side) + 'px, 0, ' +
-                gate.z + 'px) rotateY(' + (-gate.side * TILT) + 'deg)';
+                gate.z + 'px)';
         });
     }
 
@@ -94,9 +97,9 @@ window.ModeTunnel = (function () {
             gate.appendChild(frame);
             gate.appendChild(label);
 
-            gate.addEventListener('mouseenter', function () { onReadout(work); });
+            // 마우스 hover 는 아래 mousemove 히트테스트가 맡는다 — 스크롤 오버레이가
+            // 위에 있어서 이 요소 자체는 mouseenter/mouseleave 를 받지 못한다.
             gate.addEventListener('focus', function () { onReadout(work); });
-            gate.addEventListener('mouseleave', function () { onReadout(null); });
             gate.addEventListener('blur', function () { onReadout(null); });
 
             track.appendChild(gate);
@@ -128,17 +131,61 @@ window.ModeTunnel = (function () {
         if (Math.abs(next - depth) < 0.4) {
             depth = target;
             render();
+            updateHover();
             raf = null;
             return;
         }
         depth = next;
         render();
+        updateHover();
         raf = requestAnimationFrame(tick);
     }
 
     function onScroll() {
         target = scroll.scrollTop;
         if (!raf) raf = requestAnimationFrame(tick);
+    }
+
+    /*
+     * .tunnel__scroll sits on top of the 3D stage (it has to, to catch wheel
+     * and touch scrolling), so it also swallows every pointer event before it
+     * reaches the <a> gates underneath — clicks did nothing, and hover never
+     * fired. We hit-test the visible gate frames ourselves for both.
+     */
+    var hoveredGate = null;
+    var lastMouse = null;
+
+    function gateAt(x, y) {
+        var hit = null, hitDepth = -Infinity;
+        gates.forEach(function (gate) {
+            if (gate.element.style.pointerEvents !== 'auto') return;
+            var rect = gate.element.querySelector('.gate__frame').getBoundingClientRect();
+            if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return;
+            var z = gate.z + depth;           // 0 에 가까울수록(=가장 덜 음수) 카메라에 가깝다
+            if (z > hitDepth) { hitDepth = z; hit = gate; }
+        });
+        return hit;
+    }
+
+    function onClick(event) {
+        var hit = gateAt(event.clientX, event.clientY);
+        if (hit) window.location.href = hit.element.href;
+    }
+
+    function updateHover() {
+        if (!lastMouse) return;
+        var hit = gateAt(lastMouse.x, lastMouse.y);
+        if (hit === hoveredGate) return;
+        if (hoveredGate) hoveredGate.element.classList.remove('is-hovered');
+        hoveredGate = hit;
+        if (hit) hit.element.classList.add('is-hovered');
+        onReadout(hit ? hit.work : null);
+        scroll.style.cursor = hit ? 'pointer' : '';
+    }
+
+    function onMove(event) {
+        lastMouse = { x: event.clientX, y: event.clientY };
+        updateHover();
     }
 
     return {
@@ -159,6 +206,17 @@ window.ModeTunnel = (function () {
             render();
 
             scroll.addEventListener('scroll', onScroll, { passive: true });
+            scroll.addEventListener('click', onClick);
+            scroll.addEventListener('mousemove', onMove);
+            scroll.addEventListener('mouseleave', function () {
+                lastMouse = null;
+                if (hoveredGate) {
+                    hoveredGate.element.classList.remove('is-hovered');
+                    hoveredGate = null;
+                    onReadout(null);
+                    scroll.style.cursor = '';
+                }
+            });
             window.addEventListener('resize', function () {
                 spacer.style.height =
                     (LEAD + gates.length * GAP + window.innerHeight) + 'px';

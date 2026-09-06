@@ -262,19 +262,27 @@ body {
 .gate__frame img {
     display: block;
     width: 100%;
-    height: 220px;
+    /* 정사각형 — JS 가 폭에 맞춰 height 를 같은 값으로 설정한다 */
+    aspect-ratio: 1 / 1;
     object-fit: cover;
     opacity: 0.82;
     transition: opacity 0.3s var(--ease-out), transform 0.5s var(--ease-out);
 }
 
-.gate:hover .gate__frame,
+/*
+ * .gate 자체는 :hover 를 받지 못한다 — 스크롤을 받아내는 투명 레이어가
+ * 위에 덮여 있어서 커서가 실제로는 그 레이어 위에 있는 것으로 잡힌다.
+ * 대신 js/mode-tunnel.js 가 자체 히트테스트로 켜고 끄는 .is-hovered 를 쓴다.
+ * 키보드 포커스는 오버레이와 무관하게 그대로 동작하므로 :focus-visible 은 남긴다.
+ */
+.gate.is-hovered .gate__frame,
 .gate:focus-visible .gate__frame {
     border-color: rgba(245, 245, 247, 0.5);
     box-shadow: 0 0 0 1px rgba(245, 245, 247, 0.16), 0 24px 60px rgba(0, 0, 0, 0.6);
 }
 
-.gate:hover .gate__frame img {
+.gate.is-hovered .gate__frame img,
+.gate:focus-visible .gate__frame img {
     opacity: 1;
     transform: scale(1.04);
 }
@@ -288,7 +296,8 @@ body {
     transition: color 0.3s var(--ease-out);
 }
 
-.gate:hover .gate__label {
+.gate.is-hovered .gate__label,
+.gate:focus-visible .gate__label {
     color: var(--ink);
 }
 
@@ -366,7 +375,7 @@ body {
 
 .card {
     display: grid;
-    grid-template-columns: 132px 1fr auto;
+    grid-template-columns: 96px 1fr auto;
     align-items: center;
     gap: 22px;
     padding: 16px 12px;
@@ -384,8 +393,8 @@ body {
 }
 
 .card__thumb {
-    width: 132px;
-    height: 88px;
+    width: 96px;
+    aspect-ratio: 1 / 1;
     border-radius: 8px;
     object-fit: cover;
     background: #101012;
@@ -429,8 +438,7 @@ body {
     }
 
     .card__thumb {
-        width: 84px;
-        height: 60px;
+        width: 72px;
     }
 
     .card__date {
@@ -447,12 +455,7 @@ body {
         display: none;
     }
 
-    .gate {
-        width: 190px;
-        margin-top: -84px;
-    }
-
-    .gate__frame img {
-        height: 160px;
-    }
+    /* .gate 의 width/margin-top, .gate__frame img 의 크기는
+       js/mode-tunnel.js 의 layout() 이 화면 폭에 맞춰 인라인으로 정하며
+       언제나 인라인 스타일이 이긴다 — 여기서 다시 정할 필요가 없다. */
 }

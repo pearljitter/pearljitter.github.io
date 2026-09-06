@@ -19,7 +19,15 @@ import re
 import sys
 
 ROOT = 'FOLDER'
-ASSETS = ['css/gallery.css', 'js/gallery.js']
+ASSETS = [
+    'css/gallery.css', 'js/gallery.js',
+    'css/archive.css',
+    'js/works.js', 'js/archive.js',
+    'js/mode-grid.js', 'js/mode-tunnel.js', 'js/mode-list.js',
+]
+# css/base.css is only reached via @import from the two stylesheets above
+# (never linked directly from an HTML page), so stamping it here would be a
+# no-op; it changes rarely enough that this is an acceptable gap for now.
 
 
 def digest(path):

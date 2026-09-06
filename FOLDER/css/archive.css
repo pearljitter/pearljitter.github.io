@@ -1,0 +1,458 @@
+@import url('base.css');
+
+/*
+ * 아카이브 셸.
+ *
+ * 세 가지 보기(3D 그리드 / 터널 / 목록)가 같은 껍데기를 쓴다.
+ * 색과 여백은 애플 HIG 쪽에 맞춰 어둡고 조용하게, 강조는 흰색 한 단계로만.
+ */
+
+:root {
+    --ink: #f5f5f7;
+    --ink-dim: rgba(245, 245, 247, 0.62);
+    --ink-faint: rgba(245, 245, 247, 0.36);
+    --bg: #000;
+    --surface: rgba(245, 245, 247, 0.08);
+    --surface-strong: rgba(245, 245, 247, 0.14);
+    --hairline: rgba(245, 245, 247, 0.12);
+    --radius: 12px;
+    --chrome-h: 52px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    background: var(--bg);
+    color: var(--ink);
+    overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ 상단 바 */
+
+.chrome {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: var(--chrome-h);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 20px;
+    /* 애플식 반투명 바 */
+    background: rgba(0, 0, 0, 0.62);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--hairline);
+}
+
+.chrome__title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+    white-space: nowrap;
+}
+
+.chrome__title span {
+    color: var(--ink-faint);
+    font-weight: 400;
+    margin-left: 8px;
+}
+
+/* 세그먼티드 컨트롤 */
+.segmented {
+    display: inline-flex;
+    position: relative;
+    padding: 2px;
+    border-radius: 9px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+}
+
+.segmented button {
+    position: relative;
+    z-index: 1;
+    appearance: none;
+    border: 0;
+    background: none;
+    color: var(--ink-dim);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight);
+    padding: 6px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: color 0.25s var(--ease-out);
+    white-space: nowrap;
+}
+
+.segmented button[aria-selected="true"] {
+    color: var(--ink);
+}
+
+.segmented__thumb {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 7px;
+    background: var(--surface-strong);
+    transition: transform var(--duration) var(--ease-out),
+        width var(--duration) var(--ease-out);
+    pointer-events: none;
+}
+
+.chrome__link {
+    color: var(--ink-dim);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--hairline);
+    transition: color 0.25s var(--ease-out), background 0.25s var(--ease-out);
+    white-space: nowrap;
+}
+
+.chrome__link:hover {
+    color: var(--ink);
+    background: var(--surface);
+}
+
+/* ------------------------------------------------------------------- 본체 */
+
+.mode {
+    position: absolute;
+    inset: var(--chrome-h) 0 0 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--duration) var(--ease-out);
+}
+
+.mode.is-active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 세 보기가 공유하는 캡션 — 가리키거나 고른 작업을 알려준다 */
+.readout {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    padding: 18px 20px 22px;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent);
+}
+
+.readout.is-visible {
+    opacity: 1;
+}
+
+.readout__title {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+}
+
+.readout__meta {
+    font-size: 13px;
+    color: var(--ink-dim);
+}
+
+.hint {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    z-index: 40;
+    font-size: 12px;
+    color: var(--ink-faint);
+    pointer-events: none;
+    transition: opacity 0.4s var(--ease-out);
+}
+
+/* ------------------------------------------------------- 보기 1 · 3D 그리드 */
+
+#mode-grid canvas {
+    display: block;
+    touch-action: none;
+}
+
+/* ------------------------------------------------------------ 보기 2 · 터널 */
+
+#mode-tunnel {
+    overflow: hidden;
+}
+
+.tunnel__stage {
+    position: absolute;
+    inset: 0;
+    perspective: 900px;
+    perspective-origin: 50% 46%;
+}
+
+.tunnel__track {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+/*
+ * 소실점으로 모이는 통로 모서리.
+ * 가로로 긴 띠를 rotateY(90deg) 로 눕히면 그 폭이 깊이 축이 되어
+ * 통로를 따라 뻗는 선이 된다.
+ */
+.tunnel__edges {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    pointer-events: none;
+}
+
+.tunnel__edge {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12600px;
+    height: 1px;
+    margin-left: -6300px;
+    background: linear-gradient(to right, transparent, rgba(245, 245, 247, 0.22) 22%, rgba(245, 245, 247, 0.28) 92%, transparent);
+    transform-origin: 50% 50%;
+    pointer-events: none;
+}
+
+.gate {
+    position: absolute;
+    top: 50%;
+    width: 260px;
+    margin-top: -110px;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.gate__frame {
+    position: relative;
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #0a0a0c;
+    transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+
+.gate__frame img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    opacity: 0.82;
+    transition: opacity 0.3s var(--ease-out), transform 0.5s var(--ease-out);
+}
+
+.gate:hover .gate__frame,
+.gate:focus-visible .gate__frame {
+    border-color: rgba(245, 245, 247, 0.5);
+    box-shadow: 0 0 0 1px rgba(245, 245, 247, 0.16), 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+.gate:hover .gate__frame img {
+    opacity: 1;
+    transform: scale(1.04);
+}
+
+.gate__label {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink-dim);
+    transition: color 0.3s var(--ease-out);
+}
+
+.gate:hover .gate__label {
+    color: var(--ink);
+}
+
+.tunnel__scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 10;
+    /* 스크롤만 받아내고 그리기는 아래 3D 무대가 맡는다 */
+    scrollbar-width: none;
+}
+
+.tunnel__scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.tunnel__spacer {
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------- 보기 3 · 목록 */
+
+#mode-list {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.list {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 72px 24px 120px;
+}
+
+.list__lede {
+    max-width: 620px;
+    margin: 0 0 84px;
+    font-size: 32px;
+    line-height: 1.28;
+    font-weight: 600;
+    letter-spacing: var(--tracking-display);
+}
+
+.list__lede span {
+    color: var(--ink-faint);
+    font-weight: 400;
+}
+
+.list__group {
+    margin-bottom: 72px;
+}
+
+.list__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 0 0 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+}
+
+.list__heading em {
+    font-style: normal;
+    font-weight: 400;
+    color: var(--ink-faint);
+    letter-spacing: var(--tracking-tight);
+    text-transform: none;
+}
+
+.card {
+    display: grid;
+    grid-template-columns: 132px 1fr auto;
+    align-items: center;
+    gap: 22px;
+    padding: 16px 12px;
+    margin: 0 -12px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.28s var(--ease-out);
+}
+
+.card:hover,
+.card:focus-visible {
+    background: var(--surface);
+    outline: none;
+}
+
+.card__thumb {
+    width: 132px;
+    height: 88px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #101012;
+    display: block;
+}
+
+.card__title {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+    margin: 0 0 4px;
+}
+
+.card__note {
+    font-size: 14px;
+    color: var(--ink-dim);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.card__date {
+    font-size: 13px;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+    .list {
+        padding: 48px 20px 96px;
+    }
+
+    .list__lede {
+        font-size: 24px;
+        margin-bottom: 56px;
+    }
+
+    .card {
+        grid-template-columns: 84px 1fr;
+        gap: 16px;
+    }
+
+    .card__thumb {
+        width: 84px;
+        height: 60px;
+    }
+
+    .card__date {
+        grid-column: 2;
+        margin-top: 2px;
+    }
+
+    .chrome {
+        padding: 0 14px;
+    }
+
+    .chrome__title span,
+    .chrome__link {
+        display: none;
+    }
+
+    .gate {
+        width: 190px;
+        margin-top: -84px;
+    }
+
+    .gate__frame img {
+        height: 160px;
+    }
+}

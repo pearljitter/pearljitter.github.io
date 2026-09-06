@@ -1,0 +1,46 @@
+/*
+ * 사이트 공통 타이포그래피.
+ *
+ * 애플 기기에서는 -apple-system 이 SF Pro 를 그대로 쓴다.
+ * 그 외 환경에서는 SF 와 가장 가까운 Inter 를 내려받아 같은 인상을 준다.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+        'Inter', 'Helvetica Neue', 'Apple SD Gothic Neo', 'Pretendard', sans-serif;
+
+    /* 애플 인터페이스 특유의 촘촘한 자간과 옅은 회색 단계 */
+    --tracking-tight: -0.022em;
+    --tracking-display: -0.03em;
+
+    --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+    --duration: 0.45s;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+body {
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-tight);
+}
+
+h1, h2, h3, h4, h5, h6,
+button, input, select, textarea {
+    font-family: inherit;
+    letter-spacing: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

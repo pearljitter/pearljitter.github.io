@@ -1,3 +1,5 @@
+@import url('css/base.css');
+
 h1 {
     position: absolute;
     margin-top: 20px;
@@ -6,7 +8,7 @@ h1 {
     text-align: left;
     font-size: 28px;
     color: rgb(255, 255, 255);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 600;
     writing-mode: vertical-rl;
     /* 세로 텍스트 */
@@ -25,7 +27,7 @@ h2 {
     font-size: 14px;
     font-weight:100;
     color: rgb(255, 255, 255);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-sans);
     z-index: 20;
     pointer-events: none;
 }
@@ -36,7 +38,7 @@ h3 {
     text-align: left;
     font-size: 10px;
     color: rgb(255, 255, 255);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-sans);
     font-weight: lighter;
 }
 
@@ -46,7 +48,7 @@ p {
     text-align: left;
     font-size: 10px;
     color: rgb(255, 255, 255);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-sans);
     font-weight: lighter;
 }
 

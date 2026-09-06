@@ -12,16 +12,15 @@ from stories import STORIES
 
 ROOT = 'FOLDER'
 
-# 폴더 -> (PC 페이지, 모바일 페이지)
+# 폴더 -> 프로젝트 페이지
 PAGES = {
-    '0A_11_homeostasis': ('0A_11_homeostasis.html', '0A_11_m_homeostasis.html'),
-    '0A_12_verticalfarms': ('0A_12_verticalfarms.html', '0A_12_m_verticalfarms.html'),
-    '0A_13_condcomp': ('0A_13_condcomp.html', '0A_13_m_condcomp.html'),
-    '0A_14_uptownrunwayorigin': ('0A_14_uptownrunwayorigin.html',
-                                 '0A_14_m_uptownrunwayorigin.html'),
-    '0A_15_yujinmansions': ('0A_15_yujinmansions.html', '0A_15_m_yujinmansions.html'),
-    '0A_16_diningway': ('0A_16_diningway.html', '0A_16_m_diningway.html'),
-    '0A_17_uptownrunway': ('0A_17_uptownrunway.html', '0A_17_m_uptownrunway.html'),
+    '0A_11_homeostasis': '0A_11_homeostasis.html',
+    '0A_12_verticalfarms': '0A_12_verticalfarms.html',
+    '0A_13_condcomp': '0A_13_condcomp.html',
+    '0A_14_uptownrunwayorigin': '0A_14_uptownrunwayorigin.html',
+    '0A_15_yujinmansions': '0A_15_yujinmansions.html',
+    '0A_16_diningway': '0A_16_diningway.html',
+    '0A_17_uptownrunway': '0A_17_uptownrunway.html',
 }
 
 
@@ -67,7 +66,7 @@ def build(folder, blocks):
 
 
 problems = []
-for folder, (pc, mobile) in sorted(PAGES.items()):
+for folder, page in sorted(PAGES.items()):
     blocks = STORIES[folder]
     html, used = build(folder, blocks)
 
@@ -82,7 +81,7 @@ for folder, (pc, mobile) in sorted(PAGES.items()):
     if duplicated:
         problems.append('%s: 본문에 중복된 이미지 %s' % (folder, duplicated))
 
-    for name in (pc, mobile):
+    for name in (page,):
         path = os.path.join(ROOT, name)
         text = io.open(path, encoding='utf-8').read()
         if '<article class="story">' in text:

@@ -8,21 +8,24 @@
  * 좌표는 (구체성, 규모, 진지함)이라 세 축 모두 오름차순이면
  * 추상적이고 유쾌하고 작은 것이 앞쪽에 놓인다.
  *
- * 안내선 없이 통로의 깊이감은 관문 자체가 만든다: 각 관문은 통로 벽면의
- * 그 위치(x = ±side)에 바깥쪽 모서리를 고정하고, 안쪽 모서리만 통로 쪽으로
- * 열리듯 튼다 — 게시판이 벽에 경첩으로 붙어 있는 것과 같은 회전이라
- * 카드가 벽면에서 떨어져 떠 있지 않고 벽의 일부처럼 읽힌다.
+ * 각 관문은 카메라를 보고 있지 않다 — 90도 돌려 그 벽면과 같은 평면에
+ * 눕혀 둔다. 패널의 법선벡터가 통로 벽면의 법선벡터와 같아지는 것이라,
+ * 스크롤로 통로를 따라가다 옆을 스칠 때 벽에 박힌 창처럼 비스듬히 보이고,
+ * 가까이 다가온 순간 거의 정면으로 열리며 그 안으로 들어가는 감각을 준다.
+ *
+ * 통로 자체는 시작점부터 소실점까지 뻗는 흰 선으로 그린다 — 바닥·천장·
+ * 양옆 모서리 네 줄이 실제 복도의 골격처럼 또렷하게 보이게 한다.
  */
 window.ModeTunnel = (function () {
     'use strict';
 
     var GAP = 540;          // 관문 사이 안쪽 거리(px)
     var LEAD = 380;         // 첫 관문까지의 여유
-    var TILT = 34;          // 벽에서 통로 쪽으로 열리는 각도
+    var FLUSH = 90;         // 벽과 같은 평면에 눕히는 각도 (법선벡터가 같아진다)
     var side = 300;         // 통로 반폭 — 화면 폭에 따라 다시 잡는다
 
-    var stage, track, scroll, spacer, started = false;
-    var gates = [], onReadout = function () {};
+    var stage, track, edgeLayer, scroll, spacer, started = false;
+    var gates = [], edges = [], onReadout = function () {};
     var depth = 0, target = 0, raf = null;
 
     function ordered() {
@@ -36,21 +39,44 @@ window.ModeTunnel = (function () {
         });
     }
 
+    function buildEdges() {
+        // 통로의 네 모서리(바닥·천장·양옆)를 시작점부터 소실점까지 흰 선으로 긋는다.
+        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (corner) {
+            var edge = document.createElement('div');
+            edge.className = 'tunnel__edge';
+            edge.dataset.x = corner[0];
+            edge.dataset.y = corner[1];
+            edgeLayer.appendChild(edge);
+            edges.push(edge);
+        });
+    }
+
     /* 관문이 화면 밖으로 나가지 않도록 통로 폭과 관문 크기를 화면에 맞춘다. */
     function layout() {
         var w = stage.clientWidth || window.innerWidth;
         side = Math.max(120, Math.min(340, w * 0.3));
         var gateWidth = Math.max(150, Math.min(260, w * 0.26));
 
-        // 썸네일은 늘 정사각형(CSS aspect-ratio). 벽면 쪽 모서리를 축으로
-        // 돌려, 그 모서리는 벽에 고정된 채 반대쪽만 통로 안으로 열린다.
+        var halfHeight = side * 0.74;
+        edges.forEach(function (edge) {
+            edge.style.transform =
+                'translate3d(' + (edge.dataset.x * side) + 'px, ' +
+                (edge.dataset.y * halfHeight) + 'px, -5700px) rotateY(90deg)';
+        });
+
+        /*
+         * 썸네일은 늘 정사각형(CSS aspect-ratio). 카메라를 보는 대신 90도
+         * 돌려 자기 벽면과 같은 평면에 눕힌다 — 법선벡터가 벽의 법선벡터와
+         * 같아지는 지점. 화면에 보이는 폭은 이제 카드의 실제 폭이 아니라
+         * 카메라 각도에 따른 원근 단축이며, 통로를 스쳐 지날수록 넓게 열린다.
+         */
         gates.forEach(function (gate) {
             gate.element.style.width = gateWidth + 'px';
-            gate.element.style.marginTop = -(gateWidth * 0.42 + 24) + 'px';
-            gate.element.style.transformOrigin = gate.side < 0 ? '0% 50%' : '100% 50%';
+            gate.element.style.marginTop = -(gateWidth / 2) + 'px';   // 프레임(정사각형)만 남아 그 절반으로 세로 중앙 정렬
+            gate.element.style.transformOrigin = '50% 50%';
             gate.element.style.transform =
                 'translateX(-50%) translate3d(' + (gate.side * side) + 'px, 0, ' +
-                gate.z + 'px) rotateY(' + (gate.side * TILT) + 'deg)';
+                gate.z + 'px) rotateY(' + (gate.side * FLUSH) + 'deg)';
         });
     }
 
@@ -73,12 +99,10 @@ window.ModeTunnel = (function () {
             img.decoding = 'async';
             frame.appendChild(img);
 
-            var label = document.createElement('div');
-            label.className = 'gate__label';
-            label.textContent = work.title;
-
+            // 관문이 벽과 같은 평면에 눕혀져 있어 제목 글자는 옆에서 보면
+            // 거의 항상 edge-on 으로 읽을 수 없다 — 제목은 하단 캡션(readout)이
+            // 맡고, 씬 안에는 텍스트를 따로 두지 않는다.
             gate.appendChild(frame);
-            gate.appendChild(label);
 
             // 마우스 hover 는 아래 mousemove 히트테스트가 맡는다 — 스크롤 오버레이가
             // 위에 있어서 이 요소 자체는 mouseenter/mouseleave 를 받지 못한다.
@@ -179,9 +203,11 @@ window.ModeTunnel = (function () {
 
             stage = element.querySelector('.tunnel__stage');
             track = element.querySelector('.tunnel__track');
+            edgeLayer = element.querySelector('.tunnel__edges');
             scroll = element.querySelector('.tunnel__scroll');
             spacer = element.querySelector('.tunnel__spacer');
 
+            buildEdges();
             buildGates();
             layout();
             render();

@@ -214,6 +214,40 @@ body {
     will-change: transform;
 }
 
+/*
+ * 시작점부터 소실점까지 뻗는 복도의 골격 — 바닥·천장·양옆 모서리 네 줄.
+ * 가로로 긴 띠를 rotateY(90deg) 로 눕히면 그 폭이 깊이 축이 되어
+ * 통로를 따라 뻗는 선이 된다. 스크롤과 무관하게 고정되도록 트랙 밖에 둔다.
+ */
+.tunnel__edges {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    pointer-events: none;
+}
+
+.tunnel__edge {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12600px;
+    /*
+     * 1px 로는 원근으로 심하게 압축된 3D 회전 상태에서 안티앨리어싱에
+     * 지워져 버렸다(스크린샷으로 확인). 2px 은 살아남으면서도 여전히 얇은
+     * 선으로 읽힌다.
+     */
+    height: 2px;
+    margin-left: -6300px;
+    margin-top: -1px;
+    background: linear-gradient(to right,
+            transparent,
+            rgba(245, 245, 247, 0.65) 18%,
+            rgba(245, 245, 247, 0.8) 92%,
+            transparent);
+    transform-origin: 50% 50%;
+    pointer-events: none;
+}
+
 .gate {
     position: absolute;
     top: 50%;
@@ -282,19 +316,8 @@ body {
     transform: scale(1.04);
 }
 
-.gate__label {
-    margin-top: 10px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: var(--tracking-tight);
-    color: var(--ink-dim);
-    transition: color 0.3s var(--ease-out);
-}
-
-.gate.is-hovered .gate__label,
-.gate:focus-visible .gate__label {
-    color: var(--ink);
-}
+/* 관문이 벽과 같은 평면에 눕혀져 제목 글자는 거의 항상 edge-on 이라
+   씬 안에 두지 않는다 — 제목은 하단 캡션(.readout)이 대신 보여준다. */
 
 .tunnel__scroll {
     position: absolute;

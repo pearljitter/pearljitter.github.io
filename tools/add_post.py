@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-새 글 한 편을 tools/posts.json 끝에 붙이고 0T_9_blog.html 을 다시 만든다.
+새 글 한 편을 FOLDER/data/posts.json 끝에 붙인다.
+
+THOUGHTS 페이지(FOLDER/0T_9_blog.html)는 이 파일을 브라우저에서 직접
+읽어 그 자리에서 그려낸다(js/blog.js) — 따로 다시 만들 HTML이 없다.
+그래서 posts.json 을 고쳐 배포.bat 으로 올리기만 하면 바로 반영된다.
+컴퓨터 없이 GitHub 웹사이트/앱에서 이 파일을 직접 고쳐도 마찬가지다.
+
 보통은 새글쓰기.bat 이 이 스크립트를 부르지만, 직접 써도 된다:
 
     python tools/add_post.py "글 제목" 본문.txt
@@ -16,7 +22,7 @@ import sys
 from datetime import date
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-POSTS_JSON = os.path.join(ROOT, 'tools', 'posts.json')
+POSTS_JSON = os.path.join(ROOT, 'FOLDER', 'data', 'posts.json')
 
 
 def split_paragraphs(text):
@@ -61,10 +67,7 @@ def main():
         json.dumps(posts, ensure_ascii=False, indent=2) + '\n'
     )
     print('추가됨: %s (%s, 문단 %d개)' % (title, posts[-1]['date'], len(paragraphs)))
-
-    sys.path.insert(0, os.path.join(ROOT, 'tools'))
-    import build_blog
-    build_blog.build()
+    print('FOLDER/data/posts.json 에 저장했습니다. 배포.bat 으로 올리면 반영됩니다.')
 
 
 if __name__ == '__main__':

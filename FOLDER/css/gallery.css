@@ -41,8 +41,7 @@ body.gallery-page {
 
 body.gallery-page h1 {
     margin: 20px 20px 10px;
-    text-align: left;
-    align-self: flex-start;
+    text-align: center;
     font-size: 28px;
     font-weight: 600;
     pointer-events: none;
@@ -50,8 +49,7 @@ body.gallery-page h1 {
 
 body.gallery-page h2 {
     margin: 10px 20px 20px;
-    text-align: left;
-    align-self: flex-start;
+    text-align: center;
     font-size: 14px;
     font-weight: 400;
     pointer-events: none;
@@ -66,15 +64,8 @@ body.gallery-page.is-mobile {
 }
 
 body.gallery-page.is-mobile h1 {
-    align-self: center;
-    text-align: center;
     font-size: 18px;
     margin-top: 60px;
-}
-
-body.gallery-page.is-mobile h2 {
-    align-self: center;
-    text-align: center;
 }
 
 /*

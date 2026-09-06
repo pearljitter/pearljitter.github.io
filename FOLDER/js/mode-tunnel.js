@@ -117,13 +117,22 @@ window.ModeTunnel = (function () {
         spacer.style.height = (LEAD + gates.length * GAP + window.innerHeight) + 'px';
     }
 
+    /*
+     * .tunnel__stage 의 perspective 값. 카메라가 z=0 평면에서 이만큼
+     * 앞에 있다고 보고, 그 값에 다가갈수록 투영이 무한대로 커진다 —
+     * NEAR_LIMIT 은 그 특이점 바로 앞에서 멈춰 계산이 깨지지 않게 한다.
+     */
+    var PERSPECTIVE = 900;
+    var NEAR_LIMIT = PERSPECTIVE - 40;
+
     function render() {
         track.style.transform = 'translateZ(' + depth + 'px)';
 
-        // 카메라를 지나쳐 뒤로 간 관문은 조용히 지운다.
+        // 카메라를 완전히 지나쳐 뒤로 간 관문만 지운다 — 그 전까지는 화면
+        // 밖으로 잘려나가더라도(요청대로) 계속 보이고 클릭할 수 있다.
         gates.forEach(function (gate) {
             var distance = gate.z + depth;
-            var visible = distance < 60 && distance > -3400;
+            var visible = distance < NEAR_LIMIT && distance > -3400;
             // 가까울수록 또렷하고, 멀어질수록 어둠에 잠긴다.
             var far = -distance;
             gate.element.style.opacity = visible

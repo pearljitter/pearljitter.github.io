@@ -246,10 +246,10 @@ STORIES['0A_14_uptownrunwayorigin'] = [
           'hauling it across the city cuts logistics from 51.59 to 3.22 t·km per day, '
           'and the carbon that goes with it. The four streams are sized accordingly: '
           'C2C reuse 30%, B2B reuse 25%, upcycling design 15%, fibre recycling 15%.'),
-    ('fig', 1, 'Site and catchment. The project begins from how much clothing this '
+    ('fig', 2, 'Site and catchment. The project begins from how much clothing this '
                'particular set of blocks throws away.',
      'Site analysis map with population and discard calculations'),
-    ('fig', 2, 'Existing methods against the optimised system: the same four processes, '
+    ('fig', 3, 'Existing methods against the optimised system: the same four processes, '
                'relocated into one neighbourhood unit.',
      'Diagram comparing existing recycling methods with the optimised system'),
 
@@ -259,13 +259,13 @@ STORIES['0A_14_uptownrunwayorigin'] = [
           'changes hands whole, through vintage boutiques and designers’ studios, '
           'to the fibre recycling factory where it is broken down completely. A garment '
           'moves through the site as it loses its original form.'),
-    ('fig', 3, 'The four buildings and their internal circulation, one per process.',
+    ('fig', 4, 'The four buildings and their internal circulation, one per process.',
      'Axonometric diagrams of the four buildings and their circulation'),
-    ('fig', 4, 'Plan of the complex, with the four solids and the spaces between them.',
+    ('fig', 5, 'Plan of the complex, with the four solids and the spaces between them.',
      'Plan of the four buildings'),
-    ('fig', 5, 'The masses set out along the site.',
+    ('fig', 6, 'The masses set out along the site.',
      'Plan and massing of the three principal volumes'),
-    ('fig', 6, 'Sections through the sequence, showing how the ground steps between '
+    ('fig', 7, 'Sections through the sequence, showing how the ground steps between '
                'buildings.',
      'Four stacked sections through the complex'),
 
@@ -275,7 +275,7 @@ STORIES['0A_14_uptownrunwayorigin'] = [
           'crowds already in Junggye Park aware of the building across the street. '
           'Recycling stops being a service performed elsewhere and becomes something '
           'visible from the park bench.'),
-    ('fig', 7, 'The complex seen from the park, with the stage joining the volumes.',
+    ('fig', 1, 'The complex seen from the park, with the stage joining the volumes.',
      'Exterior view of the complex from the park across the street'),
     ('fig', 8, 'The public passage through the site.',
      'Interior public passage with a reflecting pool'),

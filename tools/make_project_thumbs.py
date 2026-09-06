@@ -32,7 +32,7 @@ THUMB_DIR = os.path.join(ROOT, 'thumbnail')
 SOURCE = '1.jpg'      # 각 폴더의 대표 이미지
 SIZE = 400            # 화면에는 200px 로 나오므로 2배
 QUALITY = 82
-ZOOM = 1.25           # 1.0 이면 짧은 변 전체, 클수록 더 당겨서 자른다
+ZOOM = 1.55           # 1.0 이면 짧은 변 전체, 클수록 더 당겨서 자른다
 
 
 def project_thumbs():

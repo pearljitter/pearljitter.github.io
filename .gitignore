@@ -1,2 +1,5 @@
 # Local Claude Code preview config
 .claude/
+
+# 교체 전 아카이브 썸네일 — 로컬 보관용, 사이트에는 올리지 않는다
+FOLDER/thumbnail/old/

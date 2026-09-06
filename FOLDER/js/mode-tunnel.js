@@ -8,18 +8,20 @@
  * 좌표는 (구체성, 규모, 진지함)이라 세 축 모두 오름차순이면
  * 추상적이고 유쾌하고 작은 것이 앞쪽에 놓인다.
  *
- * 관문은 안쪽으로 틀지 않고 카메라를 똑바로 바라보게 세운다. 방향이
- * 항상 깊이(스크롤) 축과 수직이라, 어디까지 스크롤했든 썸네일이
- * 찌그러지거나 비뚤어져 보이지 않고 통로를 따라 똑바로 늘어선다.
+ * 안내선 없이 통로의 깊이감은 관문 자체가 만든다: 각 관문은 통로 벽면의
+ * 그 위치(x = ±side)에 바깥쪽 모서리를 고정하고, 안쪽 모서리만 통로 쪽으로
+ * 열리듯 튼다 — 게시판이 벽에 경첩으로 붙어 있는 것과 같은 회전이라
+ * 카드가 벽면에서 떨어져 떠 있지 않고 벽의 일부처럼 읽힌다.
  */
 window.ModeTunnel = (function () {
     'use strict';
 
     var GAP = 540;          // 관문 사이 안쪽 거리(px)
     var LEAD = 380;         // 첫 관문까지의 여유
+    var TILT = 34;          // 벽에서 통로 쪽으로 열리는 각도
     var side = 300;         // 통로 반폭 — 화면 폭에 따라 다시 잡는다
 
-    var stage, track, edgeLayer, scroll, spacer, started = false;
+    var stage, track, scroll, spacer, started = false;
     var gates = [], onReadout = function () {};
     var depth = 0, target = 0, raf = null;
 
@@ -34,40 +36,21 @@ window.ModeTunnel = (function () {
         });
     }
 
-    var edges = [];
-
-    function buildEdges() {
-        // 통로의 네 모서리를 옅은 선으로 그어 깊이를 읽히게 한다.
-        [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (corner) {
-            var edge = document.createElement('div');
-            edge.className = 'tunnel__edge';
-            edge.dataset.x = corner[0];
-            edge.dataset.y = corner[1];
-            edgeLayer.appendChild(edge);
-            edges.push(edge);
-        });
-    }
-
     /* 관문이 화면 밖으로 나가지 않도록 통로 폭과 관문 크기를 화면에 맞춘다. */
     function layout() {
         var w = stage.clientWidth || window.innerWidth;
         side = Math.max(120, Math.min(340, w * 0.3));
         var gateWidth = Math.max(150, Math.min(260, w * 0.26));
 
-        var halfHeight = side * 0.74;
-        edges.forEach(function (edge) {
-            edge.style.transform =
-                'translate3d(' + (edge.dataset.x * side) + 'px, ' +
-                (edge.dataset.y * halfHeight) + 'px, -5700px) rotateY(90deg)';
-        });
-
-        // 썸네일은 늘 정사각형(CSS aspect-ratio) — 회전 없이 카메라를 정면으로 바라본다.
+        // 썸네일은 늘 정사각형(CSS aspect-ratio). 벽면 쪽 모서리를 축으로
+        // 돌려, 그 모서리는 벽에 고정된 채 반대쪽만 통로 안으로 열린다.
         gates.forEach(function (gate) {
             gate.element.style.width = gateWidth + 'px';
             gate.element.style.marginTop = -(gateWidth * 0.42 + 24) + 'px';
+            gate.element.style.transformOrigin = gate.side < 0 ? '0% 50%' : '100% 50%';
             gate.element.style.transform =
                 'translateX(-50%) translate3d(' + (gate.side * side) + 'px, 0, ' +
-                gate.z + 'px)';
+                gate.z + 'px) rotateY(' + (gate.side * TILT) + 'deg)';
         });
     }
 
@@ -196,11 +179,9 @@ window.ModeTunnel = (function () {
 
             stage = element.querySelector('.tunnel__stage');
             track = element.querySelector('.tunnel__track');
-            edgeLayer = element.querySelector('.tunnel__edges');
             scroll = element.querySelector('.tunnel__scroll');
             spacer = element.querySelector('.tunnel__spacer');
 
-            buildEdges();
             buildGates();
             layout();
             render();

@@ -214,30 +214,6 @@ body {
     will-change: transform;
 }
 
-/*
- * 소실점으로 모이는 통로 모서리.
- * 가로로 긴 띠를 rotateY(90deg) 로 눕히면 그 폭이 깊이 축이 되어
- * 통로를 따라 뻗는 선이 된다.
- */
-.tunnel__edges {
-    position: absolute;
-    inset: 0;
-    transform-style: preserve-3d;
-    pointer-events: none;
-}
-
-.tunnel__edge {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 12600px;
-    height: 1px;
-    margin-left: -6300px;
-    background: linear-gradient(to right, transparent, rgba(245, 245, 247, 0.22) 22%, rgba(245, 245, 247, 0.28) 92%, transparent);
-    transform-origin: 50% 50%;
-    pointer-events: none;
-}
-
 .gate {
     position: absolute;
     top: 50%;
@@ -250,12 +226,31 @@ body {
     display: block;
 }
 
+/*
+ * 벽 패널 — 프레임 뒤로 넉넉히 번지는 옅은 판. 안내선을 긋는 대신, 카드가
+ * 자기 자리에서 은은하게 빛나는 벽면 한 조각 위에 얹혀 있는 것처럼 보이게
+ * 한다. 프레임과 함께 회전하므로 카드가 벽에서 떨어져 뜨지 않는다.
+ */
+.gate::before {
+    content: '';
+    position: absolute;
+    inset: -20% -34%;
+    background: radial-gradient(ellipse at center,
+            rgba(245, 245, 247, 0.07),
+            rgba(245, 245, 247, 0.02) 55%,
+            transparent 75%);
+    border-radius: 10px;
+    z-index: -1;
+}
+
 .gate__frame {
     position: relative;
     border: 1px solid var(--hairline);
     border-radius: 6px;
     overflow: hidden;
     background: #0a0a0c;
+    /* 벽에 박힌 액자처럼, 안쪽으로 파인 듯한 그림자를 은은하게 깐다 */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(0, 0, 0, 0.3);
     transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
 }
 

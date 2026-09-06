@@ -298,3 +298,156 @@ body.gallery-page.is-mobile .story .lede {
     font-weight: 700;
     margin-top: 1.8em;
 }
+
+/* ---------------------------------------------------------- 새 글 쓰기 */
+/*
+ * THOUGHTS 페이지의 글쓰기 버튼/폼. GitHub API 로 저장소에 직접 커밋하므로
+ * 컴퓨터 없이 폰에서도 똑같이 쓸 수 있다 (js/blog-editor.js 참고).
+ */
+.composer-toggle {
+    display: inline-block;
+    margin: 4px auto 0;
+    padding: 8px 18px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.composer-toggle:hover {
+    opacity: 1;
+    background: rgba(128, 128, 128, 0.12);
+}
+
+.composer {
+    width: 100%;
+    max-width: 680px;
+    margin: 24px auto 48px;
+    padding: 20px;
+    border: 1px solid currentColor;
+    border-radius: 12px;
+    box-sizing: border-box;
+    text-align: left;
+    opacity: 0.97;
+}
+
+.composer[hidden] {
+    display: none;
+}
+
+.composer label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin: 16px 0 6px;
+}
+
+.composer label:first-child {
+    margin-top: 0;
+}
+
+.composer input[type="text"],
+.composer input[type="date"],
+.composer input[type="password"],
+.composer textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 14px;
+    color: inherit;
+    background: rgba(128, 128, 128, 0.08);
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 8px;
+}
+
+.composer textarea {
+    min-height: 200px;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.composer .hint {
+    font-size: 12px;
+    opacity: 0.55;
+    margin: 6px 0 0;
+    line-height: 1.5;
+}
+
+.composer .token-help {
+    font-size: 12px;
+    line-height: 1.6;
+    opacity: 0.8;
+    margin: 4px 0 14px;
+    padding: 10px 12px;
+    background: rgba(128, 128, 128, 0.08);
+    border-radius: 8px;
+}
+
+.composer .token-help a {
+    color: inherit;
+}
+
+.composer .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.composer button.primary {
+    padding: 10px 20px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--fg);
+    color: var(--bg);
+    font: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.composer button.primary:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.composer button.plain {
+    padding: 10px 14px;
+    border: 0;
+    background: none;
+    color: inherit;
+    opacity: 0.6;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.composer button.plain:hover {
+    opacity: 1;
+}
+
+.composer__status {
+    margin-top: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 1.4em;
+}
+
+.composer__status.is-error {
+    color: #ff6b6b;
+}
+
+.composer__status.is-ok {
+    color: #7ee787;
+}

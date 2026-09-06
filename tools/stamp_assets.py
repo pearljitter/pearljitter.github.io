@@ -24,7 +24,7 @@ ASSETS = [
     'css/archive.css',
     'js/works.js', 'js/archive.js',
     'js/mode-grid.js', 'js/mode-tunnel.js', 'js/mode-list.js',
-    'js/blog.js',
+    'js/blog.js', 'js/blog-render.js', 'js/blog-editor.js',
 ]
 # css/base.css is only reached via @import from the two stylesheets above
 # (never linked directly from an HTML page), so stamping it here would be a

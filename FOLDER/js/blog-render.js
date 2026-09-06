@@ -32,12 +32,17 @@ window.BlogRender = (function () {
         return '<p>' + esc(text) + '</p>';
     }
 
-    function renderPost(post) {
+    // index는 삭제 버튼이 어느 글을 가리키는지 표시하는 용도일 뿐이다 —
+    // 실제 삭제는 js/blog-editor.js가 제목·날짜·본문까지 다시 대조해서 한다.
+    function renderPost(post, index) {
         var parts = ['<section class="post">'];
         if (post.date) {
             parts.push('<h3 class="post__date">' + esc(post.date) + '</h3>');
         }
+        parts.push('<div class="post__head">');
         parts.push('<p class="post__title">' + esc(post.title) + '</p>');
+        parts.push('<button type="button" class="post__delete" data-index="' + index + '">삭제</button>');
+        parts.push('</div>');
         (post.body || []).forEach(function (p) { parts.push(renderParagraph(p)); });
         parts.push('</section>');
         return parts.join('');
@@ -49,7 +54,7 @@ window.BlogRender = (function () {
         }
         var html = [];
         posts.forEach(function (post, i) {
-            html.push(renderPost(post));
+            html.push(renderPost(post, i));
             if (i < posts.length - 1) html.push('<hr class="story-end">');
         });
         return html.join('\n');

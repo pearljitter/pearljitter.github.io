@@ -284,6 +284,19 @@ body.gallery-page.is-mobile .story .lede {
     text-transform: none;
 }
 
+.post__head {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.post__head .post__title {
+    margin: 0 0 20px;
+}
+
 .post__title {
     max-width: 680px;
     margin: 0 auto 20px;
@@ -291,6 +304,31 @@ body.gallery-page.is-mobile .story .lede {
     font-weight: 700;
     line-height: 1.4;
     letter-spacing: var(--tracking-tight);
+}
+
+.post__delete {
+    flex: 0 0 auto;
+    padding: 4px 12px;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+    border-radius: 999px;
+    background: none;
+    color: inherit;
+    opacity: 0.4;
+    font: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.post__delete:hover {
+    opacity: 1;
+    color: #ff6b6b;
+    border-color: #ff6b6b;
+}
+
+.post__delete:disabled {
+    opacity: 0.3;
+    cursor: default;
 }
 
 /* 글 안에서 대괄호로 표시한 소제목 — 예: [ANT, OOO] */

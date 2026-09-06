@@ -476,4 +476,72 @@
             })
             .then(function () { saveBtn.disabled = false; });
     });
+
+    // ------------------------------------------------------------ 글 삭제
+    // 목록은 저장할 때마다 새로 그려지므로(위 postsContainer.innerHTML 교체),
+    // 개별 버튼에 리스너를 다는 대신 목록 전체에 한 번만 위임해서 듣는다.
+
+    function ensureToken() {
+        var token = getToken();
+        if (token) return token;
+        token = window.prompt(
+            '삭제하려면 이 저장소에 쓰기 권한이 있는 GitHub 토큰이 필요합니다.\n' +
+            '"+ 새 글 쓰기"를 한 번 열어 토큰을 만드는 방법을 확인하세요.\n\n토큰:'
+        );
+        token = token ? token.trim() : '';
+        if (token) setToken(token);
+        return token;
+    }
+
+    function sameBody(a, b) {
+        return JSON.stringify(a || []) === JSON.stringify(b || []);
+    }
+
+    postsContainer.addEventListener('click', function (event) {
+        var btn = event.target.closest('.post__delete');
+        if (!btn) return;
+
+        var index = parseInt(btn.getAttribute('data-index'), 10);
+        var posts = window.__posts || [];
+        var target = posts[index];
+        if (!target) return;
+
+        if (!window.confirm('"' + target.title + '" 글을 정말 삭제할까요? 되돌릴 수 없습니다.')) return;
+
+        var token = ensureToken();
+        if (!token) return;
+
+        btn.disabled = true;
+        btn.textContent = '삭제 중…';
+
+        githubGet(token)
+            .then(function (file) {
+                var current;
+                try {
+                    current = JSON.parse(base64ToUtf8(file.content));
+                } catch (e) {
+                    throw new Error('posts.json 형식이 이상합니다: ' + e.message);
+                }
+                var at = current.findIndex(function (p) {
+                    return p.title === target.title && p.date === target.date && sameBody(p.body, target.body);
+                });
+                if (at === -1) throw new Error('이미 삭제됐거나 내용이 바뀐 글입니다. 새로고침 후 다시 시도해 주세요.');
+                current.splice(at, 1);
+                return githubPut(token, current, file.sha, 'Delete post: ' + target.title).then(function () {
+                    return current;
+                });
+            })
+            .then(function (updated) {
+                setToken(token);
+                forgetBtn.hidden = false;
+                window.__posts = updated;
+                postsContainer.innerHTML = window.BlogRender.renderList(updated);
+            })
+            .catch(function (err) {
+                window.alert(friendlyError(err));
+                btn.disabled = false;
+                btn.textContent = '삭제';
+                if (err.status === 401 || err.status === 403) clearToken();
+            });
+    });
 }());

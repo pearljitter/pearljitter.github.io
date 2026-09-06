@@ -52,7 +52,7 @@ def build(folder, blocks):
             out.append('            <img src="%s/%d.jpg"' % (folder, n))
             out.append('                 srcset="%s/thumbs/%d.jpg %dw, %s/%d.jpg %dw"'
                        % (folder, n, thumb_w, folder, n, full_w))
-            out.append('                 sizes="(max-width: 1020px) 100vw, 980px"')
+            out.append('                 sizes="(max-width: 700px) calc(100vw - 36px), 620px"')
             out.append('                 data-full="%s/%d.jpg"' % (folder, n))
             out.append('                 alt="%s" loading="lazy" decoding="async">'
                        % esc(alt))

@@ -226,8 +226,10 @@ body.gallery-page.theme-light .btn:hover {
     opacity: 0.75;
 }
 
+/* 그림은 글줄 폭(680px)보다 조금 좁게 두어 본문 안에 얹힌 것처럼 보이게 한다. */
 .story figure {
-    margin: 30px 0 34px;
+    max-width: 620px;
+    margin: 30px auto 34px;
 }
 
 .story figure img {

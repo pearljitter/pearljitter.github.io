@@ -405,50 +405,52 @@ STORIES['0A_16_diningway'] = [
 ]
 
 # -------------------------------------------------------- Uptown Runway (2025)
+# 포트폴리오에 실린 프로젝트. 2022년 판과 논지가 같으므로 문단도 같이 간다.
+# 그림만 이 페이지의 도면에 맞춰 배치한다.
 STORIES['0A_17_uptownrunway'] = [
-    ('lede', 'A second take on a question first asked in 2022: what if the whole life '
-             'of a garment — donation, sorting, resale, repair and finally breaking it '
-             'back down to fibre — happened inside the neighbourhood that wears it? '
-             'This version pulls the four processes into a single, denser building and '
-             'puts the public route straight through the middle of them.'),
+    ('lede', 'Clothes are already recycled four ways — fibre, fabric, donation and '
+             'resale — but each is run by a different party, in a different place. The '
+             'process is broken into pieces that never see one another. This project '
+             'puts all four back inside a single neighbourhood, so that the stages '
+             'connect and residents can take part in them.'),
 
-    ('h', 'A recycling plant on a residential street'),
-    ('p', 'The building sits among apartment blocks and street frontage rather than on '
-          'an industrial edge, which is the point: the shorter the distance between '
-          'where clothes are discarded and where they are processed, the less of the '
-          'system is spent on moving them around. Keeping it here also means residents '
-          'pass it whether or not they came for it.'),
-    ('fig', 1, 'The building on its street, held to the scale of the blocks around it.',
+    ('h', 'The arithmetic of a neighbourhood'),
+    ('p', 'Junggye 2·3-dong, Hagye 1-dong and Hagye 2-dong discard about 2.69 tons of '
+          'clothing every day. Handling that within the neighbourhood instead of '
+          'hauling it across the city cuts logistics from 51.59 to 3.22 t·km per day, '
+          'and the carbon that goes with it. The four streams are sized accordingly: '
+          'C2C reuse 30%, B2B reuse 25%, upcycling design 15%, fibre recycling 15%.'),
+    ('fig', 1, 'The building on its street, held to the scale of the blocks it serves. '
+               'Keeping the process here is what removes the haulage.',
      'Street view of Uptown Runway among the surrounding apartment blocks'),
-    ('fig', 2, 'The neighbourhood it serves, read as figure and ground.',
+    ('fig', 2, 'The neighbourhood the figures come from, read as figure and ground.',
      'Figure-ground map of the neighbourhood'),
     ('fig', 3, 'Site plan, with the park edge and the approach to the building.',
      'Site plan showing the building and the adjacent park'),
 
-    ('h', 'Handing a garment over'),
-    ('p', 'The public entry is the point of donation. Drop-off, fitting and sorting are '
-          'placed at the front, in full view, so the first act of the system is '
-          'something a visitor performs rather than watches. From here a garment '
-          'branches: back out to be worn again, sideways to be repaired or redesigned, '
-          'or down to be broken into fibre.'),
-    ('fig', 4, 'The donation and fitting hall at the entrance, under the stepped '
-               'underside of the floors above.',
+    ('h', 'Ordered by how far a garment has fallen'),
+    ('p', 'The four streams are arranged in order of decreasing ease of disassembly — '
+          'from the community market, where a garment changes hands whole, through '
+          'vintage resale and the designers who redesign it, to fibre recycling where '
+          'it is broken down completely. A garment moves through the building as it '
+          'loses its original form, and the visitor route follows the same descent.'),
+    ('fig', 4, 'Donation and fitting at the entrance: the first act of the system is '
+               'something a visitor performs rather than watches.',
      'The donation and fitting hall at the building entrance'),
     ('fig', 5, 'Resale and repair stacked in section, with escalators crossing between '
-               'levels.',
+               'the levels.',
      'Multi-level interior with resale and repair floors'),
     ('fig', 10, 'The atrium, with garments hung through its full height.',
      'The atrium with garments suspended overhead'),
-    ('fig', 6, 'Looking down through the atrium — every stage is visible from the ones '
-               'above and below it.',
+    ('fig', 6, 'Looking down through the atrium — each stage stays visible from the '
+               'ones above and below it.',
      'View down into the atrium from an upper level'),
 
-    ('h', 'The processing floors'),
-    ('p', 'Behind the public rooms are the working ones, where sorted garments are '
-          'moved by conveyor, stripped and re-made. These floors are not hidden away; '
-          'they are given the same daylight and the same glazing as the shops, because '
-          'a system that asks for participation cannot keep its least glamorous half '
-          'out of sight.'),
+    ('h', 'The last stage, kept in view'),
+    ('p', 'Fibre recycling is the end of the line and the least presentable part of '
+          'the process, so it is the part most systems hide. Here it is given the same '
+          'daylight and the same glazing as the shops. A system that asks for citizen '
+          'participation cannot keep half of itself out of sight.'),
     ('fig', 7, 'The processing floor, with conveyors running alongside the public '
                'route.',
      'Interior of the processing floor with conveyors and garments'),
@@ -457,15 +459,17 @@ STORIES['0A_17_uptownrunway'] = [
     ('fig', 9, 'Plan at ground level, with the landscape around the building.',
      'Ground level plan with the surrounding landscape'),
 
-    ('h', 'The alley, and the street beneath'),
-    ('p', 'A glazed alley runs through the building, giving the neighbourhood a way '
-          'across the site and a view into the process on both sides. At the ground it '
-          'opens back onto the street, so the building reads less as a plant than as a '
-          'covered piece of the neighbourhood that happens to recycle what it wears.'),
-    ('fig', 11, 'The glazed alley cut through the building.',
+    ('h', 'Voids that show their work'),
+    ('p', 'Between the solids sit the voids, and their façades are made of the material '
+          'the building handles. The commercial void uses unsold clothing as it is; the '
+          'cultural void uses re-manufactured yarn. Recycled fabric gives each void a '
+          'distinct character, so the envelope explains the programme without a sign.'),
+    ('fig', 11, 'The glazed alley cut through the building, giving the neighbourhood a '
+                'way across the site and a view into the process on both sides.',
      'The glazed alley running through the building'),
     ('fig', 12, 'Façade section through the alley wall.',
      'Facade section detail'),
-    ('fig', 13, 'The street beneath the building, open to the city.',
+    ('fig', 13, 'At the ground the building opens back onto the street — less a plant '
+                'than a covered piece of the neighbourhood that recycles what it wears.',
      'Street level view beneath the building with pedestrians'),
 ]

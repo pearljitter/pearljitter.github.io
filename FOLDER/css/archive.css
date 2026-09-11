@@ -260,6 +260,9 @@ body {
     text-decoration: none;
     color: inherit;
     display: block;
+    /* 호버 시 js/mode-tunnel.js 가 이 transform 끝에 translateZ(-SINK)를
+       덧붙였다 뗐다 한다 — 벽 안으로 스르륵 들어갔다 나오는 느낌을 준다. */
+    transition: transform 0.5s var(--ease-out);
 }
 
 /*
@@ -297,7 +300,7 @@ body {
     aspect-ratio: 1 / 1;
     object-fit: cover;
     opacity: 0.82;
-    transition: opacity 0.3s var(--ease-out), transform 0.5s var(--ease-out);
+    transition: opacity 0.3s var(--ease-out);
 }
 
 /*
@@ -315,7 +318,6 @@ body {
 .gate.is-hovered .gate__frame img,
 .gate:focus-visible .gate__frame img {
     opacity: 1;
-    transform: scale(1.04);
 }
 
 /* 관문이 벽과 같은 평면에 눕혀져 제목 글자는 거의 항상 edge-on 이라

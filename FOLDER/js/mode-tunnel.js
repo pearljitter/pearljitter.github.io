@@ -23,6 +23,15 @@ window.ModeTunnel = (function () {
     var LEAD = 380;         // 첫 관문까지의 여유
     var FLUSH = 90;         // 벽과 같은 평면에 눕히는 각도 (법선벡터가 같아진다)
     var side = 300;         // 통로 반폭 — 화면 폭에 따라 다시 잡는다
+    /*
+     * 호버 시 벽 안으로 스며드는 깊이(px). .gate__frame 처럼 중첩된 자식에
+     * translateZ 를 주면 브라우저가 그 3D 효과를 그리지 않는 문제가 있어
+     * (preserve-3d 가 중첩될 때 생기는 렌더링 버그), .gate 자신의 transform
+     * 문자열 끝에 이어 붙인다 — 이미 회전이 적용된 뒤라 음수 값이 벽 쪽으로
+     * 더 파고드는 방향이 된다(실측으로 확인).
+     */
+    var SINK = 42;
+    var HOVER_MARGIN = 18;  // 이미 호버 중인 패널은 줄어들며 커서가 밖으로 밀려나 깜빡이지 않게 여유를 둔다
 
     var stage, track, edgeLayer, scroll, spacer, started = false;
     var gates = [], edges = [], onReadout = function () {};
@@ -74,9 +83,11 @@ window.ModeTunnel = (function () {
             gate.element.style.width = gateWidth + 'px';
             gate.element.style.marginTop = -(gateWidth / 2) + 'px';   // 프레임(정사각형)만 남아 그 절반으로 세로 중앙 정렬
             gate.element.style.transformOrigin = '50% 50%';
-            gate.element.style.transform =
+            gate.baseTransform =
                 'translateX(-50%) translate3d(' + (gate.side * side) + 'px, 0, ' +
                 gate.z + 'px) rotateY(' + (gate.side * FLUSH) + 'deg)';
+            gate.element.style.transform =
+                gate.baseTransform + (gate === hoveredGate ? ' translateZ(-' + SINK + 'px)' : '');
         });
     }
 
@@ -178,7 +189,11 @@ window.ModeTunnel = (function () {
         gates.forEach(function (gate) {
             if (gate.element.style.pointerEvents !== 'auto') return;
             var rect = gate.element.querySelector('.gate__frame').getBoundingClientRect();
-            if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return;
+            // 이미 호버 중인 패널은 벽 안으로 들어가며 화면상 작아지므로, 여유를
+            // 두지 않으면 커서가 순간 그 바깥으로 밀려나 호버가 깜빡인다.
+            var margin = gate === hoveredGate ? HOVER_MARGIN : 0;
+            if (x < rect.left - margin || x > rect.right + margin ||
+                y < rect.top - margin || y > rect.bottom + margin) return;
             var z = gate.z + depth;           // 0 에 가까울수록(=가장 덜 음수) 카메라에 가깝다
             if (z > hitDepth) { hitDepth = z; hit = gate; }
         });
@@ -194,9 +209,15 @@ window.ModeTunnel = (function () {
         if (!lastMouse) return;
         var hit = gateAt(lastMouse.x, lastMouse.y);
         if (hit === hoveredGate) return;
-        if (hoveredGate) hoveredGate.element.classList.remove('is-hovered');
+        if (hoveredGate) {
+            hoveredGate.element.classList.remove('is-hovered');
+            hoveredGate.element.style.transform = hoveredGate.baseTransform;
+        }
         hoveredGate = hit;
-        if (hit) hit.element.classList.add('is-hovered');
+        if (hit) {
+            hit.element.classList.add('is-hovered');
+            hit.element.style.transform = hit.baseTransform + ' translateZ(-' + SINK + 'px)';
+        }
         onReadout(hit ? hit.work : null);
         scroll.style.cursor = hit ? 'pointer' : '';
     }
@@ -230,6 +251,7 @@ window.ModeTunnel = (function () {
                 lastMouse = null;
                 if (hoveredGate) {
                     hoveredGate.element.classList.remove('is-hovered');
+                    hoveredGate.element.style.transform = hoveredGate.baseTransform;
                     hoveredGate = null;
                     onReadout(null);
                     scroll.style.cursor = '';

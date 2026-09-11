@@ -118,11 +118,13 @@ window.ModeTunnel = (function () {
     }
 
     /*
-     * .tunnel__stage 의 perspective 값. 카메라가 z=0 평면에서 이만큼
-     * 앞에 있다고 보고, 그 값에 다가갈수록 투영이 무한대로 커진다 —
-     * NEAR_LIMIT 은 그 특이점 바로 앞에서 멈춰 계산이 깨지지 않게 한다.
+     * .tunnel__stage 의 perspective 값과 반드시 같아야 한다(css/archive.css).
+     * 카메라가 z=0 평면에서 이만큼 앞에 있다고 보고, 그 값에 다가갈수록
+     * 투영이 무한대로 커진다 — NEAR_LIMIT 은 그 특이점 바로 앞에서 멈춰
+     * 계산이 깨지지 않게 한다. 값을 낮출수록 화각이 넓어져 벽에 눕힌
+     * 타일의 정면이 더 일찍(덜 다가가도) 드러난다.
      */
-    var PERSPECTIVE = 900;
+    var PERSPECTIVE = 500;
     var NEAR_LIMIT = PERSPECTIVE - 40;
 
     function render() {

@@ -203,7 +203,9 @@ body {
 .tunnel__stage {
     position: absolute;
     inset: 0;
-    perspective: 900px;
+    /* js/mode-tunnel.js 의 PERSPECTIVE 상수와 같은 값으로 맞춘다 —
+       벽에 눕힌 타일이 너무 옆모습으로만 보이지 않도록 화각을 넓혀 둔다. */
+    perspective: 500px;
     perspective-origin: 50% 46%;
 }
 

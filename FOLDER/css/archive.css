@@ -260,9 +260,34 @@ body {
     text-decoration: none;
     color: inherit;
     display: block;
-    /* 호버 시 js/mode-tunnel.js 가 이 transform 끝에 translateZ(-SINK)를
+    /* 호버 시 js/mode-tunnel.js 가 이 transform 끝에 translateZ(SINK)를
        덧붙였다 뗐다 한다 — 벽 안으로 스르륵 들어갔다 나오는 느낌을 준다. */
     transition: transform 0.5s var(--ease-out);
+}
+
+/*
+ * 패널이 sink 로 파고들 때 원래 있던 자리에 그대로 남는 흰 궤적 —
+ * .gate 와 같은 벽 자리·같은 크기지만 sink 되지 않는 별개 요소다. 패널이
+ * 멀어지는 동안 그 사이를 하얗게 이어, 지나온 길을 그리듯 보이게 한다.
+ */
+.gate__trail {
+    position: absolute;
+    top: 50%;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(circle at center,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(255, 255, 255, 0.55) 32%,
+            rgba(255, 255, 255, 0.2) 62%,
+            transparent 100%);
+    filter: blur(3px);
+    transition: opacity 0.5s var(--ease-out);
+}
+
+.gate__trail.is-visible {
+    opacity: 1;
 }
 
 /*

@@ -48,6 +48,17 @@
             transform: scale(1.14);
         }
 
+        /* 호버하면 같은 떨림을 그대로, 다만 더 빠르게 — 지속시간만 줄인다 */
+        .pearl-link:hover .pearl,
+        .pearl-link:focus-visible .pearl {
+            animation-duration: 1s;
+        }
+
+        .pearl-link:hover .pearl::before,
+        .pearl-link:focus-visible .pearl::before {
+            animation-duration: 1s;
+        }
+
         /*
          * 떨리는 흰 진주알. 라디얼 그라디언트와 겹친 inset 그림자로 유리질
          * 광택을 내고, 발밑의 옅은 그림자로 바닥에 놓여 있다는 감각을 준다.
@@ -60,17 +71,31 @@
             height: 100%;
             position: relative;
             border-radius: 50%;
-            background: radial-gradient(circle at 32% 26%,
+            background: radial-gradient(circle at 30% 24%,
                     #ffffff 0%,
-                    #f6f6f8 22%,
-                    #e2e3e7 44%,
-                    #b9bac2 70%,
-                    #83848d 100%);
+                    #ffffff 9%,
+                    #f2f3f5 24%,
+                    #d3d4da 48%,
+                    #989aa3 76%,
+                    #6b6c76 100%);
             box-shadow:
-                inset -14px -14px 26px rgba(0, 0, 0, 0.35),
-                inset 10px 10px 18px rgba(255, 255, 255, 0.55),
+                inset -16px -16px 28px rgba(0, 0, 0, 0.42),
+                inset 13px 13px 20px rgba(255, 255, 255, 0.8),
                 0 22px 40px rgba(0, 0, 0, 0.55);
             animation: pearl-jitter 3.4s ease-in-out infinite;
+        }
+
+        /* 작고 또렷한 반사광 — 넓게 퍼지는 ::after 위에 얹혀 "젖은" 광택을 낸다 */
+        .pearl__gloss {
+            position: absolute;
+            top: 15%;
+            left: 21%;
+            width: 10%;
+            height: 7%;
+            border-radius: 50%;
+            background: #ffffff;
+            filter: blur(0.5px);
+            box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.85);
         }
 
         /* 진주 표면 약간 위 왼쪽에 작게 음각으로 새긴 이름 */
@@ -92,13 +117,13 @@
         .pearl::after {
             content: '';
             position: absolute;
-            top: 19%;
-            left: 25%;
-            width: 20%;
-            height: 13%;
+            top: 18%;
+            left: 24%;
+            width: 22%;
+            height: 15%;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.92);
-            filter: blur(2px);
+            background: rgba(255, 255, 255, 0.98);
+            filter: blur(1.5px);
         }
 
         .pearl::before {
@@ -193,6 +218,7 @@
 <body>
     <a class="pearl-link" href="FOLDER/pc.html" aria-label="Enter the archive">
         <span class="pearl">
+            <span class="pearl__gloss" aria-hidden="true"></span>
             <span class="pearl__mark">@pearl.jitter</span>
         </span>
     </a>

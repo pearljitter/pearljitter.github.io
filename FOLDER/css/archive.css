@@ -264,32 +264,81 @@ body {
 
 /*
  * 패널이 줄어드는 자리에 남는 흰 터널 구멍 — .gate__frame 과 같은 벽
- * 자리·같은 크기로 겹쳐 두고, 프레임이 scale 로 줄어들면 그 뒤로 중심이
- * 하얗게 빛나는 원근 통로가 드러난다. 중심에 가까울수록(=더 안으로
- * 들어갈수록) 점점 흰색이 되도록 방사형 그라디언트로 표현한다.
+ * 자리·같은 크기로 겹쳐 둔다. 안에 중첩된 액자 4겹(.gate__socket-ring)이
+ * 호버 시 저마다 다른 지연시간으로 열리며, 평평한 그라디언트가 아니라
+ * 실제로 통로를 들여다보는 듯한 입체적인 원근을 만든다 — 가장 안쪽은
+ * 늘 한 점으로 남는 빛, 바깥 세 겹이 차례로 펼쳐진다.
  */
 .gate__socket {
     position: absolute;
     top: 50%;
     aspect-ratio: 1 / 1;
-    border-radius: 6px;
-    overflow: hidden;
-    background: radial-gradient(circle at center,
-            #ffffff 0%,
-            rgba(255, 255, 255, 0.95) 14%,
-            rgba(235, 235, 240, 0.75) 30%,
-            rgba(170, 170, 180, 0.45) 50%,
-            rgba(70, 70, 78, 0.2) 72%,
-            rgba(20, 20, 24, 0.08) 88%,
-            transparent 100%);
-    box-shadow: inset 0 0 0 1.5px rgba(245, 245, 247, 0.9);
-    opacity: 0;
     pointer-events: none;
-    transition: opacity 0.4s var(--ease-out);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out), box-shadow 0.5s var(--ease-out);
 }
 
 .gate__socket.is-visible {
     opacity: 1;
+    /* 구멍 안 빛이 벽면으로 옅게 번져 나가는 느낌 */
+    box-shadow: 0 0 3vw 0.6vw rgba(245, 245, 247, 0.15);
+}
+
+.gate__socket-ring {
+    position: absolute;
+    inset: 50%;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    transition: inset 0.55s var(--ease-out), opacity 0.35s var(--ease-out);
+}
+
+.gate__socket.is-visible .gate__socket-ring {
+    opacity: 1;
+}
+
+/* 바깥 테두리 — 가장 늦게(제일 오래 걸려) 자리를 잡아, 안쪽에서부터
+   차례로 열려 나오는 것처럼 보이게 한다 */
+.gate__socket-ring:nth-child(1) {
+    border-color: rgba(245, 245, 247, 0.12);
+}
+
+.gate__socket.is-visible .gate__socket-ring:nth-child(1) {
+    inset: 0%;
+    transition-delay: 0.1s;
+}
+
+.gate__socket-ring:nth-child(2) {
+    border-color: rgba(245, 245, 247, 0.32);
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+.gate__socket.is-visible .gate__socket-ring:nth-child(2) {
+    inset: 17%;
+    transition-delay: 0.065s;
+}
+
+.gate__socket-ring:nth-child(3) {
+    border-color: rgba(245, 245, 247, 0.6);
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.25);
+}
+
+.gate__socket.is-visible .gate__socket-ring:nth-child(3) {
+    inset: 33%;
+    transition-delay: 0.03s;
+}
+
+/* 가장 안쪽 — 소실점의 빛 한 점. 늘 접혀 있는 크기라 열고 닫을 필요
+   없이 밝기만 바뀐다 */
+.gate__socket-ring:nth-child(4) {
+    inset: 48%;
+    border: none;
+    background: radial-gradient(circle at center,
+            #ffffff 0%,
+            rgba(255, 255, 255, 0.85) 55%,
+            transparent 100%);
+    box-shadow: 0 0 1.4vw 0.5vw rgba(255, 255, 255, 0.55);
 }
 
 /*

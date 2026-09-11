@@ -126,12 +126,18 @@ window.ModeTunnel = (function () {
             gate.addEventListener('focus', function () { onReadout(work); });
             gate.addEventListener('blur', function () { onReadout(null); });
 
-            // 패널이 호버로 벽 안쪽으로 들어가면 드러나는 흰색 음각 소켓.
-            // gate 와 같은 벽 자리에 놓이지만 sink 되지 않는 별개 요소라야
-            // 패널이 빠진 자리에 "구멍"처럼 그대로 남는다.
+            // 패널이 호버로 줄어들면 그 뒤로 드러나는 흰 터널 구멍. gate 와
+            // 같은 벽 자리에 놓이지만 scale 되지 않는 별개 요소라야 패널이
+            // 작아진 자리에 "구멍"처럼 그대로 남는다. 안쪽에 액자 여러 겹을
+            // 중첩해 실제로 통로를 들여다보는 것 같은 원근감을 낸다 — 바깥
+            // 테두리(1번)부터 가장 안쪽 빛(4번)까지, 호버 시 서로 다른
+            // 지연시간으로 차례차례 열리며 입체감을 만든다.
             var socket = document.createElement('div');
             socket.className = 'gate__socket';
             socket.style.left = '50%';
+            for (var r = 0; r < 4; r++) {
+                socket.appendChild(document.createElement('div')).className = 'gate__socket-ring';
+            }
             track.appendChild(socket);
 
             track.appendChild(gate);

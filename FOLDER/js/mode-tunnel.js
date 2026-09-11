@@ -89,13 +89,6 @@ window.ModeTunnel = (function () {
                 gate.z + 'px) rotateY(' + (gate.side * FLUSH) + 'deg)';
             gate.element.style.transform =
                 gate.baseTransform + (gate === hoveredGate ? ' translateZ(' + SINK + 'px)' : '');
-
-            // 궤적(trail)은 패널이 원래 있던 자리에 그대로 고정해 둔다 — 패널만
-            // sink 로 파고들면, 그 사이가 하얗게 이어지며 지나온 길처럼 보인다.
-            gate.trail.style.width = gateWidth + 'px';
-            gate.trail.style.marginTop = -(gateWidth / 2) + 'px';
-            gate.trail.style.transformOrigin = '50% 50%';
-            gate.trail.style.transform = gate.baseTransform;
         });
     }
 
@@ -128,16 +121,8 @@ window.ModeTunnel = (function () {
             gate.addEventListener('focus', function () { onReadout(work); });
             gate.addEventListener('blur', function () { onReadout(null); });
 
-            // 패널이 sink 로 파고들 때 지나온 자리에 남는 흰 궤적. gate 와
-            // 같은 벽 자리에 놓이지만 sink 되지 않는 별개 요소라야, 패널이
-            // 멀어지는 동안 그 사이가 하얗게 이어지는 자국처럼 보인다.
-            var trail = document.createElement('div');
-            trail.className = 'gate__trail';
-            trail.style.left = '50%';
-            track.appendChild(trail);
-
             track.appendChild(gate);
-            gates.push({ element: gate, trail: trail, z: z, side: direction, work: work });
+            gates.push({ element: gate, z: z, side: direction, work: work });
         });
 
         // 마지막 관문까지 지나갈 수 있도록 스크롤 길이를 잡는다.
@@ -228,13 +213,11 @@ window.ModeTunnel = (function () {
         if (hoveredGate) {
             hoveredGate.element.classList.remove('is-hovered');
             hoveredGate.element.style.transform = hoveredGate.baseTransform;
-            hoveredGate.trail.classList.remove('is-visible');
         }
         hoveredGate = hit;
         if (hit) {
             hit.element.classList.add('is-hovered');
             hit.element.style.transform = hit.baseTransform + ' translateZ(' + SINK + 'px)';
-            hit.trail.classList.add('is-visible');
         }
         onReadout(hit ? hit.work : null);
         scroll.style.cursor = hit ? 'pointer' : '';
@@ -270,7 +253,6 @@ window.ModeTunnel = (function () {
                 if (hoveredGate) {
                     hoveredGate.element.classList.remove('is-hovered');
                     hoveredGate.element.style.transform = hoveredGate.baseTransform;
-                    hoveredGate.trail.classList.remove('is-visible');
                     hoveredGate = null;
                     onReadout(null);
                     scroll.style.cursor = '';

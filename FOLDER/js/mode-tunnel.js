@@ -24,13 +24,14 @@ window.ModeTunnel = (function () {
     var FLUSH = 90;         // 벽과 같은 평면에 눕히는 각도 (법선벡터가 같아진다)
     var side = 300;         // 통로 반폭 — 화면 폭에 따라 다시 잡는다
     /*
-     * 호버 시 패널이 줄어드는 비율은 css/archive.css 의
-     * .gate.is-hovered .gate__frame { transform: scale(...) } 이 맡는다.
-     * translateZ 로 벽 쪽(rotateY 가 적용된 방향)에 밀어 넣어도 봤지만,
-     * 그 축에서는 파고들수록 오히려 시야각이 벌어져 더 넓게 열려 보이는
-     * 역설이 있어(실측으로 확인) 튀어나오는 것처럼 읽혔다 — 대신 화면
-     * 평면에서 그냥 줄어들게 하고, 원래 자리엔 흰 음각 소켓을 남긴다.
+     * 호버 시 벽 안으로 스며드는 깊이(px). .gate__frame 처럼 중첩된 자식에
+     * translateZ 를 주면 브라우저가 그 3D 효과를 그리지 않는 문제가 있어
+     * (preserve-3d 가 중첩될 때 생기는 렌더링 버그), .gate 자신의 transform
+     * 문자열 끝에 이어 붙인다 — 이미 rotateY 가 적용된 뒤라 양수 값이 벽
+     * 쪽(통로 중심에서 먼 쪽)으로 더 파고드는 방향이 된다(실측으로 확인;
+     * 음수는 반대로 통로 중심으로 튀어나오는 것처럼 보였다).
      */
+    var SINK = 42;
     var HOVER_MARGIN = 18;  // 이미 호버 중인 패널은 줄어들며 커서가 밖으로 밀려나 깜빡이지 않게 여유를 둔다
 
     var stage, track, edgeLayer, scroll, spacer, started = false;
@@ -86,14 +87,8 @@ window.ModeTunnel = (function () {
             gate.baseTransform =
                 'translateX(-50%) translate3d(' + (gate.side * side) + 'px, 0, ' +
                 gate.z + 'px) rotateY(' + (gate.side * FLUSH) + 'deg)';
-            gate.element.style.transform = gate.baseTransform;
-
-            // 소켓(구멍)은 패널과 같은 벽 자리·같은 크기로 겹쳐 둔다 — 패널이
-            // scale 로 줄어들면 그 뒤에서 흰 테두리만 살짝 드러난다.
-            gate.socket.style.width = gateWidth + 'px';
-            gate.socket.style.marginTop = -(gateWidth / 2) + 'px';
-            gate.socket.style.transformOrigin = '50% 50%';
-            gate.socket.style.transform = gate.baseTransform;
+            gate.element.style.transform =
+                gate.baseTransform + (gate === hoveredGate ? ' translateZ(' + SINK + 'px)' : '');
         });
     }
 
@@ -126,22 +121,8 @@ window.ModeTunnel = (function () {
             gate.addEventListener('focus', function () { onReadout(work); });
             gate.addEventListener('blur', function () { onReadout(null); });
 
-            // 패널이 호버로 줄어들면 그 뒤로 드러나는 흰 터널 구멍. gate 와
-            // 같은 벽 자리에 놓이지만 scale 되지 않는 별개 요소라야 패널이
-            // 작아진 자리에 "구멍"처럼 그대로 남는다. 안쪽에 액자 여러 겹을
-            // 중첩해 실제로 통로를 들여다보는 것 같은 원근감을 낸다 — 바깥
-            // 테두리(1번)부터 가장 안쪽 빛(4번)까지, 호버 시 서로 다른
-            // 지연시간으로 차례차례 열리며 입체감을 만든다.
-            var socket = document.createElement('div');
-            socket.className = 'gate__socket';
-            socket.style.left = '50%';
-            for (var r = 0; r < 4; r++) {
-                socket.appendChild(document.createElement('div')).className = 'gate__socket-ring';
-            }
-            track.appendChild(socket);
-
             track.appendChild(gate);
-            gates.push({ element: gate, socket: socket, z: z, side: direction, work: work });
+            gates.push({ element: gate, z: z, side: direction, work: work });
         });
 
         // 마지막 관문까지 지나갈 수 있도록 스크롤 길이를 잡는다.
@@ -231,12 +212,12 @@ window.ModeTunnel = (function () {
         if (hit === hoveredGate) return;
         if (hoveredGate) {
             hoveredGate.element.classList.remove('is-hovered');
-            hoveredGate.socket.classList.remove('is-visible');
+            hoveredGate.element.style.transform = hoveredGate.baseTransform;
         }
         hoveredGate = hit;
         if (hit) {
             hit.element.classList.add('is-hovered');
-            hit.socket.classList.add('is-visible');
+            hit.element.style.transform = hit.baseTransform + ' translateZ(' + SINK + 'px)';
         }
         onReadout(hit ? hit.work : null);
         scroll.style.cursor = hit ? 'pointer' : '';
@@ -271,7 +252,7 @@ window.ModeTunnel = (function () {
                 lastMouse = null;
                 if (hoveredGate) {
                     hoveredGate.element.classList.remove('is-hovered');
-                    hoveredGate.socket.classList.remove('is-visible');
+                    hoveredGate.element.style.transform = hoveredGate.baseTransform;
                     hoveredGate = null;
                     onReadout(null);
                     scroll.style.cursor = '';

@@ -52,6 +52,125 @@
             gap: 28px;
         }
 
+        /*
+         * pearl jitter — 이름 그대로, 떨리는 흰 진주알 하나. 라디얼
+         * 그라디언트와 겹친 inset 그림자로 유리질 광택을 내고, 발밑의
+         * 옅은 그림자로 바닥에 놓여 있다는 감각을 준다. @keyframes 는
+         * 규칙적인 파형 대신 어긋난 퍼센트 지점을 써서 신경질적으로
+         * 떠는 느낌을 낸다.
+         */
+        .pearl {
+            width: clamp(96px, 16vw, 148px);
+            height: clamp(96px, 16vw, 148px);
+            position: relative;
+            border-radius: 50%;
+            background: radial-gradient(circle at 32% 26%,
+                    #ffffff 0%,
+                    #f6f6f8 22%,
+                    #e2e3e7 44%,
+                    #b9bac2 70%,
+                    #83848d 100%);
+            box-shadow:
+                inset -14px -14px 26px rgba(0, 0, 0, 0.35),
+                inset 10px 10px 18px rgba(255, 255, 255, 0.55),
+                0 22px 40px rgba(0, 0, 0, 0.55);
+            animation: pearl-jitter 3.4s ease-in-out infinite;
+        }
+
+        .pearl::after {
+            content: '';
+            position: absolute;
+            top: 19%;
+            left: 25%;
+            width: 20%;
+            height: 13%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.92);
+            filter: blur(2px);
+        }
+
+        .pearl::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -20px;
+            width: 68%;
+            height: 16px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5), transparent 72%);
+            filter: blur(2px);
+            animation: pearl-shadow-jitter 3.4s ease-in-out infinite;
+        }
+
+        @keyframes pearl-jitter {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            8% {
+                transform: translate(-2px, 1.5px) rotate(-0.7deg);
+            }
+
+            17% {
+                transform: translate(1.5px, -2px) rotate(0.6deg);
+            }
+
+            26% {
+                transform: translate(-2.5px, -0.5px) rotate(-0.5deg);
+            }
+
+            35% {
+                transform: translate(2px, 2px) rotate(0.8deg);
+            }
+
+            44% {
+                transform: translate(-1px, 2.5px) rotate(-0.4deg);
+            }
+
+            53% {
+                transform: translate(2.5px, -1.5px) rotate(0.6deg);
+            }
+
+            62% {
+                transform: translate(-2px, -2px) rotate(-0.7deg);
+            }
+
+            71% {
+                transform: translate(1.5px, 1px) rotate(0.5deg);
+            }
+
+            80% {
+                transform: translate(-0.5px, -1.5px) rotate(-0.3deg);
+            }
+
+            90% {
+                transform: translate(2px, 0.5px) rotate(0.6deg);
+            }
+        }
+
+        @keyframes pearl-shadow-jitter {
+
+            0%,
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+
+            50% {
+                transform: translateX(-50%) scale(0.94);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .pearl,
+            .pearl::before {
+                animation: none;
+            }
+        }
+
         h1 {
             margin: 0;
             font-size: clamp(38px, 8vw, 72px);
@@ -106,6 +225,7 @@
     <p class="mark">@pearl.jitter</p>
 
     <div class="stage">
+        <div class="pearl" aria-hidden="true"></div>
         <h1>pearl jitter</h1>
         <p>Architecture and interactive work, arranged by abstraction, scale and tone.</p>
         <a class="enter" href="FOLDER/pc.html">
